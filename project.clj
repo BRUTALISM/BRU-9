@@ -1,8 +1,8 @@
 (defproject bru-9 "0.1.0-SNAPSHOT"
-  :description "FIXME: write this!"
-  :url "http://example.com/FIXME"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :description "An alternative renderer for the web."
+  :url "http://brutalism.rs"
+  :license {:name "GPLv3 License"
+            :url "http://www.gnu.org/licenses/gpl-3.0.txt"}
 
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.7.228"]
