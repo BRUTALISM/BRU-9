@@ -4,17 +4,19 @@ An alternative renderer for the web.
 
 ## Overview
 
-This project is currently in very early stages of conceptualization and development – its shape is still being determined. Follow [@brtlsm](https://twitter.com/brtlsm) and/or the development updates on [BRUTALISM's website](http://brutalism.rs).
+This project is currently in very early stages of conceptualization and
+development – its shape is still being determined. Follow
+[@brtlsm](https://twitter.com/brtlsm) and/or the development updates on
+[BRUTALISM's website](http://brutalism.rs).
 
 ## Setup
 
 To get an interactive development environment run:
 
-    rlwrap lein figwheel
+    lein figwheel
 
-To run in LightTable, run the above command and open a new _LightTable UI_
-connection from inside LightTable. After this, evaluate any line in any `.cljs`
-file (Cmd+Enter) and LightTable will automatically open a new browser tab and
+To run in LightTable, evaluate any line in any `.cljs` file (Cmd+Enter) and
+LightTable will automatically open a new browser tab and
 connect to the REPL.
 
 To manually connect to the REPL, open your browser at
