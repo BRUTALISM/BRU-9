@@ -4,6 +4,6 @@
             [cljs.core.async :refer [<!]]))
 
 (defn get-url [url callback]
-  (go (let [req-chan (http/get "http://brutalism.rs")
+  (go (let [req-chan (http/get url)
             response (<! req-chan)]
         (callback response))))

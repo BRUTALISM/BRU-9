@@ -16,7 +16,7 @@
   [response]
   (let [zipped (parse/zip-html (:body response))
         partial-meshes (map gtag/partial-mesh (parse/depth-seq zipped))
-        mesh (m/build-mesh partial-meshes)
+        mesh (reduce m/merge-meshes m/empty-mesh partial-meshes)
         three-mesh (m/three-mesh mesh)
         scene (:scene @*state*)]
     (.add scene three-mesh)))
@@ -27,11 +27,21 @@
   [urls]
   (doseq [url urls] (req/get-url url process-response)))
 
+(defn clear-scene [scene]
+  (set! (.-children scene) #js []))
+
+;; Scene setup & main loop
+
 (defn setup [initial-context]
   (let [scene (:scene initial-context)]
     (reset! *state* (assoc @*state* :scene scene))
     (process-urls (:urls config))
     initial-context))
+
+(defn reload [context]
+  (let [scene (:scene context)]
+    (clear-scene scene)
+    (process-urls (:urls config))))
 
 (defn animate [context]
   (let []

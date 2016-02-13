@@ -9,6 +9,7 @@
 (def sketch-configs {:r01 {:setup-fn r01/setup
                            :animate-fn r01/animate}
                      :expanse {:setup-fn expanse/setup
+                               :reload-fn expanse/reload
                                :animate-fn expanse/animate}})
 (def active-sketch-config (:expanse sketch-configs))
 
@@ -92,10 +93,15 @@
     ;; Run sketch-specific setup fn
     (reset! context ((:setup-fn active-sketch-config) @context))))
 
+(defn reload []
+  (if-let [reload-fn (:reload-fn active-sketch-config)]
+    (reload-fn @context)))
+
 (defn run []
   (let [request-id (:request-id @context)]
     ;; Init
-    (if (not @started) (do (start) (reset! started true)))
+    (if (not @started)
+      (do (start) (reset! started true)))
 
     ;; Kill the old animate function, if it exists
     (if request-id (.cancelAnimationFrame js/window request-id))
