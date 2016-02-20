@@ -1,7 +1,7 @@
 (ns bru-9.parsing
   (:require [hickory.core :as hcore]
-           [hickory.zip :as hzip]
-           [clojure.zip :as zip]))
+            [hickory.zip :as hzip]
+            [clojure.zip :as zip]))
 
 (defn zip-html [html]
   (-> html
