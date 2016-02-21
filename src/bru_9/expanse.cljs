@@ -3,6 +3,7 @@
             [bru-9.parsing :as parse]
             [bru-9.geom.tags :as gtag]
             [bru-9.geom.mesh :as m]
+            [bru-9.interop :as i]
             [clojure.zip :as zip]))
 
 (def config {:urls ["http://brutalism.rs"
@@ -15,9 +16,10 @@
   mesh to the current Three.js scene"
   [response]
   (let [zipped (parse/zip-html (:body response))
-        partial-meshes (map gtag/partial-mesh (parse/depth-seq zipped))
+        limited-nodes (take 10 (parse/depth-seq zipped))
+        partial-meshes (map gtag/partial-mesh limited-nodes)
         mesh (reduce m/merge-meshes m/empty-mesh partial-meshes)
-        three-mesh (m/three-mesh mesh)
+        three-mesh (i/three-mesh mesh)
         scene (:scene @*state*)]
     (.add scene three-mesh)))
 

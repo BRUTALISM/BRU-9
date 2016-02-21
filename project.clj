@@ -8,7 +8,8 @@
                  [org.clojure/clojurescript "1.7.228"]
                  [org.clojure/core.async "0.2.374"]
                  [cljs-http "0.1.39"]
-                 [hickory "0.6.0"]]
+                 [hickory "0.6.0"]
+                 [thi.ng/geom "0.0.908"]]
 
   :plugins [[lein-cljsbuild "1.1.2"]
             [lein-figwheel "0.5.0-3"]]
