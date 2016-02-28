@@ -17,7 +17,7 @@
   [response]
   (let [zipped (parse/zip-html (:body response))
         limited-nodes (take 10 (parse/depth-seq zipped))
-        partial-meshes (map gtag/partial-mesh limited-nodes)
+        partial-meshes (map gtag/tag->mesh limited-nodes)
         mesh (reduce m/merge-meshes m/empty-mesh partial-meshes)
         three-mesh (i/three-mesh mesh)
         scene (:scene @*state*)]

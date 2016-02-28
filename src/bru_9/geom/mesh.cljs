@@ -1,31 +1,29 @@
 (ns bru-9.geom.mesh
-  (:require [bru-9.geom.vector3 :as v]))
+  (:require [thi.ng.geom.core.vector :as v]
+            [thi.ng.geom.basicmesh :as bm]
+            [bru-9.util :as u]))
 
-;; {:vertices [v1 v2 v3 ...]
-;;  :faces [[0 2 1] [3 2 1] ...]
-;;  :colors [c1 c2 c3 ...]}
+(def empty-mesh (bm/basic-mesh))
 
-(def empty-mesh
-  {:vertices []
-   :faces []
-   :colors []})
-
-(def tetrahedron
-  {:vertices [(v/Vector3. -1 0 -1)
-              (v/Vector3. 0 0 1)
-              (v/Vector3. 1 0 -1)
-              (v/Vector3. 0 2 0)]
-   :faces [[0 2 1]
-           [0 1 3]
-           [1 2 3]
-           [0 3 2]]})
+(defn make-mesh
+  "Makes a thi.ng mesh out of the given collection of vertices (verts) and
+  collection of triples representing face indices (idxs)"
+  ; TODO: Add more arities (colors, etc)
+  [verts idxs]
+  (reduce #(bm/add-face %1 (u/nths verts %2)) empty-mesh idxs))
 
 (defn merge-meshes
-  "Reducer function which takes two meshes and merges them into one"
+  "Reducer function which takes two thi.ng meshes and merges them into one"
+  ; TODO: Support for colors
   [m1 m2]
-  ; TODO: convert to thi.ng mesh merging - BasicMesh constructor already handles
-  ; multiple meshes as arguments
-  {:vertices (apply conj (:vertices m1) (:vertices m2))
-   :faces (apply conj (:faces m1) (map #(mapv (partial + (count (:faces m1))) %)
-                                       (:faces m2)))
-   :colors (apply conj (:colors m1) (:colors m2))})
+  (reduce bm/add-face m1 (:faces m2)))
+
+(def tetrahedron
+  (make-mesh [(v/vec3 -1 0 -1)
+              (v/vec3 0 0 1)
+              (v/vec3 1 0 -1)
+              (v/vec3 0 2 0)]
+             [[0 2 1]
+              [0 1 3]
+              [1 2 3]
+              [0 3 2]]))

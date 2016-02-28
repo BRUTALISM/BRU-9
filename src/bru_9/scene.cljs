@@ -34,9 +34,9 @@
     (set! (.-aspect camera) ratio)
     (set! (.-near camera) 0.1)
     (set! (.-far camera) 1000)
-    (set! (.-x (.-position camera)) 3)
-    (set! (.-y (.-position camera)) 1)
-    (set! (.-z (.-position camera)) 3)
+    (set! (.-x (.-position camera)) 30)
+    (set! (.-y (.-position camera)) 10)
+    (set! (.-z (.-position camera)) 30)
     (.lookAt camera (THREE.Vector3. 0 0 0))
     (.updateProjectionMatrix camera)))
 
