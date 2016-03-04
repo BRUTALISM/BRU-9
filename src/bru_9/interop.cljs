@@ -12,7 +12,6 @@
 (defn to-face3
   "Converts a given triple into a THREE.Face3"
   [t]
-  ; TODO: convert from thi.ng face
   (let [[v1 v2 v3] t]
     (THREE.Face3. v1 v2 v3)))
 
