@@ -8,5 +8,10 @@
   mesh."
   [tag]
   (let [shape m/tetrahedron
-        offset (v/randvec3 2)]
-    (g/translate shape offset)))
+        offset (v/randvec3 2)
+        translated (g/translate shape offset)]
+;;     (prn shape)
+;;     (prn translated)
+;;     translated
+    shape
+    ))

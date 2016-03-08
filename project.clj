@@ -9,7 +9,9 @@
                  [org.clojure/core.async "0.2.374"]
                  [cljs-http "0.1.39"]
                  [hickory "0.6.0"]
-                 [thi.ng/geom "0.0.908"]]
+                 [thi.ng/geom "0.0.908"]
+                 [thi.ng/color "1.0.1"]
+                 [thi.ng/typedarrays "0.1.2"]]
 
   :plugins [[lein-cljsbuild "1.1.2"]
             [lein-figwheel "0.5.0-3"]]
@@ -32,6 +34,7 @@
                            :asset-path "js/compiled/out"
                            :output-to "resources/public/js/compiled/bru_9.js"
                            :output-dir "resources/public/js/compiled/out"
+                           :source-map true
                            :source-map-timestamp true}}
                ;; This next build is an compressed minified build for
                ;; production. You can build this with:

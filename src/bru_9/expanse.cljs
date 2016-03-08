@@ -6,8 +6,7 @@
             [bru-9.interop :as i]
             [clojure.zip :as zip]))
 
-(def config {:urls ["http://brutalism.rs"
-                    "http://creativeapplications.net"]})
+(def config {:urls ["http://creativeapplications.net"]})
 
 (defonce *state* (atom {}))
 
@@ -16,7 +15,7 @@
   mesh to the current Three.js scene"
   [response]
   (let [zipped (parse/zip-html (:body response))
-        limited-nodes (take 10 (parse/depth-seq zipped))
+        limited-nodes (take 3 (parse/depth-seq zipped))
         partial-meshes (map gtag/tag->mesh limited-nodes)
         mesh (reduce m/merge-meshes m/empty-mesh partial-meshes)
         three-mesh (i/three-mesh mesh)
