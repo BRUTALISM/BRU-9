@@ -2,7 +2,7 @@
   (:require [bru-9.requests :as req]
             [bru-9.parsing :as parse]
             [bru-9.geom.tags :as gtag]
-            [bru-9.geom.mesh :as m]
+            [thi.ng.geom.webgl.glmesh :as glm]
             [bru-9.interop :as i]
             [clojure.zip :as zip]))
 
@@ -16,8 +16,8 @@
   [response]
   (let [zipped (parse/zip-html (:body response))
         limited-nodes (take 3 (parse/depth-seq zipped))
-        partial-meshes (map gtag/tag->mesh limited-nodes)
-        mesh (reduce m/merge-meshes m/empty-mesh partial-meshes)
+        acc (glm/gl-mesh 500 #{:col})
+        mesh (reduce gtag/tag->mesh acc limited-nodes)
         three-mesh (i/three-mesh mesh)
         scene (:scene @*state*)]
     (.add scene three-mesh)))

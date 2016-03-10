@@ -6,57 +6,15 @@
             [thi.ng.color.core :as c]
             [bru-9.util :as u]))
 
-(defn to-vector3
-  "Converts a Vector3 into a THREE.Vector3."
-  [v3]
-  (THREE.Vector3. (:x v3) (:y v3) (:z v3)))
-
-(defn to-face3
-  "Converts a given triple into a THREE.Face3."
-  [t]
-  (let [[v1 v2 v3] t]
-    (THREE.Face3. v1 v2 v3)))
-
-(defn face-indices
-  "Returns a collection of triples representing mesh faces as triangle indices
-  w/ regard to the given sequence of vertices. (thi.ng's mesh vertices are in a
-  hash map, so an ordered vertex sequence needs to be supplied in order for
-  indexes to have any meaning.)"
-  [mesh vertices]
-  (let [faces (g/faces mesh)
-        face-indices (fn [face] (map #(u/first-index vertices %) face))]
-    (map face-indices faces)))
-
-(defn add-colors
-  "Adds the given vertex color array to the given THREE.Geometry, and returns a
-  THREE.BufferGeometry object. The colors are assumed to be thi.ng colors."
-  [geom colors]
-  (let [buffer-geom (THREE.BufferGeometry.)
-        components [c/red c/green c/blue]
-        get-components (fn [c] (map #(% c) components))
-        mapped-colors (mapcat get-components colors)
-        color-buf (ta/float32 mapped-colors)]
-;;     (prn (str "MAPPED COLORS: " mapped-colors))
-;;     (prn (str "GEOMETRY: " geom))
-    (.fromGeometry buffer-geom geom)
-    (.addAttribute buffer-geom "color"
-                   (THREE.BufferAttribute. color-buf (count components)))
-    buffer-geom))
-
-(defn to-geometry
-  "Creates a Three.js Geometry out of the given mesh."
+(defn to-buffergeometry
+  "Converts a thi.ng GLMesh into a THREE.BufferGeometry."
   [mesh]
-  (let [vs (into [] (g/vertices mesh))
-        vertices (map to-vector3 vs)
-        faces (map to-face3 (face-indices mesh vs))
-        colors (get-in mesh [:attribs :colors])
-        geometry (THREE.Geometry.)]
-;;     (prn (str (count vertices) " =? " (count colors)))
-    (doseq [v vertices] (.push (.-vertices geometry) v))
-    (doseq [f faces] (.push (.-faces geometry) f))
-    (if colors
-      (add-colors geometry colors)
-      geometry)))
+  (let [buffer-geom (THREE.BufferGeometry.)]
+    (.addAttribute buffer-geom "position"
+                   (THREE.BufferAttribute. (:vertices mesh) 3))
+    (.addAttribute buffer-geom "color"
+                   (THREE.BufferAttribute. (:cols mesh) 4))
+    buffer-geom))
 
 ; FIXME: Temporary, for three-mesh below, shouldn't be in this namespace at all
 (defn random-vector [extent]
@@ -70,7 +28,7 @@
   (let [material-properties #js {;:color 0xf21d6b
                                  :shading js/THREE.FlatShading
                                  :vertexColors js/THREE.VertexColors}
-        geometry (to-geometry mesh)
+        geometry (to-buffergeometry mesh)
         material (THREE.MeshBasicMaterial. material-properties)
         mesh (THREE.Mesh. geometry material)
         position (random-vector 1.0)]
