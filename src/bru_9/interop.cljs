@@ -27,7 +27,8 @@
   ; FIXME: Implement properly.
   (let [material-properties #js {;:color 0xf21d6b
                                  :shading js/THREE.FlatShading
-                                 :vertexColors js/THREE.VertexColors}
+                                 :vertexColors js/THREE.VertexColors
+                                 :side js/THREE.DoubleSide}
         geometry (to-buffergeometry mesh)
         material (THREE.MeshBasicMaterial. material-properties)
         mesh (THREE.Mesh. geometry material)

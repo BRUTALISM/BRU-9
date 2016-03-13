@@ -6,7 +6,7 @@
             [bru-9.interop :as i]
             [clojure.zip :as zip]))
 
-(def config {:urls ["http://creativeapplications.net"]})
+(def config {:urls ["http://google.com"]})
 
 (defonce *state* (atom {}))
 
@@ -15,8 +15,8 @@
   mesh to the current Three.js scene"
   [response]
   (let [zipped (parse/zip-html (:body response))
-        limited-nodes (take 3 (parse/depth-seq zipped))
-        acc (glm/gl-mesh 500 #{:col})
+        limited-nodes (take 20 (parse/depth-seq zipped))
+        acc (glm/gl-mesh 65536 #{:col})
         mesh (reduce gtag/tag->mesh acc limited-nodes)
         three-mesh (i/three-mesh mesh)
         scene (:scene @*state*)]
