@@ -9,7 +9,7 @@
                  [org.clojure/core.async "0.2.374"]
                  [cljs-http "0.1.39"]
                  [hickory "0.6.0"]
-                 [thi.ng/geom "0.0.968"]
+                 [thi.ng/geom "0.0.997"]
                  [thi.ng/color "1.1.0-SNAPSHOT"]
                  [thi.ng/typedarrays "0.1.2"]
                  [thi.ng/math "0.2.0-SNAPSHOT"]]
