@@ -1,6 +1,6 @@
 (ns bru-9.r01
   (:require [bru-9.util :as u]
-            [bru-9.colors :as c]))
+            [bru-9.color.core :as c]))
 
 ;; GUI init
 

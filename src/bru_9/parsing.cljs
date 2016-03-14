@@ -9,9 +9,6 @@
       hcore/as-hiccup
       hzip/hiccup-zip))
 
-;(def h "<a><b>1</b><b>2</b><b>3</b></a>")
-;(def hz (zip-html h))
-
 (defn depth-seq
   "Iterates depth-first through all DOM elements in the given zipped HTML zh,
   returning a loc at each position"
@@ -27,3 +24,10 @@
   ;; TODO: Implement.
   (let []
     ))
+
+;; -------------------
+
+;; (def h "<a><b>1</b><b>2</b><b>3</b></a>")
+;; (def hz (zip-html h))
+;; (map (comp first zip/node) (depth-seq hz))
+;; (str (first hz))

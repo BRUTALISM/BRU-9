@@ -1,4 +1,4 @@
-(ns bru-9.colors
+(ns bru-9.color.core
   (:require [thi.ng.color.core :as c]))
 
 (def palette

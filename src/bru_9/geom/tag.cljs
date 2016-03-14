@@ -1,12 +1,11 @@
-(ns bru-9.geom.tags
+(ns bru-9.geom.tag
   (:require [thi.ng.geom.core :as g]
             [thi.ng.geom.aabb :as a]
             [thi.ng.geom.core.vector :as v]
             [thi.ng.geom.attribs :as attr]
             [thi.ng.geom.types.utils.ptf :as ptf]
             [thi.ng.geom.circle :as circle]
-            [thi.ng.geom.webgl.glmesh :as glm]
-            [bru-9.colors :as c]))
+            [bru-9.color.core :as c]))
 
 (defn tag->mesh
   "Converts a given Hiccup node representing one DOM element into a mesh,

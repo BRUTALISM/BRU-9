@@ -1,7 +1,7 @@
 (ns bru-9.expanse
   (:require [bru-9.requests :as req]
             [bru-9.parsing :as parse]
-            [bru-9.geom.tags :as gtag]
+            [bru-9.geom.tag :as gtag]
             [thi.ng.geom.webgl.glmesh :as glm]
             [bru-9.interop :as i]
             [clojure.zip :as zip]))
