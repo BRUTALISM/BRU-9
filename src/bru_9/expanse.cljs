@@ -1,6 +1,6 @@
 (ns bru-9.expanse
   (:require [bru-9.requests :as req]
-            [bru-9.parsing :as parse]
+            [bru-9.parse :as parse]
             [bru-9.geom.tag :as gtag]
             [thi.ng.geom.webgl.glmesh :as glm]
             [bru-9.interop :as i]
@@ -14,8 +14,7 @@
   "Parses the given response, converts its DOM tree into a mesh, and adds the
   mesh to the current Three.js scene"
   [response]
-  (let [zipped (parse/zip-html (:body response))
-        limited-nodes (take 20 (parse/depth-seq zipped))
+  (let [limited-nodes (take 20 (parse/level-dom (:body response)))
         acc (glm/gl-mesh 65536 #{:col})
         mesh (reduce gtag/tag->mesh acc limited-nodes)
         three-mesh (i/three-mesh mesh)
