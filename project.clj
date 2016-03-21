@@ -9,17 +9,16 @@
                  [org.clojure/core.async "0.2.374"]
                  [cljs-http "0.1.39"]
                  [hickory "0.6.0"]
-                 [thi.ng/geom "0.0.1004"]
-                 [thi.ng/color "1.1.0-SNAPSHOT"]
-                 [thi.ng/typedarrays "0.1.2"]
-                 [thi.ng/math "0.2.0-SNAPSHOT"]]
+                 [thi.ng/geom "0.0.1046"]
+                 [thi.ng/color "1.1.1"]]
 
   :plugins [[lein-cljsbuild "1.1.2"]
             [lein-figwheel "0.5.0-3"]]
 
   :profiles {:dev {:dependencies [[com.cemerick/piggieback "0.2.1"]
                                   [org.clojure/tools.nrepl "0.2.11"]]
-                   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}}
+                   :repl-options {:nrepl-middleware
+                                  [cemerick.piggieback/wrap-cljs-repl]}}}
 
   :source-paths ["src"]
 
@@ -62,8 +61,8 @@
              ;; doesn't work for you just run your own server :)
              ;; :ring-handler hello_world.server/handler
 
-             ;; To be able to open files in your editor from the heads up display
-             ;; you will need to put a script on your path.
+             ;; To be able to open files in your editor from the heads up
+             ;; display you will need to put a script on your path.
              ;; that script will have to take a file path and a line number
              ;; ie. in  ~/bin/myfile-opener
              ;; #! /bin/sh
