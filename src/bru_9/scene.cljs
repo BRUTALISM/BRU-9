@@ -61,9 +61,9 @@
 
 (defn on-click []
   ;; temporary
-  (debug/line (thi.ng.geom.vector/randvec3 (rand 10))
-              (thi.ng.geom.vector/randvec3 (rand 10)))
-  )
+  (debug/line (thi.ng.geom.vector/randvec3 (+ 2 (rand 10)))
+              (thi.ng.geom.vector/randvec3 (+ 2 (rand 10)))
+              thi.ng.color.core/RED))
 
 (defn animate []
   (let [request-id (.requestAnimationFrame js/window animate)]
