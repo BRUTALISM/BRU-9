@@ -9,8 +9,9 @@
                  [org.clojure/core.async "0.2.374"]
                  [cljs-http "0.1.39"]
                  [hickory "0.6.0"]
-                 [thi.ng/geom "0.0.1046"]
-                 [thi.ng/color "1.1.1"]]
+                 [thi.ng/geom "0.0.1046"] ;; commit 80f4941
+                 [thi.ng/color "1.1.1"]
+                 [thi.ng/typedarrays "0.1.3"]]
 
   :plugins [[lein-cljsbuild "1.1.2"]
             [lein-figwheel "0.5.0-3"]]

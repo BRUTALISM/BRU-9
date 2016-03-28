@@ -1,6 +1,11 @@
 (ns bru-9.scene
+  (:require-macros
+   [cljs.core.async.macros :refer [go go-loop]])
   (:require [bru-9.r01 :as r01]
-            [bru-9.expanse :as expanse]))
+            [bru-9.expanse :as expanse]
+            [bru-9.debug :as debug]
+            [bru-9.interop :as interop]
+            [cljs.core.async :as async :refer [<! >! chan]]))
 
 ;; Each sketch has a couple of hooks that tie into the main loop defined in this
 ;; namespace. When you want to switch drawing to a different sketch, just change
@@ -49,7 +54,15 @@
     (.setViewport renderer 0 0 width height)
     (set-camera-params)))
 
+(defn debug-loop []
+  (go-loop []
+           (.add (:scene @context) (interop/debug->mesh (<! debug/channel)))
+           (recur)))
+
 (defn on-click []
+  ;; temporary
+  (debug/line (thi.ng.geom.vector/randvec3 (rand 10))
+              (thi.ng.geom.vector/randvec3 (rand 10)))
   )
 
 (defn animate []
@@ -89,6 +102,8 @@
 
     (.addEventListener js/window "resize" on-resize)
     (.addEventListener js/window "mousedown" on-click)
+
+    (debug-loop)
 
     ;; Run sketch-specific setup fn
     (reset! context ((:setup-fn active-sketch-config) @context))))

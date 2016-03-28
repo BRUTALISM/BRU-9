@@ -13,14 +13,6 @@
   [acc tag]
   ; TODO: temporary
   (let [palette (c/random-palette)]
-;;     (-> (a/aabb 1)
-;;         (g/center)
-;;         ;;         (g/rotate-around-axis v/V3Y (rand 3.14))
-;;         (g/translate (v/randvec3 1.5))
-;;         (g/as-mesh
-;;          {:mesh    acc
-;;           :attribs {:col (->> (take 6 (repeatedly #(rand-nth palette)))
-;;                               (attr/const-face-attribs))}}))
     (-> (take 3 (repeatedly #(v/randvec3 (rand 10))))
         (ptf/sweep-mesh
          (g/vertices (circle/circle 2) 5)

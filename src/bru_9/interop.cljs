@@ -4,6 +4,7 @@
   (:require [thi.ng.geom.core :as g]
             [thi.ng.typedarrays.core :as ta]
             [thi.ng.color.core :as c]
+            [thi.ng.typedarrays.core :as ta]
             [bru-9.util :as u]))
 
 (defn to-buffergeometry
@@ -39,3 +40,13 @@
     (set! (.-y (.-position mesh)) (.-y position))
     (set! (.-z (.-position mesh)) (.-z position))
     mesh))
+
+(defn debug->mesh [d]
+  (let [material-properties #js {:color (-> d :color c/as-int32 deref)}
+        material (THREE.LineBasicMaterial. material-properties)
+        geometry (THREE.BufferGeometry.)
+        pos (THREE.BufferAttribute.
+             (ta/float32 (mapcat #(vector (:x %) (:y %) (:z %)) (:geom d))) 3)
+        line (THREE.Line. geometry material)]
+    (.addAttribute geometry "position" pos)
+    line))
