@@ -20,8 +20,7 @@
 (defn three-mesh
   "Builds a Three.js mesh object out of the given mesh."
   [mesh]
-  (let [material-properties #js {;:color 0xf21d6b
-                                 :shading js/THREE.FlatShading
+  (let [material-properties #js {:shading js/THREE.FlatShading
                                  :vertexColors js/THREE.VertexColors
                                  :side js/THREE.DoubleSide}
         geometry (to-buffergeometry mesh)

@@ -38,4 +38,5 @@ get live reloading, nor a REPL.
 
 Copyright © 2016 BRUTALISM
 
-Distributed under the GPLv3 license. See LICENSE for details.
+Distributed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+International license. See LICENSE for details.
