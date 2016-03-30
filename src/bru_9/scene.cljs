@@ -1,6 +1,6 @@
 (ns bru-9.scene
   (:require-macros
-   [cljs.core.async.macros :refer [go]])
+   [cljs.core.async.macros :refer [go alt!]])
   (:require [bru-9.r01 :as r01]
             [bru-9.expanse :as expanse]
             [bru-9.debug :as debug]
@@ -86,14 +86,22 @@
          (recur))))))
 
 (defn mouse-loop []
-  (let [mouse-chan (event-chan canvas "mousedown")]
+  (let [click-chan (event-chan canvas "mousedown")
+        move-chan (event-chan canvas "mousemove")
+        end-chan (async/merge [(event-chan canvas "mouseout")
+                               (event-chan canvas "mouseleave")
+                               (event-chan canvas "mouseup")])
+        random-line #(debug/line (thi.ng.geom.vector/randvec3 (+ 2 (rand 10)))
+                                 (thi.ng.geom.vector/randvec3 (+ 2 (rand 10)))
+                                 thi.ng.color.core/RED)]
     (go
      (loop []
-       (let [event (<! mouse-chan)]
-         ;; temporary
-         (debug/line (thi.ng.geom.vector/randvec3 (+ 2 (rand 10)))
-                     (thi.ng.geom.vector/randvec3 (+ 2 (rand 10)))
-                     thi.ng.color.core/RED)
+       (let [[_ ch] (async/alts! [click-chan move-chan end-chan])]
+         (if (= ch click-chan)
+           (loop []
+             (alt!
+              move-chan ([_] (do (random-line) (recur)))
+              end-chan true)))
          (recur))))))
 
 (defn animate []
