@@ -1,7 +1,7 @@
 (ns bru-9.debug
   (:require-macros
    [cljs.core.async.macros :refer [go]])
-  (:require [cljs.core.async :as async :refer [<! >! chan]]
+  (:require [cljs.core.async :as async :refer [>! chan]]
             [thi.ng.geom.core :as g]
             [thi.ng.geom.line :as l]
             [thi.ng.color.core :as c]))

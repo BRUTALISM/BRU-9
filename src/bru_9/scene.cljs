@@ -5,7 +5,8 @@
             [bru-9.expanse :as expanse]
             [bru-9.debug :as debug]
             [bru-9.interop :as interop]
-            [cljs.core.async :as async :refer [<! >! chan]]))
+            [cljs.core.async :as async :refer [<! >!]]
+            [thi.ng.geom.vector :as v]))
 
 ;; Each sketch has a couple of hooks that tie into the main loop defined in this
 ;; namespace. When you want to switch drawing to a different sketch, just change
@@ -45,25 +46,51 @@
     (.lookAt camera (THREE.Vector3. 0 0 0))
     (.updateProjectionMatrix camera)))
 
-(defn on-resize []
-  (let [renderer (:renderer @context)
-        width (.-innerWidth js/window)
-        height (.-innerHeight js/window)]
-    (set! (.-width canvas) width)
-    (set! (.-height canvas) height)
-    (.setViewport renderer 0 0 width height)
-    (set-camera-params)))
+(defn event-chan [elem event]
+  (let [c (async/chan)]
+    (.addEventListener elem event #(async/put! c %))
+    c))
+
+(defn resize-loop []
+  (let [resize-chan (event-chan js/window "resize")
+        renderer (:renderer @context)]
+    (go-loop []
+             (let [_ (<! resize-chan)
+                   width (.-innerWidth js/window)
+                   height (.-innerHeight js/window)]
+               (set! (.-width canvas) width)
+               (set! (.-height canvas) height)
+               (.setViewport renderer 0 0 width height)
+               (set-camera-params)
+               (recur)))))
 
 (defn debug-loop []
   (go-loop []
            (.add (:scene @context) (interop/debug->mesh (<! debug/channel)))
            (recur)))
 
-(defn on-click []
-  ;; temporary
-  (debug/line (thi.ng.geom.vector/randvec3 (+ 2 (rand 10)))
-              (thi.ng.geom.vector/randvec3 (+ 2 (rand 10)))
-              thi.ng.color.core/RED))
+(defn keyboard-loop []
+  (let [key-chan (event-chan js/window "keypress")]
+    (go-loop []
+             (let [event (<! key-chan)
+                   code (.-keyCode event)
+                   camera (:camera @context)]
+               (cond
+                (= code 119) (interop/move-camera camera (v/vec3 0 0 1))
+                (= code 115) (interop/move-camera camera (v/vec3 0 0 -1))
+                (= code 97) (interop/move-camera camera (v/vec3 -1 0 0))
+                (= code 100) (interop/move-camera camera (v/vec3 1 0 0)))
+               (recur)))))
+
+(defn mouse-loop []
+  (let [mouse-chan (event-chan canvas "mousedown")]
+    (go-loop []
+             (let [event (<! mouse-chan)]
+               ;; temporary
+               (debug/line (thi.ng.geom.vector/randvec3 (+ 2 (rand 10)))
+                           (thi.ng.geom.vector/randvec3 (+ 2 (rand 10)))
+                           thi.ng.color.core/RED)
+               (recur)))))
 
 (defn animate []
   (let [request-id (.requestAnimationFrame js/window animate)]
@@ -100,10 +127,10 @@
     (.set (.-position light) 1 1 1)
     (.add scene light)
 
-    (.addEventListener js/window "resize" on-resize)
-    (.addEventListener js/window "mousedown" on-click)
-
+    (resize-loop)
     (debug-loop)
+    (keyboard-loop)
+    (mouse-loop)
 
     ;; Run sketch-specific setup fn
     (reset! context ((:setup-fn active-sketch-config) @context))))

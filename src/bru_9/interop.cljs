@@ -27,7 +27,9 @@
         material (THREE.MeshBasicMaterial. material-properties)]
     (THREE.Mesh. geometry material)))
 
-(defn debug->mesh [d]
+(defn debug->mesh
+  "Converts the debug information map into a Three.js mesh ready for rendering."
+  [d]
   (let [material-properties #js {:color (-> d :color c/as-int32 deref)}
         material (THREE.LineBasicMaterial. material-properties)
         geometry (THREE.BufferGeometry.)
@@ -36,3 +38,11 @@
         line (THREE.Line. geometry material)]
     (.addAttribute geometry "position" pos)
     line))
+
+(defn move-camera
+  "Moves the camera in the given direction, in camera's coordinate system."
+  [camera direction]
+  (let [dir (THREE.Vector3. (:x direction) (:y direction) (:z direction))
+        rotation (.-rotation camera)]
+    (.applyEuler dir rotation)
+    (.add (.-position camera) dir)))
