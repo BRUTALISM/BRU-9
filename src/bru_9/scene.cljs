@@ -1,6 +1,6 @@
 (ns bru-9.scene
   (:require-macros
-   [cljs.core.async.macros :refer [go go-loop]])
+   [cljs.core.async.macros :refer [go]])
   (:require [bru-9.r01 :as r01]
             [bru-9.expanse :as expanse]
             [bru-9.debug :as debug]
@@ -54,43 +54,47 @@
 (defn resize-loop []
   (let [resize-chan (event-chan js/window "resize")
         renderer (:renderer @context)]
-    (go-loop []
-             (let [_ (<! resize-chan)
-                   width (.-innerWidth js/window)
-                   height (.-innerHeight js/window)]
-               (set! (.-width canvas) width)
-               (set! (.-height canvas) height)
-               (.setViewport renderer 0 0 width height)
-               (set-camera-params)
-               (recur)))))
+    (go
+     (loop []
+       (let [_ (<! resize-chan)
+             width (.-innerWidth js/window)
+             height (.-innerHeight js/window)]
+         (set! (.-width canvas) width)
+         (set! (.-height canvas) height)
+         (.setViewport renderer 0 0 width height)
+         (set-camera-params)
+         (recur))))))
 
 (defn debug-loop []
-  (go-loop []
-           (.add (:scene @context) (interop/debug->mesh (<! debug/channel)))
-           (recur)))
+  (go
+   (loop []
+     (.add (:scene @context) (interop/debug->mesh (<! debug/channel)))
+     (recur))))
 
 (defn keyboard-loop []
   (let [key-chan (event-chan js/window "keypress")]
-    (go-loop []
-             (let [event (<! key-chan)
-                   code (.-keyCode event)
-                   camera (:camera @context)]
-               (cond
-                (= code 119) (interop/move-camera camera (v/vec3 0 0 1))
-                (= code 115) (interop/move-camera camera (v/vec3 0 0 -1))
-                (= code 97) (interop/move-camera camera (v/vec3 -1 0 0))
-                (= code 100) (interop/move-camera camera (v/vec3 1 0 0)))
-               (recur)))))
+    (go
+     (loop []
+       (let [event (<! key-chan)
+             code (.-keyCode event)
+             camera (:camera @context)]
+         (cond
+          (= code 119) (interop/move-camera camera (v/vec3 0 0 1))
+          (= code 115) (interop/move-camera camera (v/vec3 0 0 -1))
+          (= code 97) (interop/move-camera camera (v/vec3 -1 0 0))
+          (= code 100) (interop/move-camera camera (v/vec3 1 0 0)))
+         (recur))))))
 
 (defn mouse-loop []
   (let [mouse-chan (event-chan canvas "mousedown")]
-    (go-loop []
-             (let [event (<! mouse-chan)]
-               ;; temporary
-               (debug/line (thi.ng.geom.vector/randvec3 (+ 2 (rand 10)))
-                           (thi.ng.geom.vector/randvec3 (+ 2 (rand 10)))
-                           thi.ng.color.core/RED)
-               (recur)))))
+    (go
+     (loop []
+       (let [event (<! mouse-chan)]
+         ;; temporary
+         (debug/line (thi.ng.geom.vector/randvec3 (+ 2 (rand 10)))
+                     (thi.ng.geom.vector/randvec3 (+ 2 (rand 10)))
+                     thi.ng.color.core/RED)
+         (recur))))))
 
 (defn animate []
   (let [request-id (.requestAnimationFrame js/window animate)]
