@@ -5,6 +5,7 @@
             [thi.ng.typedarrays.core :as ta]
             [thi.ng.color.core :as c]
             [thi.ng.typedarrays.core :as ta]
+            [thi.ng.math.core :as m]
             [bru-9.util :as u]))
 
 (defn to-buffergeometry
@@ -46,3 +47,11 @@
         rotation (.-rotation camera)]
     (.applyEuler dir rotation)
     (.add (.-position camera) dir)))
+
+(defn rotate-camera
+  "Rotates the camera using the given angles (in degrees) around X and Y axes."
+  [camera [rotx roty]]
+  (let [radx (* rotx m/RAD)
+        rady (* roty m/RAD)]
+    (.rotateOnAxis camera (THREE.Vector3. 0 1 0) radx)
+    (.rotateOnAxis camera (THREE.Vector3. 1 0 0) rady)))

@@ -6,7 +6,12 @@
             [bru-9.debug :as debug]
             [bru-9.interop :as interop]
             [cljs.core.async :as async :refer [<! >!]]
-            [thi.ng.geom.vector :as v]))
+            [thi.ng.geom.vector :as v]
+            [thi.ng.math.core :as m]))
+
+(def config
+  {:wasd-speed 0.5
+   :mouse-sensitivity 0.4})
 
 ;; Each sketch has a couple of hooks that tie into the main loop defined in this
 ;; namespace. When you want to switch drawing to a different sketch, just change
@@ -72,18 +77,26 @@
      (recur))))
 
 (defn keyboard-loop []
-  (let [key-chan (event-chan js/window "keypress")]
+  (let [keydown-chan (event-chan js/window "keydown")
+        keyup-chan (event-chan js/window "keyup")
+        dirmap {87 (v/vec3 0 0 -1)
+                83 (v/vec3 0 0 1)
+                65 (v/vec3 -1 0 0)
+                68 (v/vec3 1 0 0)}]
     (go
-     (loop []
-       (let [event (<! key-chan)
+     (loop [directions #{}]
+       (let [[event ch] (async/alts! [keydown-chan keyup-chan])
              code (.-keyCode event)
-             camera (:camera @context)]
-         (cond
-          (= code 119) (interop/move-camera camera (v/vec3 0 0 1))
-          (= code 115) (interop/move-camera camera (v/vec3 0 0 -1))
-          (= code 97) (interop/move-camera camera (v/vec3 -1 0 0))
-          (= code 100) (interop/move-camera camera (v/vec3 1 0 0)))
-         (recur))))))
+             camera (:camera @context)
+             new-directions (if-let [dir (get dirmap code)]
+                              (if (= ch keydown-chan)
+                                (conj directions dir)
+                                (disj directions dir))
+                              directions)
+             camera-movement (m/normalize
+                              (reduce m/+ (v/vec3 0) new-directions))]
+         (reset! context (assoc @context :camera-movement camera-movement))
+         (recur new-directions))))))
 
 (defn mouse-loop []
   (let [click-chan (event-chan canvas "mousedown")
@@ -96,17 +109,39 @@
                                  thi.ng.color.core/RED)]
     (go
      (loop []
-       (let [[_ ch] (async/alts! [click-chan move-chan end-chan])]
+       (let [[e1 ch] (async/alts! [click-chan move-chan end-chan])]
          (if (= ch click-chan)
-           (loop []
+           (loop [lastX (.-clientX e1)
+                  lastY (.-clientY e1)]
              (alt!
-              move-chan ([_] (do (random-line) (recur)))
+              move-chan
+              ([e2] (let [sens (:mouse-sensitivity config)
+                          x (.-clientX e2)
+                          y (.-clientY e2)
+                          xrot (* sens (- lastX x))
+                          yrot (* sens (- lastY y))]
+                      (reset! context
+                              (assoc @context :camera-rotation [xrot yrot]))
+                      (recur x y)))
               end-chan true)))
          (recur))))))
 
+(defn update-camera []
+  (let [direction (:camera-movement @context)]))
+
 (defn animate []
-  (let [request-id (.requestAnimationFrame js/window animate)]
+  (let [request-id (.requestAnimationFrame js/window animate)
+        camera (:camera @context)
+        movement (:camera-movement @context (v/vec3 0))
+        rotation (:camera-rotation @context [0 0])]
     (reset! context (conj @context {:request-id request-id}))
+
+    ;; Rotate the camera
+    (interop/rotate-camera camera rotation)
+    (reset! context (assoc @context :camera-rotation [0 0]))
+
+    ;; Move the camera
+    (interop/move-camera camera (m/* movement (:wasd-speed config)))
 
     ;; Call sketch-specific animate fn
     (reset! context ((:animate-fn active-sketch-config) @context))
