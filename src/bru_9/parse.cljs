@@ -5,8 +5,10 @@
   "Iterates level-order through each DOM element in the given HTML string,
   returning each node as a parsed structure in Hiccup format."
   [html]
-  (let [parsed (-> html hcore/parse hcore/as-hiccup first)]
-    (loop [level [], children [parsed]]
+  (let [parsed (-> html hcore/parse hcore/as-hiccup)
+        filtered (drop-while #(not (sequential? %)) parsed)]
+    (loop [level []
+           children [(first filtered)]]
       (if (empty? children)
         level
         (recur (into level children) (mapcat #(drop 2 %) children))))))
