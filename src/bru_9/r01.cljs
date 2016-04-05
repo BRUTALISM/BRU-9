@@ -29,7 +29,7 @@
     (repeatedly points-per-mesh #(random-vector extent))))
 
 (defn generate-mesh []
-  (let [material-properties #js {:color (rand-nth (:maller c/palette))
+  (let [material-properties #js {:color (rand-nth (:maller c/palettes))
                                  :shading js/THREE.FlatShading
                                  :transparent true
                                  :opacity 0.9}

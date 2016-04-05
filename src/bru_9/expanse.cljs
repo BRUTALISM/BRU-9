@@ -2,8 +2,10 @@
   (:require [bru-9.requests :as req]
             [bru-9.parse :as parse]
             [bru-9.geom.tag :as gtag]
-            [thi.ng.geom.webgl.glmesh :as glm]
             [bru-9.interop :as i]
+            [bru-9.color.core :as c]
+            [bru-9.color.infinite :as ci]
+            [thi.ng.geom.webgl.glmesh :as glm]
             [clojure.zip :as zip]))
 
 (def config {:urls ["http://google.com"]})
@@ -16,7 +18,11 @@
   [response]
   (let [limited-nodes (take 20 (parse/level-dom (:body response)))
         acc (glm/gl-mesh 65536 #{:col})
-        mesh (reduce gtag/tag->mesh acc limited-nodes)
+        palette (c/random-palette)
+        infinite-palette (ci/infinite-palette palette)
+        nodes-colors (map vector limited-nodes infinite-palette)
+        mesh (reduce #(gtag/tag->mesh %1 (first %2) (second %2))
+                     acc nodes-colors)
         three-mesh (i/three-mesh mesh)
         scene (:scene @*state*)]
     (.add scene three-mesh)))
