@@ -4,8 +4,7 @@
 (def palettes
   (let [convert (fn [cols] (map c/css cols))
         pals
-        {:noir ["#111111" "#222222" "#666666" "#aaaaaa" "#ffffff"]
-         :maller ["#f21d6b" "#f2358d" "#35d0f2" "#f29e38" "#f23535"]
+        {:maller ["#f21d6b" "#f2358d" "#35d0f2" "#f29e38" "#f23535"]
          :div ["#031431" "#3C7DB7" "#F7FFFF" "#D10013" "#FB0B00"]
          :2013_200 ["#181E3E" "#F14245" "#F39C3F" "#F8D230" "#743653" "#28234B"
                     "#592F51" "#432948" "#BF2F4C" "#332676"]

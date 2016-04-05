@@ -1,12 +1,15 @@
 (ns bru-9.color.infinite
-  (:require [bru-9.color.core :as c]))
+  (:require [bru-9.color.core :as c]
+            [thi.ng.color.core :as tc]
+            [thi.ng.math.core :as m]))
 
 (defn next-color
   "Returns the next color in sequence for the given base colors and params."
   [colors params]
-  (let []
+  (let [{:keys [hue saturation brightness]} params
+        base (rand-nth colors)]
     ;; Temporary
-    (rand-nth colors)))
+    (tc/random-analog base hue saturation brightness)))
 
 (defn infinite-palette
   "Creates a lazy infinite sequence of colors based off of the given base

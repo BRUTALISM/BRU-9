@@ -13,7 +13,7 @@
   ; TODO: temporary
   (-> (take 3 (repeatedly #(v/randvec3 (rand 10))))
       (ptf/sweep-mesh
-       (g/vertices (circle/circle 2) 5)
+       (g/vertices (circle/circle 1) 5)
        {:mesh acc
         :attribs {:col (-> color (repeat) (attr/const-face-attribs))}}))
   acc)

@@ -16,10 +16,11 @@
   "Parses the given response, converts its DOM tree into a mesh, and adds the
   mesh to the current Three.js scene"
   [response]
-  (let [limited-nodes (take 20 (parse/level-dom (:body response)))
+  (let [limited-nodes (take 30 (parse/level-dom (:body response)))
         acc (glm/gl-mesh 65536 #{:col})
         palette (c/random-palette)
-        infinite-palette (ci/infinite-palette palette)
+        infinite-palette (ci/infinite-palette palette {:hue 0.3
+                                                       :saturation 0.2})
         nodes-colors (map vector limited-nodes infinite-palette)
         mesh (reduce #(gtag/tag->mesh %1 (first %2) (second %2))
                      acc nodes-colors)
