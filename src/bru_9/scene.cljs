@@ -157,9 +157,9 @@
         scene (THREE.Scene.)
         camera (THREE.PerspectiveCamera. 0 0 0 0)
         light (THREE.PointLight. 0xffffff 1.5 20)
-
-        width (.-innerWidth js/window)
-        height (.-innerHeight js/window)]
+        pixel-ratio (or (.-devicePixelRatio js/window) 1.0)
+        width (* (.-innerWidth js/window) pixel-ratio)
+        height (* (.-innerHeight js/window) pixel-ratio)]
 
     (reset! context {:renderer renderer
                      :scene scene
