@@ -20,3 +20,17 @@
   "Returns the index of the first occurrence of element e in sequence s"
   [s e]
   (first (indices-of s e)))
+
+(defn construct-matrix
+  "Constructs an n-dimensional matrix with sizes for each dimension given by
+  the dimensions sequence. Each element in the matrix is initialized by running
+  the genfn function "
+  ([dimensions genfn] (construct-matrix dimensions genfn []))
+  ([dimensions genfn coords]
+   (let [dim (first dimensions)
+         current-range (range dim)
+         remaining (vec (rest dimensions))]
+     (if (empty? remaining)
+       (mapv #(genfn (conj coords %)) current-range)
+       (mapv #(construct-matrix remaining genfn (conj coords %))
+             current-range)))))
