@@ -1,14 +1,13 @@
 (ns bru-9.field.linear
   (:require [bru-9.field.core :as f]
             [bru-9.util :as u]
-            [thi.ng.geom.vector :as v]))
+            [thi.ng.math.core :as m]))
 
 (defrecord LinearField [vectors]
   f/PField
   (value-at
    [this coords]
-   ;; TODO: Interpolation.
-   (get-in (:vectors this) coords)))
+   (u/interpolate-in (:vectors this) coords m/+ m/*)))
 
 (defn linear-field
   "Creates an n-dimensional linear vector field. The number of dimensions is

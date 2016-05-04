@@ -21,10 +21,16 @@
   [s e]
   (first (indices-of s e)))
 
+(defn floor [x]
+  (.floor js/Math x))
+
+(defn ceil [x]
+  (.ceil js/Math x))
+
 (defn construct-matrix
   "Constructs an n-dimensional matrix with sizes for each dimension given by
   the dimensions sequence. Each element in the matrix is initialized by running
-  the genfn function "
+  the genfn function which is passed the current coordinates as parameters."
   ([dimensions genfn] (construct-matrix dimensions genfn []))
   ([dimensions genfn coords]
    (let [dim (first dimensions)
@@ -34,3 +40,39 @@
        (mapv #(genfn (conj coords %)) current-range)
        (mapv #(construct-matrix remaining genfn (conj coords %))
              current-range)))))
+
+(defn binary-combinations
+  "Returns a sequence of all binary combinations for the given width in bits.
+  For example: for width = 2, returns ((0 0) (0 1) (1 0) (1 1)); for width = 3,
+  returns ((0 0 0) (0 0 1) (0 1 0) ... (1 1 1))."
+  [width]
+  (let [w0 [[]]
+        w1 [[0] [1]]
+        w2 [[0 0] [0 1] [1 0] [1 1]]
+        w3 [[0 0 0] [0 0 1] [0 1 0] [0 1 1]
+            [1 0 0] [1 0 1] [1 1 0] [1 1 1]]
+        combinations [w0 w1 w2 w3]]
+    (if (and (< width (count combinations))
+             (>= width 0))
+      (get combinations width)
+      (throw (js/Error.
+              (str "lazy ass implementation, unsupported width: " width))))))
+
+(defn interpolate-in
+  "Behaves like get-in for n-dimensional matrices, where the index to get from
+  is a floating point number instead of an integer. The return value is
+  interpolated between all neighbouring points using linear interpolation, using
+  addfn and mulfn as addition and multiplication functions, respectively."
+  [matrix coords addfn mulfn]
+  (let [floors (map floor coords)
+        ceils (map ceil coords)
+        interleaved-limits (map vec (partition 2 (interleave ceils floors)))
+        ts (map #(- %1 %2) coords floors)
+        omts (map #(- 1 %) ts)
+        interleaved-ts (map vec (partition 2 (interleave ts omts)))
+        efn (fn [is01]
+              (mulfn (reduce mulfn (map #(get %1 %2) interleaved-ts is01))
+                     (get-in matrix
+                             (map #(get %1 %2) interleaved-limits is01))))
+        combinations (binary-combinations (count coords))]
+    (reduce addfn (map efn combinations))))
