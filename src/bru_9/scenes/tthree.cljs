@@ -1,4 +1,4 @@
-(ns bru-9.r01
+(ns bru-9.scenes.tthree
   (:require [bru-9.util :as u]
             [bru-9.color.core :as c]))
 

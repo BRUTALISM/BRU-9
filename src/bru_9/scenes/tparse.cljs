@@ -1,8 +1,9 @@
-(ns bru-9.expanse
+(ns bru-9.scenes.tparse
   (:require [bru-9.requests :as req]
             [bru-9.parse :as parse]
             [bru-9.geom.tag :as gtag]
             [bru-9.interop :as i]
+            [bru-9.util :as u]
             [bru-9.color.core :as c]
             [bru-9.color.infinite :as ci]
             [thi.ng.geom.webgl.glmesh :as glm]
@@ -16,7 +17,7 @@
   "Parses the given response, converts its DOM tree into a mesh, and adds the
   mesh to the current Three.js scene"
   [response]
-  (let [limited-nodes (take 30 (parse/level-dom (:body response)))
+  (let [limited-nodes (take 50 (parse/level-dom (:body response)))
         acc (glm/gl-mesh 65536 #{:col})
         palette (c/random-palette)
         infinite-palette (ci/infinite-palette palette {:hue 0.3
@@ -34,9 +35,6 @@
   [urls]
   (doseq [url urls] (req/get-url url process-response)))
 
-(defn clear-scene [scene]
-  (set! (.-children scene) #js []))
-
 ;; Scene setup & main loop
 
 (defn setup [initial-context]
@@ -47,7 +45,7 @@
 
 (defn reload [context]
   (let [scene (:scene context)]
-    (clear-scene scene)
+    (u/clear-scene scene)
     (process-urls (:urls config))))
 
 (defn animate [context]

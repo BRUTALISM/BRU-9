@@ -1,8 +1,9 @@
-(ns bru-9.scene
+(ns bru-9.scenes.core
   (:require-macros
    [cljs.core.async.macros :refer [go alt!]])
-  (:require [bru-9.r01 :as r01]
-            [bru-9.expanse :as expanse]
+  (:require [bru-9.scenes.tthree :as tthree]
+            [bru-9.scenes.tparse :as tparse]
+            [bru-9.scenes.tfield :as tfield]
             [bru-9.debug :as debug]
             [bru-9.interop :as interop]
             [cljs.core.async :as async :refer [<! >!]]
@@ -17,12 +18,15 @@
 ;; namespace. When you want to switch drawing to a different sketch, just change
 ;; active-sketch-config to use a different key (and don't forget to add
 ;; sketch-specific hooks to the sketch-config map).
-(def sketch-configs {:r01 {:setup-fn r01/setup
-                           :animate-fn r01/animate}
-                     :expanse {:setup-fn expanse/setup
-                               :reload-fn expanse/reload
-                               :animate-fn expanse/animate}})
-(def active-sketch-config (:expanse sketch-configs))
+(def sketch-configs {:tthree {:setup-fn tthree/setup
+                           :animate-fn tthree/animate}
+                     :tparse {:setup-fn tparse/setup
+                               :reload-fn tparse/reload
+                               :animate-fn tparse/animate}
+                     :tfield {:setup-fn tfield/setup
+                              :reload-fn tfield/reload
+                              :animate-fn tfield/animate}})
+(def active-sketch-config (:tfield sketch-configs))
 
 (enable-console-print!)
 
@@ -103,10 +107,7 @@
         move-chan (event-chan canvas "mousemove")
         end-chan (async/merge [(event-chan canvas "mouseout")
                                (event-chan canvas "mouseleave")
-                               (event-chan canvas "mouseup")])
-        random-line #(debug/line (thi.ng.geom.vector/randvec3 (+ 2 (rand 10)))
-                                 (thi.ng.geom.vector/randvec3 (+ 2 (rand 10)))
-                                 thi.ng.color.core/RED)]
+                               (event-chan canvas "mouseup")])]
     (go
      (loop []
        (let [[e1 ch] (async/alts! [click-chan move-chan end-chan])]

@@ -10,7 +10,7 @@
 ;; {:color thi.ng.color
 ;;  :geom [v1 v2 v3 ... (treated as a line strip, v1 -> v2, v2 -> v3, ...)]}
 
-(defonce channel (chan))
+(defonce channel (chan (async/buffer 65535)))
 
 (defn- put [d] (go (>! channel d)))
 
@@ -23,7 +23,8 @@
          :color color})))
 
 (defn arrow
-  "Puts a debug line between two given points onto the debug channel."
+  "Puts a debug arrow between two given points (p1 -> p2) onto the debug
+  channel."
   ([p1 p2] (arrow p1 p2 c/WHITE))
   ;; TODO: Implement properly.
   ([p1 p2 color] (line p1 p2 color)))

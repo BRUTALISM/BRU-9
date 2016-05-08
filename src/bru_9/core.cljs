@@ -1,5 +1,5 @@
 (ns bru-9.core
-  (:require [bru-9.scene :as scene]))
+  (:require [bru-9.scenes.core :as scene]))
 
 (enable-console-print!)
 

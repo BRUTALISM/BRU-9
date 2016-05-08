@@ -27,6 +27,15 @@
 (defn ceil [x]
   (.ceil js/Math x))
 
+(defn frac
+  "Returns the result of subtracting (floor x) from x – the part after the
+  decimal point."
+  [x]
+  (- x (floor x)))
+
+(defn clear-scene [scene]
+  (set! (.-children scene) #js []))
+
 (defn construct-matrix
   "Constructs an n-dimensional matrix with sizes for each dimension given by
   the dimensions sequence. Each element in the matrix is initialized by running
@@ -46,7 +55,7 @@
   For example: for width = 2, returns ((0 0) (0 1) (1 0) (1 1)); for width = 3,
   returns ((0 0 0) (0 0 1) (0 1 0) ... (1 1 1))."
   [width]
-  (let [w0 [[]]
+  (let [w0 []
         w1 [[0] [1]]
         w2 [[0 0] [0 1] [1 0] [1 1]]
         w3 [[0 0 0] [0 0 1] [0 1 0] [0 1 1]
@@ -71,8 +80,7 @@
         omts (map #(- 1 %) ts)
         interleaved-ts (map vec (partition 2 (interleave ts omts)))
         efn (fn [is01]
-              (mulfn (reduce mulfn (map #(get %1 %2) interleaved-ts is01))
-                     (get-in matrix
-                             (map #(get %1 %2) interleaved-limits is01))))
+              (mulfn (get-in matrix (map #(get %1 %2) interleaved-limits is01))
+                     (reduce * (map #(get %1 %2) interleaved-ts is01))))
         combinations (binary-combinations (count coords))]
     (reduce addfn (map efn combinations))))
