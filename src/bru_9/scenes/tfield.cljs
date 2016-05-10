@@ -40,10 +40,3 @@
 (defn animate [context]
   (let []
     context))
-
-;; (for [x (range 0 4 0.5)
-;;       y (range 0 4 0.5)
-;;       z (range 0 4 0.5)
-;;       :let [coord [x y z]
-;;             coordv (v/vec3 x y z)]]
-;;   (prn x))

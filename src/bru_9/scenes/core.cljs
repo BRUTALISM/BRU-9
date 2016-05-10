@@ -4,6 +4,7 @@
   (:require [bru-9.scenes.tthree :as tthree]
             [bru-9.scenes.tparse :as tparse]
             [bru-9.scenes.tfield :as tfield]
+            [bru-9.scenes.tptf :as tptf]
             [bru-9.debug :as debug]
             [bru-9.interop :as interop]
             [cljs.core.async :as async :refer [<! >!]]
@@ -19,14 +20,17 @@
 ;; active-sketch-config to use a different key (and don't forget to add
 ;; sketch-specific hooks to the sketch-config map).
 (def sketch-configs {:tthree {:setup-fn tthree/setup
-                           :animate-fn tthree/animate}
+                              :animate-fn tthree/animate}
                      :tparse {:setup-fn tparse/setup
-                               :reload-fn tparse/reload
-                               :animate-fn tparse/animate}
+                              :reload-fn tparse/reload
+                              :animate-fn tparse/animate}
                      :tfield {:setup-fn tfield/setup
                               :reload-fn tfield/reload
-                              :animate-fn tfield/animate}})
-(def active-sketch-config (:tfield sketch-configs))
+                              :animate-fn tfield/animate}
+                     :tptf {:setup-fn tptf/setup
+                            :reload-fn tptf/reload
+                            :animate-fn tptf/animate}})
+(def active-sketch-config (:tptf sketch-configs))
 
 (enable-console-print!)
 
