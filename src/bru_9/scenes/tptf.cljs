@@ -37,7 +37,7 @@
              (f/walk field (m/+ (v/vec3 hres hres hres) (v/randvec3)) hops mul)
              offsets)
         (ptf/sweep-mesh
-         (g/vertices (circle/circle 0.05) cr)
+         (g/vertices (circle/circle (rand 0.3)) cr)
          {:mesh acc
           :attribs {:col (-> color (repeat) (attr/const-face-attribs))}}))))
 

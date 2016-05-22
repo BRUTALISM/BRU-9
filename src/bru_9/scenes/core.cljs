@@ -1,7 +1,8 @@
 (ns bru-9.scenes.core
   (:require-macros
    [cljs.core.async.macros :refer [go alt!]])
-  (:require [bru-9.scenes.tthree :as tthree]
+  (:require [bru-9.scenes.tbezier :as tbezier]
+            [bru-9.scenes.tthree :as tthree]
             [bru-9.scenes.tparse :as tparse]
             [bru-9.scenes.tfield :as tfield]
             [bru-9.scenes.tptf :as tptf]
@@ -12,25 +13,28 @@
             [thi.ng.math.core :as m]))
 
 (def config
-  {:wasd-speed 0.05
+  {:wasd-speed 0.1
    :mouse-sensitivity 0.4})
 
 ;; Each sketch has a couple of hooks that tie into the main loop defined in this
 ;; namespace. When you want to switch drawing to a different sketch, just change
 ;; active-sketch-config to use a different key (and don't forget to add
 ;; sketch-specific hooks to the sketch-config map).
-(def sketch-configs {:tthree {:setup-fn tthree/setup
+(def sketch-configs {:three {:setup-fn tthree/setup
                               :animate-fn tthree/animate}
-                     :tparse {:setup-fn tparse/setup
+                     :parse {:setup-fn tparse/setup
                               :reload-fn tparse/reload
                               :animate-fn tparse/animate}
-                     :tfield {:setup-fn tfield/setup
+                     :field {:setup-fn tfield/setup
                               :reload-fn tfield/reload
                               :animate-fn tfield/animate}
-                     :tptf {:setup-fn tptf/setup
+                     :ptf {:setup-fn tptf/setup
                             :reload-fn tptf/reload
-                            :animate-fn tptf/animate}})
-(def active-sketch-config (:tptf sketch-configs))
+                            :animate-fn tptf/animate}
+                     :bezier {:setup-fn tbezier/setup
+                              :reload-fn tbezier/reload
+                              :animate-fn tbezier/animate}})
+(def active-sketch-config (:bezier sketch-configs))
 
 (enable-console-print!)
 

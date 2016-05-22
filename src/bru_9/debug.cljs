@@ -22,6 +22,15 @@
    (put {:geom (g/vertices (l/line3 p1 p2))
          :color color})))
 
+(defn line-strip
+  "Puts ps (a Vec3 vector) onto the debug channel as a debug line strip. The
+  line will be drawn as p1 -> p2, p2 -> p3, etc."
+  ([ps]
+   (line-strip ps c/WHITE))
+  ([ps color]
+   (put {:geom ps
+         :color color})))
+
 (defn arrow
   "Puts a debug arrow between two given points (p1 -> p2) onto the debug
   channel."

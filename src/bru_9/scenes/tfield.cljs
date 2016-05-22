@@ -10,15 +10,19 @@
 ;; Scene setup & main loop
 
 (def config {:field-resolution 5
-             :visualisation-step 0.25})
+             :visualisation-step 0.4})
 
 (defonce *state* (atom {}))
+
+(defn generator [offset coords]
+  (m/+ (v/randvec3) offset))
 
 (defn setup [initial-context]
   (let [scene (:scene initial-context)
         fres (:field-resolution config)
         step (:visualisation-step config)
-        field (fl/linear-field [fres fres fres] #(v/randvec3))
+        offset (v/randvec3)
+        field (fl/linear-field [fres fres fres] #(generator offset %))
         axis-range (range 0 (dec fres) step)]
     (reset! *state* {:scene scene
                      :field field})
