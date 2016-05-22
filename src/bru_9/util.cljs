@@ -93,7 +93,7 @@
   populated (non-sparse) sequence."
   [xs]
   (let [count-fn (fn [s dims]
-                   (if (seqable? s)
+                   (if (sequential? s)
                      (recur (first s) (conj dims (count s)))
                      dims))]
     (count-fn xs [])))

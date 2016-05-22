@@ -13,8 +13,8 @@
 (defn- field-generator [coords intensity direction]
   (m/+ direction (v/randvec3 intensity)))
 
-(def config {:num-splines 100
-             :num-hops 4
+(def config {:num-splines 200
+             :num-hops 10
              :offset-radius 0.2
              :field (fl/linear-field [5 5 5] #(field-generator % 1.0 v/V3Z))})
 
@@ -22,7 +22,13 @@
   "Returns a bezier spline resulting from walking a given field from the given
   start position, using the given number of hops."
   [field startpos hops]
-  (b/auto-spline3 (f/walk field startpos hops)))
+  (b/auto-spline3 (f/walk field startpos hops (+ 0.2 (rand 0.2)))))
+
+(defn- setup-camera [camera]
+  (set! (.-x (.-position camera)) 0)
+  (set! (.-y (.-position camera)) -14)
+  (set! (.-z (.-position camera)) 4)
+  (.lookAt camera (THREE.Vector3. 0 0 4)))
 
 (defn setup [initial-context]
   (let [{:keys [num-splines num-hops offset-radius field]} config
@@ -33,6 +39,7 @@
         splines (map #(spline-walk field % num-hops) centers)]
     (doseq [[spline color] (map vector splines colors)]
       (debug/line-strip (g/vertices spline) color))
+    (setup-camera (:camera initial-context))
     initial-context))
 
 (defn reload [context]

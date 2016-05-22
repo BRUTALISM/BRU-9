@@ -15,11 +15,11 @@
   the field value at a given position (startpos at first), adding the obtained
   value multiplied by mul to the position, and then repeating the process with
   the new position. This process is repeated hops times."
+  ([f startpos hops] (walk f startpos hops 1))
   ([f startpos hops mul]
    (loop [ps [], pos startpos, hopsleft hops]
     (if (> hopsleft 0)
       (recur (conj ps pos)
              (m/+ pos (m/* (value-at f pos) mul))
              (dec hopsleft))
-      ps)))
-  ([f startpos hops] (walk f startpos hops 1)))
+      ps))))
