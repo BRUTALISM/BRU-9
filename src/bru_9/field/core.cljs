@@ -5,7 +5,10 @@
   "Defines elementary flow-field operations."
   (value-at
    [f position]
-   "Returns field value at given position in 3D space."))
+   "Returns field value at given position in 3D space.")
+  (dimensions
+   [f]
+   "Returns the sequence of dimensions of the field along each axis."))
 
 (defn walk
   "Returns a sequence of field values whose positions are obtained by fetching

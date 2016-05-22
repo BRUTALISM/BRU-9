@@ -21,6 +21,9 @@
   [s e]
   (first (indices-of s e)))
 
+(defn abs [x]
+  (.abs js/Math x))
+
 (defn floor [x]
   (.floor js/Math x))
 
@@ -84,3 +87,13 @@
                      (reduce * (map #(get %1 %2) interleaved-ts is01))))
         combinations (binary-combinations (count coords))]
     (reduce addfn (map efn combinations))))
+
+(defn count-dimensions
+  "Recursively gets dimensions of the nested sequence. Assumes a fully
+  populated (non-sparse) sequence."
+  [xs]
+  (let [count-fn (fn [s dims]
+                   (if (seqable? s)
+                     (recur (first s) (conj dims (count s)))
+                     dims))]
+    (count-fn xs [])))

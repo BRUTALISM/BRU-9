@@ -7,7 +7,12 @@
   f/PField
   (value-at
    [this coords]
-   (u/interpolate-in (:vectors this) coords m/+ m/*)))
+   (let [dims (f/dimensions this)
+         wrapped-coords (map #(mod (u/abs %1) %2) coords (map dec dims))]
+     (u/interpolate-in (:vectors this) wrapped-coords m/+ m/*)))
+  (dimensions
+   [this]
+   (butlast (u/count-dimensions (:vectors this)))))
 
 (defn linear-field
   "Creates an n-dimensional linear vector field. The number of dimensions is

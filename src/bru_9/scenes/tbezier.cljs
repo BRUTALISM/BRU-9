@@ -12,8 +12,8 @@
 
 ;; Scene setup & main loop
 
-(def config {:num-splines 10
-             :num-hops 5
+(def config {:num-splines 40
+             :num-hops 10
              :offset-radius 0.2
              :field (fl/linear-field [5 5 5] #(v/randvec3))
              :center (v/vec3 2.5 2.5 2.5)})
@@ -26,10 +26,11 @@
 
 (defn setup [initial-context]
   (let [{:keys [num-splines num-hops offset-radius center field]} config
-        offsets (repeatedly num-splines
-                            #(m/+ center (v/randvec3 offset-radius)))
+        zdim (last (f/dimensions field))
+        zcenters (range 0 zdim (/ zdim num-splines))
+        centers (map #(m/+ (v/vec3 0 0 %) (v/randvec3 offset-radius)) zcenters)
         colors (ci/infinite-palette (c/random-palette))
-        splines (map #(spline-walk field % num-hops) offsets)]
+        splines (map #(spline-walk field % num-hops) centers)]
     (doseq [[spline color] (map vector splines colors)]
       (debug/line-strip (g/vertices spline) color))
     initial-context))
