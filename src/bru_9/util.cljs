@@ -21,20 +21,18 @@
   [s e]
   (first (indices-of s e)))
 
-(defn abs [x]
-  (.abs js/Math x))
-
-(defn floor [x]
-  (.floor js/Math x))
-
-(defn ceil [x]
-  (.ceil js/Math x))
+(defn abs [x] (.abs js/Math x))
+(defn floor [x] (.floor js/Math x))
+(defn ceil [x] (.ceil js/Math x))
 
 (defn frac
   "Returns the result of subtracting (floor x) from x – the part after the
   decimal point."
   [x]
   (- x (floor x)))
+
+(defn sin [x] (.sin js/Math x))
+(defn cos [x] (.cos js/Math x))
 
 (defn clear-scene [scene]
   (set! (.-children scene) #js []))
