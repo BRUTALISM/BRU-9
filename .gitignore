@@ -17,3 +17,4 @@ pom.xml.asc
 main.js
 .cljs_rhino_repl/
 resources/public/js/compiled
+/.idea

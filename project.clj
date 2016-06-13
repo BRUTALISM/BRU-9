@@ -12,7 +12,8 @@
                  [thi.ng/geom "0.0.1046"] ;; commit 80f4941
                  [thi.ng/color "1.1.1"]
                  [thi.ng/typedarrays "0.1.3"]
-                 [thi.ng/math "0.2.1"]]
+                 [thi.ng/math "0.2.1"]
+                 [figwheel-sidecar "0.5.0"]]
 
   :plugins [[lein-cljsbuild "1.1.2"]
             [lein-figwheel "0.5.0-3"]]
@@ -22,7 +23,7 @@
                    :repl-options {:nrepl-middleware
                                   [cemerick.piggieback/wrap-cljs-repl]}}}
 
-  :source-paths ["src"]
+  :source-paths ["src" "script"]
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
 
