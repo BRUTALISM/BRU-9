@@ -15,7 +15,7 @@
              :start-positions-walk-multiplier 0.02
              :curve-tightness 0.08
              :spline-hops 6
-             :offset-radius 0.25
+             :offset-radius 0.2
              :field-dimensions [5 5 5]
              :field-count 3
              :field-general-direction v/V3X
