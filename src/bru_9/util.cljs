@@ -95,3 +95,19 @@
                      (recur (first s) (conj dims (count s)))
                      dims))]
     (count-fn xs [])))
+
+(defn random-split
+  "Splits a given target integer into several random integers which all sum up
+  to target. The algorithm counts from zero upward towards target, and at each
+  step it performs a random roll telling it whether it should split the current
+  count and start a new one. The probability that the split occurs at each step
+  is controlled by the prob parameter."
+  [target prob]
+  (loop [i target, curr 0, ss []]
+    (if (> i 0)
+      (if (< (rand) prob)
+        (recur (dec i) 0 (conj ss (inc curr)))
+        (recur (dec i) (inc curr) ss))
+      (if (> curr 0)
+        (conj ss curr)
+        ss))))
