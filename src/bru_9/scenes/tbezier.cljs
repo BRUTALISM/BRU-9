@@ -10,19 +10,19 @@
             [thi.ng.geom.vector :as v]
             [thi.ng.math.core :as m]))
 
-(def config {:start-positions-hops 100
-             :start-positions-axis-following 1.0
-             :start-positions-walk-multiplier 0.05
-             :curve-tightness 0.05
-             :spline-hops 8
-             :offset-radius 0.3
+(def config {:start-positions-hops 200
+             :start-positions-axis-following 2.0
+             :start-positions-walk-multiplier 0.02
+             :curve-tightness 0.08
+             :spline-hops 6
+             :offset-radius 0.25
              :field-dimensions [5 5 5]
-             :field-directions [(m/normalize (m/+ (v/randvec3) v/V3X))
-                                (m/normalize (m/- (v/randvec3) v/V3X))]
-             :field-random-following 0.8
+             :field-count 3
+             :field-general-direction v/V3X
+             :field-random-following 1.2
              :mulfn-base 0.6
-             :mulfn-jump-chance 0.2
-             :mulfn-jump-intensity 2
+             :mulfn-jump-chance 0.1
+             :mulfn-jump-intensity 1.5
              :wander-probability 0.2})
 
 (defn- mulfn [_]
@@ -32,7 +32,23 @@
 (defn- field-generator [_ random-intensity direction]
   (m/+ direction (v/randvec3 random-intensity)))
 
-(defn- make-field [direction]
+(defn- make-directions [initial count]
+  (loop [dirs [initial], i count]
+    (if (> i 0)
+      (recur (conj dirs (m/- (last dirs))) (dec i))
+      (rest dirs))))
+
+(defn- make-fields []
+  (let [{:keys [field-count
+                field-general-direction
+                field-random-following
+                field-dimensions]} config
+        dirs (make-directions field-general-direction field-count)
+        fgen (fn [_ dir] (field-generator _ field-random-following dir))
+        constructor (fn [dir] (fl/linear-field field-dimensions #(fgen % dir)))]
+    (map constructor dirs)))
+
+(defn- make-start-positions-field [direction]
   (let [random-follow (:field-random-following config)]
     (fl/linear-field (:field-dimensions config)
                      #(field-generator % random-follow direction))))
@@ -43,8 +59,8 @@
 
 (def start-positions
   (->> (:start-positions-axis-following config)
-       (m/* v/V3X)
-       make-field
+       (m/* (:field-general-direction config))
+       make-start-positions-field
        make-start-positions))
 
 (defn- make-field-splines
@@ -73,11 +89,9 @@
   (.lookAt camera (THREE.Vector3. 2 0 0)))
 
 (defn setup [initial-context]
-  (let [fields (map make-field (:field-directions config))
-        palette (c/random-palette)]
-    (draw-fields fields (ci/infinite-palette palette))
-    (setup-camera (:camera initial-context))
-    initial-context))
+  (draw-fields (make-fields) (ci/infinite-palette (c/random-palette)))
+  (setup-camera (:camera initial-context))
+  initial-context)
 
 (defn reload [context]
   (let [scene (:scene context)]
