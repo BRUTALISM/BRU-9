@@ -4,9 +4,11 @@
             [thi.ng.geom.vector :as v]))
 
 (defn auto-spline3
-  [points tight]
+  "Calculates a Bezier spline from the given points. The bigger the tightness
+  parameter, the more the curve will look like a multi-segment straight line."
+  [points tightness]
   (->> points
-       (b/find-cpoints* v/vec3 tight)
+       (b/find-cpoints* v/vec3 tightness)
        (b/auto-spline* points)
        (thi.ng.geom.types.Bezier3.)))
 

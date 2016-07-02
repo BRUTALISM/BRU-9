@@ -10,17 +10,17 @@
             [thi.ng.geom.vector :as v]
             [thi.ng.math.core :as m]))
 
-(def config {:start-positions-hops 50
-             :start-positions-axis-following 0.9
-             :start-positions-random-following 1.3
-             :start-positions-walk-multiplier 0.04
-             :curve-tightness 0.08
+(def config {:start-positions-hops 100
+             :start-positions-axis-following 1.0
+             :start-positions-random-following 0.8
+             :start-positions-walk-multiplier 0.05
+             :curve-tightness 0.05
              :spline-hops 6
-             :offset-radius 0.1
+             :offset-radius 0.3
              :field-dimensions [5 5 5]
-             :field-directions [(m/normalize (m/+ (v/randvec3) v/V3Z))
-                                (m/normalize (m/- (v/randvec3) v/V3Z))]
-             :mulfn-base 0.5
+             :field-directions [(m/normalize (m/+ (v/randvec3) v/V3X))
+                                (m/normalize (m/- (v/randvec3) v/V3X))]
+             :mulfn-base 0.6
              :mulfn-jump-chance 0.2
              :mulfn-jump-intensity 2})
 
@@ -42,7 +42,7 @@
 
 (def start-positions
   (->> (:start-positions-axis-following config)
-       (m/* v/V3Z)
+       (m/* v/V3X)
        make-field
        make-start-positions))
 
@@ -62,10 +62,10 @@
       (debug/line-strip (g/vertices spline) color)))
 
 (defn- setup-camera [camera]
-  (set! (.-x (.-position camera)) 0)
-  (set! (.-y (.-position camera)) -30)
-  (set! (.-z (.-position camera)) 4)
-  (.lookAt camera (THREE.Vector3. 0 0 4)))
+  (set! (.-x (.-position camera)) 2)
+  (set! (.-y (.-position camera)) 0)
+  (set! (.-z (.-position camera)) 30)
+  (.lookAt camera (THREE.Vector3. 2 0 0)))
 
 (defn setup [initial-context]
   (let [fields (map make-field (:field-directions config))
