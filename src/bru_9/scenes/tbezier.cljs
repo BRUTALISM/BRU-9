@@ -1,17 +1,22 @@
 (ns bru-9.scenes.tbezier
   (:require [bru-9.color.core :as c]
             [bru-9.color.infinite :as ci]
-            [bru-9.debug :as debug]
             [bru-9.field.core :as f]
             [bru-9.field.linear :as fl]
             [bru-9.geom.bezier :as b]
             [bru-9.util :as u]
+            [bru-9.geom.ptf :as ptf]
             [thi.ng.geom.core :as g]
             [thi.ng.geom.vector :as v]
-            [thi.ng.math.core :as m]))
+            [thi.ng.math.core :as m]
+            [thi.ng.geom.webgl.glmesh :as glm]
+            [thi.ng.geom.circle :as cir]
+            [thi.ng.geom.attribs :as attr]
+            [bru-9.color.infinite :as ci]
+            [bru-9.interop :as i]))
 
 (def config {:background-color 0x111111
-             :start-positions-hops 200
+             :start-positions-hops 20
              :start-positions-axis-following 2.0
              :start-positions-walk-multiplier 0.02
              :curve-tightness 0.08
@@ -77,11 +82,27 @@
                            wander-probability)
          offset-positions)))
 
+(defn- random-radius [min max]
+  (+ min (* (rand) (- max min))))
+
 (defn- draw-fields
   "Draws the given field using the given infinite palette."
-  [fields palette]
-  (doseq [[spline color] (map vector (make-field-splines fields) palette)]
-      (debug/line-strip (g/vertices spline) color)))
+  [scene fields palette]
+  (let [mesh-acc (glm/gl-mesh 65536 #{:col})
+        ptf-spline
+        (fn [acc spline color]
+          (ptf/sweep-mesh (g/vertices spline)
+                          (repeatedly
+                            #(g/vertices (cir/circle 0.1) 6))
+                          {:mesh acc
+                           :attribs {:col (-> color
+                                              (repeat)
+                                              (attr/const-face-attribs))}}))
+        mesh (reduce #(ptf-spline %1 (first %2) (second %2))
+                     mesh-acc
+                     (map vector (make-field-splines fields) palette))
+        three-mesh (i/three-mesh mesh)]
+    (.add scene three-mesh)))
 
 (defn- setup-camera [camera]
   (set! (.-x (.-position camera)) 2)
@@ -90,7 +111,9 @@
   (.lookAt camera (THREE.Vector3. 2 0 0)))
 
 (defn setup [initial-context]
-  (draw-fields (make-fields) (ci/infinite-palette (c/random-palette)))
+  (draw-fields (:scene initial-context)
+               (make-fields)
+               (ci/infinite-palette (c/random-palette)))
   (setup-camera (:camera initial-context))
   (.setClearColor (:renderer initial-context) (:background-color config) 1.0)
   initial-context)
