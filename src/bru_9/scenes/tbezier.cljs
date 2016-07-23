@@ -15,8 +15,8 @@
             [bru-9.color.infinite :as ci]
             [bru-9.interop :as i]))
 
-(def config {:background-color 0x111111
-             :start-positions-hops 20
+(def config {:background-color 0xEEEEEE
+             :start-positions-hops 30
              :start-positions-axis-following 2.0
              :start-positions-walk-multiplier 0.02
              :curve-tightness 0.08
@@ -82,22 +82,35 @@
                            wander-probability)
          offset-positions)))
 
-(defn- random-radius [min max]
-  (+ min (* (rand) (- max min))))
+(def circles
+  (let [count 100
+        max-radius 0.1
+        circle-vertices 6
+        mfn
+        (fn [i]
+          (let [t (/ i (dec count))]
+            (g/vertices (cir/circle (* max-radius (u/sin (* t m/PI))))
+                        circle-vertices)))]
+    (map mfn (range count))))
 
 (defn- draw-fields
   "Draws the given field using the given infinite palette."
   [scene fields palette]
   (let [mesh-acc (glm/gl-mesh 65536 #{:col})
+        generate-profiles
+        (fn [count]
+          (let [mfn
+                (fn [i]
+                  (let [t (/ i (dec count))]
+                    (u/nth01 circles t)))]
+            (map mfn (range count))))
         ptf-spline
         (fn [acc spline color]
-          (ptf/sweep-mesh (g/vertices spline)
-                          (repeatedly
-                            #(g/vertices (cir/circle 0.1) 6))
-                          {:mesh acc
-                           :attribs {:col (-> color
-                                              (repeat)
-                                              (attr/const-face-attribs))}}))
+          (let [colors (attr/const-face-attribs (repeat color))
+                vertices (g/vertices spline)]
+            (ptf/sweep-mesh vertices
+                            (generate-profiles (count vertices))
+                            {:mesh acc, :attribs {:col colors}})))
         mesh (reduce #(ptf-spline %1 (first %2) (second %2))
                      mesh-acc
                      (map vector (make-field-splines fields) palette))

@@ -1,4 +1,5 @@
-(ns bru-9.util)
+(ns bru-9.util
+  (:require [thi.ng.math.core :as m]))
 
 (defn map2obj [cljmap]
   (let [out (js-obj)]
@@ -24,6 +25,7 @@
 (defn abs [x] (.abs js/Math x))
 (defn floor [x] (.floor js/Math x))
 (defn ceil [x] (.ceil js/Math x))
+(defn round [x] (.round js/Math x))
 
 (defn frac
   "Returns the result of subtracting (floor x) from x – the part after the
@@ -111,3 +113,12 @@
       (if (> curr 0)
         (conj ss curr)
         ss))))
+
+(defn nth01
+  "Gets from the given collection using the index in the [0, 1] range,
+  representing the percentage of the range of the given collection. Returns the
+  element which is closest to calculated position."
+  [coll t]
+  (let [t01 (m/clamp t 0 1)
+        i (round (* t01 (dec (count coll))))]
+    (nth coll i)))
