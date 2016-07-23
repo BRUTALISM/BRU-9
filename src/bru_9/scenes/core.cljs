@@ -34,7 +34,7 @@
                      :bezier {:setup-fn tbezier/setup
                               :reload-fn tbezier/reload
                               :animate-fn tbezier/animate}})
-(def active-sketch-config (:bezier sketch-configs))
+(def active-sketch-config (:ptf sketch-configs))
 
 (enable-console-print!)
 

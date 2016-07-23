@@ -4,11 +4,11 @@
             [bru-9.field.core :as f]
             [bru-9.field.linear :as fl]
             [bru-9.interop :as i]
+            [bru-9.geom.ptf :as ptf]
             [bru-9.util :as u]
             [thi.ng.geom.attribs :as attr]
             [thi.ng.geom.core :as g]
             [thi.ng.geom.vector :as v]
-            [thi.ng.geom.ptf :as ptf]
             [thi.ng.geom.circle :as circle]
             [thi.ng.geom.webgl.glmesh :as glm]
             [thi.ng.math.core :as m]))
@@ -37,7 +37,7 @@
              (f/walk field (m/+ (v/vec3 hres hres hres) (v/randvec3)) hops mul)
              offsets)
         (ptf/sweep-mesh
-         (g/vertices (circle/circle (rand 0.3)) cr)
+         (repeatedly #(g/vertices (circle/circle (rand 0.3)) cr))
          {:mesh acc
           :attribs {:col (-> color (repeat) (attr/const-face-attribs))}}))))
 
