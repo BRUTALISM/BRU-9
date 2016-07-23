@@ -10,7 +10,8 @@
             [thi.ng.geom.vector :as v]
             [thi.ng.math.core :as m]))
 
-(def config {:start-positions-hops 200
+(def config {:background-color 0x111111
+             :start-positions-hops 200
              :start-positions-axis-following 2.0
              :start-positions-walk-multiplier 0.02
              :curve-tightness 0.08
@@ -91,6 +92,7 @@
 (defn setup [initial-context]
   (draw-fields (make-fields) (ci/infinite-palette (c/random-palette)))
   (setup-camera (:camera initial-context))
+  (.setClearColor (:renderer initial-context) (:background-color config) 1.0)
   initial-context)
 
 (defn reload [context]

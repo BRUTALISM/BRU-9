@@ -31,7 +31,7 @@
 (defn element [acc color]
   (let [hops (:walk-length config)
         cr (:circle-resolution config)
-        mul (:walk-multiplier config)
+        mul (constantly (:walk-multiplier config))
         hres (/ (:field-dimension config) 2)]
     (-> (map #(m/+ %1 %2)
              (f/walk field (m/+ (v/vec3 hres hres hres) (v/randvec3)) hops mul)

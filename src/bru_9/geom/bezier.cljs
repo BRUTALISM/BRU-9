@@ -31,7 +31,7 @@
   explained in field.core/walk, and tightness in auto-spline3."
   [fields startpos hops mulfn tightness freq]
   (let [split-hops (u/random-split hops freq)
-        shuffled-fields (cycle (shuffle (seq fields)))
+        shuffled-fields (cycle (shuffle fields))
         fields-hops (map vector shuffled-fields split-hops)
         rfn (fn [points [field hops]]
               (let [start (last points)]
