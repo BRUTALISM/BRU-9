@@ -17,7 +17,7 @@
             [bru-9.interop :as i]))
 
 (def config {:background-color 0xEEEEEE
-             :start-positions-hops 30
+             :start-positions-hops 60
              :start-positions-axis-following 2.0
              :start-positions-walk-multiplier 0.02
              :curve-tightness 0.08
@@ -30,7 +30,8 @@
              :mulfn-base 0.6
              :mulfn-jump-chance 0.1
              :mulfn-jump-intensity 1.5
-             :wander-probability 0.2})
+             :wander-probability 0.2
+             :spline-resolution 10})
 
 (defn- mulfn [_]
   (let [{:keys [mulfn-base mulfn-jump-chance mulfn-jump-intensity]} config]
@@ -98,6 +99,7 @@
   "Draws the given field using the given infinite palette."
   [scene fields palette]
   (let [mesh-acc (glm/gl-mesh 65536 #{:col})
+        res (:spline-resolution config)
         generate-profiles
         (fn [count]
           (let [mfn
@@ -108,7 +110,7 @@
         ptf-spline
         (fn [acc spline color]
           (let [colors (attr/const-face-attribs (repeat color))
-                vertices (g/vertices spline)]
+                vertices (g/vertices spline res)]
             (ptf/sweep-mesh vertices
                             (generate-profiles (count vertices))
                             {:mesh acc, :attribs {:col colors}})))
