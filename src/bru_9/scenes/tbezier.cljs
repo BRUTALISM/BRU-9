@@ -30,7 +30,7 @@
              :mulfn-base 0.6
              :mulfn-jump-chance 0.08
              :mulfn-jump-intensity 1.5
-             :wander-probability 0.2
+             :wander-probability 0.15
              :spline-resolution 10
              :mesh-geometry-size 131070})
 
