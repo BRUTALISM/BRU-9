@@ -4,6 +4,7 @@
             [bru-9.field.core :as f]
             [bru-9.field.linear :as fl]
             [bru-9.geom.bezier :as b]
+            [bru-9.geom.brush :as br]
             [bru-9.util :as u]
             [bru-9.geom.ptf :as ptf]
             [thi.ng.geom.core :as g]
@@ -89,7 +90,7 @@
         mfn
         (fn [i]
           (let [t (/ i (dec count))]
-            (g/vertices (cir/circle (* max-radius (u/sin (* t m/PI))))
+            (g/vertices (cir/circle (br/two-sided-spikes t max-radius))
                         circle-vertices)))]
     (map mfn (range count))))
 
