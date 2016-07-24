@@ -16,6 +16,16 @@
             [bru-9.color.infinite :as ci]
             [bru-9.interop :as i]))
 
+(def brushes
+  {:spiky
+   (map #(br/two-sided-spikes (/ % 99) 0.1 5) (range 100))
+
+   :squares
+   (map #(br/random-squares 1.1) (range 100))
+
+   :sine
+   (map #(br/sine (/ % 99) 0.5 (rand m/TWO_PI) 5) (range 100))})
+
 (def config {:background-color 0xEEEEEE
              :start-positions-hops 120
              :start-positions-axis-following 2.0
@@ -32,7 +42,8 @@
              :mulfn-jump-intensity 1.5
              :wander-probability 0.15
              :spline-resolution 10
-             :mesh-geometry-size 131070})
+             :mesh-geometry-size 131070
+             :brush (:spiky brushes)})
 
 (defn- mulfn [_]
   (let [{:keys [mulfn-base mulfn-jump-chance mulfn-jump-intensity]} config]
@@ -85,28 +96,18 @@
                            wander-probability)
          offset-positions)))
 
-(def circles
-  (let [count 100
-        max-radius 0.1
-        circle-vertices 6
-        mfn
-        (fn [i]
-          (let [t (/ i (dec count))]
-            (g/vertices (cir/circle (br/two-sided-spikes t max-radius))
-                        circle-vertices)))]
-    (map mfn (range count))))
-
 (defn- draw-fields
   "Draws the given field using the given infinite palette."
   [scene fields palette]
   (let [mesh-acc (glm/gl-mesh (:mesh-geometry-size config) #{:col})
         res (:spline-resolution config)
+        brush (:brush config)
         generate-profiles
         (fn [count]
           (let [mfn
                 (fn [i]
                   (let [t (/ i (dec count))]
-                    (u/nth01 circles t)))]
+                    (u/nth01 brush t)))]
             (map mfn (range count))))
         ptf-spline
         (fn [acc spline color]
