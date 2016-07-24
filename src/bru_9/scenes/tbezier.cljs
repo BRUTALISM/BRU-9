@@ -17,7 +17,7 @@
             [bru-9.interop :as i]))
 
 (def config {:background-color 0xEEEEEE
-             :start-positions-hops 60
+             :start-positions-hops 120
              :start-positions-axis-following 2.0
              :start-positions-walk-multiplier 0.02
              :curve-tightness 0.08
@@ -28,10 +28,11 @@
              :field-general-direction v/V3X
              :field-random-following 1.2
              :mulfn-base 0.6
-             :mulfn-jump-chance 0.1
+             :mulfn-jump-chance 0.08
              :mulfn-jump-intensity 1.5
              :wander-probability 0.2
-             :spline-resolution 10})
+             :spline-resolution 10
+             :mesh-geometry-size 131070})
 
 (defn- mulfn [_]
   (let [{:keys [mulfn-base mulfn-jump-chance mulfn-jump-intensity]} config]
@@ -98,7 +99,7 @@
 (defn- draw-fields
   "Draws the given field using the given infinite palette."
   [scene fields palette]
-  (let [mesh-acc (glm/gl-mesh 65536 #{:col})
+  (let [mesh-acc (glm/gl-mesh (:mesh-geometry-size config) #{:col})
         res (:spline-resolution config)
         generate-profiles
         (fn [count]
