@@ -125,10 +125,10 @@
     (.add scene three-mesh)))
 
 (defn- setup-camera [camera]
-  (set! (.-x (.-position camera)) 2)
+  (set! (.-x (.-position camera)) 4)
   (set! (.-y (.-position camera)) 0)
-  (set! (.-z (.-position camera)) 30)
-  (.lookAt camera (THREE.Vector3. 2 0 0)))
+  (set! (.-z (.-position camera)) 12)
+  (.lookAt camera (THREE.Vector3. 4 0 0)))
 
 (defn setup [initial-context]
   (draw-fields (:scene initial-context)
