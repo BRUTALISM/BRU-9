@@ -1,7 +1,5 @@
 (ns bru-9.color.infinite
-  (:require [bru-9.color.core :as c]
-            [thi.ng.color.core :as tc]
-            [thi.ng.math.core :as m]))
+  (:require [thi.ng.color.core :as tc]))
 
 (defn next-color
   "Returns the next color in sequence for the given base colors and params."

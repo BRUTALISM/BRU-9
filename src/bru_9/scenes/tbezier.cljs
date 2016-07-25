@@ -11,7 +11,6 @@
             [thi.ng.geom.vector :as v]
             [thi.ng.math.core :as m]
             [thi.ng.geom.webgl.glmesh :as glm]
-            [thi.ng.geom.circle :as cir]
             [thi.ng.geom.attribs :as attr]
             [bru-9.color.infinite :as ci]
             [bru-9.interop :as i]))
@@ -27,23 +26,26 @@
    (map #(br/sine (/ % 99) 0.5 (rand m/TWO_PI) 5) (range 100))})
 
 (def config {:background-color 0xEEEEEE
-             :start-positions-hops 120
+             :start-positions-hops 200
              :start-positions-axis-following 2.0
              :start-positions-walk-multiplier 0.02
              :curve-tightness 0.08
-             :spline-hops 6
+             :spline-hops 4
              :offset-radius 0.2
              :field-dimensions [5 5 5]
              :field-count 3
              :field-general-direction v/V3X
              :field-random-following 1.2
              :mulfn-base 0.6
-             :mulfn-jump-chance 0.08
+             :mulfn-jump-chance 0.5
              :mulfn-jump-intensity 1.5
-             :wander-probability 0.15
-             :spline-resolution 10
+             :wander-probability 0.5
+             :spline-resolution 14
              :mesh-geometry-size 131070
-             :brush (:spiky brushes)})
+             :brush (:spiky brushes)
+             :infinite-params {:hue 0.1
+                               :saturation 0.1
+                               :brightness 0.0}})
 
 (defn- mulfn [_]
   (let [{:keys [mulfn-base mulfn-jump-chance mulfn-jump-intensity]} config]
@@ -92,8 +94,8 @@
                 wander-probability]} config
         offset-positions (map #(m/+ % (v/randvec3 offset-radius))
                               start-positions)]
-    (map #(b/spline-wander fields % spline-hops mulfn curve-tightness
-                           wander-probability)
+    (map #(b/spline-wander fields % (+ 2 (rand-int (- spline-hops 2))) mulfn
+                           curve-tightness wander-probability)
          offset-positions)))
 
 (defn- draw-fields
@@ -131,7 +133,8 @@
 (defn setup [initial-context]
   (draw-fields (:scene initial-context)
                (make-fields)
-               (ci/infinite-palette (c/random-palette)))
+               (ci/infinite-palette (c/random-palette)
+                                    (:infinite-params config)))
   (setup-camera (:camera initial-context))
   (.setClearColor (:renderer initial-context) (:background-color config) 1.0)
   initial-context)
