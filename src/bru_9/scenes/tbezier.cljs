@@ -145,7 +145,7 @@
 (defn- setup-camera [camera]
   (set! (.-x (.-position camera)) 5)
   (set! (.-y (.-position camera)) 0)
-  (set! (.-z (.-position camera)) 16)
+  (set! (.-z (.-position camera)) 20)
   (.lookAt camera (THREE.Vector3. 5 0 0)))
 
 (defn setup [initial-context]
