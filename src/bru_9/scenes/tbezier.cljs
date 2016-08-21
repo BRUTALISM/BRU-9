@@ -17,18 +17,22 @@
 
 (def brushes
   {:spiky
-   (map #(br/two-sided-spikes (/ % 99) 0.1 5) (range 100))
+   ;(map #(br/two-sided-spikes (/ % 99) 0.1 5) (range 100))
+   (map #(br/noise-spikes (/ % 99) 0.12 5) (range 100))
 
    :squares
    (map #(br/random-squares 1.1) (range 100))
 
    :sine
-   (map #(br/sine (/ % 99) 0.5 (rand m/TWO_PI) 5) (range 100))})
+   (map #(br/sine (/ % 99) 0.5 (rand m/TWO_PI) 5 1) (range 100))
+
+   :rotating-quad
+   (map #(br/rotating-quad (/ % 99) 0.4 (rand m/HALF_PI)) (range 100))})
 
 (def config {:background-color 0xEEEEEE
-             :start-positions-hops 200
+             :start-positions-hops 100
              :start-positions-axis-following 2.0
-             :start-positions-walk-multiplier 0.02
+             :start-positions-walk-multiplier 0.07
              :curve-tightness 0.08
              :spline-hops 4
              :offset-radius 0.2
@@ -42,9 +46,10 @@
              :wander-probability 0.5
              :spline-resolution 14
              :mesh-geometry-size 131070
-             :brush (:spiky brushes)
+             :brushes (vals (select-keys brushes [:rotating-quad
+                                                  :spiky]))
              :infinite-params {:hue 0.1
-                               :saturation 0.1
+                               :saturation 0.4
                                :brightness 0.0}})
 
 (defn- mulfn [_]
@@ -103,9 +108,9 @@
   [scene fields palette]
   (let [mesh-acc (glm/gl-mesh (:mesh-geometry-size config) #{:col})
         res (:spline-resolution config)
-        brush (:brush config)
+        brushes (:brushes config)
         generate-profiles
-        (fn [count]
+        (fn [count brush]
           (let [mfn
                 (fn [i]
                   (let [t (/ i (dec count))]
@@ -114,9 +119,10 @@
         ptf-spline
         (fn [acc spline color]
           (let [colors (attr/const-face-attribs (repeat color))
-                vertices (g/vertices spline res)]
+                vertices (g/vertices spline res)
+                brush (rand-nth brushes)]
             (ptf/sweep-mesh vertices
-                            (generate-profiles (count vertices))
+                            (generate-profiles (count vertices) brush)
                             {:mesh acc, :attribs {:col colors}})))
         mesh (reduce #(ptf-spline %1 (first %2) (second %2))
                      mesh-acc
@@ -127,7 +133,7 @@
 (defn- setup-camera [camera]
   (set! (.-x (.-position camera)) 4)
   (set! (.-y (.-position camera)) 0)
-  (set! (.-z (.-position camera)) 12)
+  (set! (.-z (.-position camera)) 16)
   (.lookAt camera (THREE.Vector3. 4 0 0)))
 
 (defn setup [initial-context]

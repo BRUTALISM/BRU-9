@@ -26,6 +26,7 @@
 (defn floor [x] (.floor js/Math x))
 (defn ceil [x] (.ceil js/Math x))
 (defn round [x] (.round js/Math x))
+(defn pow [x p] (.pow js/Math x p))
 
 (defn frac
   "Returns the result of subtracting (floor x) from x – the part after the
