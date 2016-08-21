@@ -38,7 +38,7 @@
    ;:noise-quad (sample-brush #(br/noise-quad % 0.4))
    })
 
-(def config {:background-color 0x000000
+(def config {:background-color 0xEEEEEE
              :start-positions-hops 160
              :start-positions-axis-following 2.0
              :start-positions-walk-multiplier 0.04
