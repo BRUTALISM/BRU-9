@@ -15,27 +15,29 @@
             [bru-9.color.infinite :as ci]
             [bru-9.interop :as i]))
 
+(defn sample-brush [brushfn]
+  (let [sample-count 100
+        bfn (fn [i] (brushfn (/ i (dec sample-count))))]
+    (map bfn (range sample-count))))
+
 (def brushes
-  {:spiky
-   ;(map #(br/two-sided-spikes (/ % 99) 0.1 5) (range 100))
-   (map #(br/noise-spikes (/ % 99) 0.12 5) (range 100))
-
-   :squares
-   (map #(br/random-squares 1.1) (range 100))
-
-   :sine
-   (map #(br/sine (/ % 99) 0.5 (rand m/TWO_PI) 5 1) (range 100))
-
-   :rotating-quad
-   (map #(br/rotating-quad (/ % 99) 0.4 (rand m/HALF_PI)) (range 100))})
+  {
+   :spiky24 (sample-brush #(br/noise-spikes % 0.24 5))
+   :spiky12 (sample-brush #(br/noise-spikes % 0.12 5))
+   :spiky6 (sample-brush #(br/noise-spikes % 0.06 5))
+   ;:sine (sample-brush #(br/sine % 0.5 (rand m/TWO_PI) 5 1))
+   ;:rotating-quad (sample-brush #(br/rotating-quad % 0.4 m/HALF_PI))
+   :noise-quad (sample-brush #(br/noise-quad % 0.36))
+   })
 
 (def config {:background-color 0xEEEEEE
              :start-positions-hops 100
              :start-positions-axis-following 2.0
              :start-positions-walk-multiplier 0.07
-             :curve-tightness 0.08
+             :curve-tightness-min 0.06
+             :curve-tightness-max 0.1
              :spline-hops 4
-             :offset-radius 0.2
+             :offset-radius 0.1
              :field-dimensions [5 5 5]
              :field-count 3
              :field-general-direction v/V3X
@@ -46,8 +48,7 @@
              :wander-probability 0.5
              :spline-resolution 14
              :mesh-geometry-size 131070
-             :brushes (vals (select-keys brushes [:rotating-quad
-                                                  :spiky]))
+             :brushes (vals brushes)
              :infinite-params {:hue 0.1
                                :saturation 0.4
                                :brightness 0.0}})
@@ -95,12 +96,15 @@
   [fields]
   (let [{:keys [spline-hops
                 offset-radius
-                curve-tightness
+                curve-tightness-min
+                curve-tightness-max
                 wander-probability]} config
         offset-positions (map #(m/+ % (v/randvec3 offset-radius))
                               start-positions)]
     (map #(b/spline-wander fields % (+ 2 (rand-int (- spline-hops 2))) mulfn
-                           curve-tightness wander-probability)
+                           (u/rand-range curve-tightness-min
+                                         curve-tightness-max)
+                           wander-probability)
          offset-positions)))
 
 (defn- draw-fields
@@ -131,10 +135,10 @@
     (.add scene three-mesh)))
 
 (defn- setup-camera [camera]
-  (set! (.-x (.-position camera)) 4)
+  (set! (.-x (.-position camera)) 5)
   (set! (.-y (.-position camera)) 0)
   (set! (.-z (.-position camera)) 16)
-  (.lookAt camera (THREE.Vector3. 4 0 0)))
+  (.lookAt camera (THREE.Vector3. 5 0 0)))
 
 (defn setup [initial-context]
   (draw-fields (:scene initial-context)

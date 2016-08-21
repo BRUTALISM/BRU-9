@@ -27,15 +27,17 @@
 (defn ceil [x] (.ceil js/Math x))
 (defn round [x] (.round js/Math x))
 (defn pow [x p] (.pow js/Math x p))
+(defn sin [x] (.sin js/Math x))
+(defn cos [x] (.cos js/Math x))
+
+(defn rand-range [min max]
+  (+ min (rand (- max min))))
 
 (defn frac
   "Returns the result of subtracting (floor x) from x – the part after the
   decimal point."
   [x]
   (- x (floor x)))
-
-(defn sin [x] (.sin js/Math x))
-(defn cos [x] (.cos js/Math x))
 
 (defn clear-scene [scene]
   (set! (.-children scene) #js []))
