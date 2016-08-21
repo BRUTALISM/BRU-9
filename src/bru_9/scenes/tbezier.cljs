@@ -22,19 +22,27 @@
 
 (def brushes
   {
-   :spiky24 (sample-brush #(br/noise-spikes % 0.24 5))
-   :spiky12 (sample-brush #(br/noise-spikes % 0.12 5))
-   :spiky6 (sample-brush #(br/noise-spikes % 0.06 5))
+   :sine2 (sample-brush #(br/sine % 0.02 m/PI 5 2))
+   :sine12 (sample-brush #(br/sine % 0.12 m/PI 5 2))
+   ;:sine20 (sample-brush #(br/sine % 0.2 m/PI 5 2))
+   :sine24 (sample-brush #(br/sine % 0.24 m/PI 5 2))
+   :sine56 (sample-brush #(br/sine % 0.32 m/PI 5 2))
+
+   ;:spiky40 (sample-brush #(br/two-sided-spikes % 0.4 5))
+   ;:spiky24 (sample-brush #(br/two-sided-spikes % 0.24 5))
+   ;:spiky12 (sample-brush #(br/two-sided-spikes % 0.12 5))
+   ;:spiky6 (sample-brush #(br/two-sided-spikes % 0.06 5))
+
    ;:sine (sample-brush #(br/sine % 0.5 (rand m/TWO_PI) 5 1))
    ;:rotating-quad (sample-brush #(br/rotating-quad % 0.4 m/HALF_PI))
-   :noise-quad (sample-brush #(br/noise-quad % 0.36))
+   ;:noise-quad (sample-brush #(br/noise-quad % 0.4))
    })
 
-(def config {:background-color 0xEEEEEE
-             :start-positions-hops 100
+(def config {:background-color 0x000000
+             :start-positions-hops 160
              :start-positions-axis-following 2.0
-             :start-positions-walk-multiplier 0.07
-             :curve-tightness-min 0.06
+             :start-positions-walk-multiplier 0.04
+             :curve-tightness-min 0.04
              :curve-tightness-max 0.1
              :spline-hops 4
              :offset-radius 0.1
