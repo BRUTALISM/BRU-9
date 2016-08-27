@@ -13,7 +13,8 @@
             [thi.ng.geom.webgl.glmesh :as glm]
             [thi.ng.geom.attribs :as attr]
             [bru-9.color.infinite :as ci]
-            [bru-9.interop :as i]))
+            [bru-9.interop :as i]
+            [thi.ng.color.core :as tc]))
 
 (defn sample-brush [brushfn]
   (let [sample-count 100
@@ -22,11 +23,14 @@
 
 (def brushes
   {
+   :sine1 (sample-brush #(br/sine % 0.01 m/PI 5 2))
    :sine2 (sample-brush #(br/sine % 0.02 m/PI 5 2))
-   :sine12 (sample-brush #(br/sine % 0.12 m/PI 5 2))
-   ;:sine20 (sample-brush #(br/sine % 0.2 m/PI 5 2))
-   :sine24 (sample-brush #(br/sine % 0.24 m/PI 5 2))
-   :sine56 (sample-brush #(br/sine % 0.32 m/PI 5 2))
+   :sine3 (sample-brush #(br/sine % 0.03 m/PI 5 2))
+   ;:sine12 (sample-brush #(br/sine % 0.12 m/PI 5 2))
+   ;:sine24 (sample-brush #(br/sine % 0.24 m/PI 5 2))
+   ;:sine56 (sample-brush #(br/sine % 0.32 m/PI 5 2))
+
+   ;:wobble24 (sample-brush #(br/wobbler % 0.24))
 
    ;:spiky40 (sample-brush #(br/two-sided-spikes % 0.4 5))
    ;:spiky24 (sample-brush #(br/two-sided-spikes % 0.24 5))
@@ -34,32 +38,36 @@
    ;:spiky6 (sample-brush #(br/two-sided-spikes % 0.06 5))
 
    ;:sine (sample-brush #(br/sine % 0.5 (rand m/TWO_PI) 5 1))
-   ;:rotating-quad (sample-brush #(br/rotating-quad % 0.4 m/HALF_PI))
+   ;:rotating-quad4 (sample-brush #(br/rotating-quad % 0.4 m/HALF_PI))
+   ;:rotating-quad8 (sample-brush #(br/rotating-quad % 0.8 m/HALF_PI))
    ;:noise-quad (sample-brush #(br/noise-quad % 0.4))
    })
 
 (def config {:background-color 0xEEEEEE
-             :start-positions-hops 160
+             :start-positions-hops 200
              :start-positions-axis-following 2.0
-             :start-positions-walk-multiplier 0.04
+             :start-positions-walk-multiplier 0.03
              :curve-tightness-min 0.04
              :curve-tightness-max 0.1
-             :spline-hops 4
-             :offset-radius 0.1
+             :spline-hops 6
+             :offset-radius 0.05
              :field-dimensions [5 5 5]
-             :field-count 3
+             :field-count 2
              :field-general-direction v/V3X
              :field-random-following 1.2
              :mulfn-base 0.6
-             :mulfn-jump-chance 0.5
-             :mulfn-jump-intensity 1.5
+             :mulfn-jump-chance 0.2
+             :mulfn-jump-intensity 1.2
              :wander-probability 0.5
-             :spline-resolution 14
+             :spline-resolution 8
              :mesh-geometry-size 131070
              :brushes (vals brushes)
              :infinite-params {:hue 0.1
                                :saturation 0.4
-                               :brightness 0.0}})
+                               :brightness 0.0}
+             :rotation-speed 0.00015
+             :camera-distance 11
+             :camera-look-at 5})
 
 (defn- mulfn [_]
   (let [{:keys [mulfn-base mulfn-jump-chance mulfn-jump-intensity]} config]
@@ -142,26 +150,37 @@
         three-mesh (i/three-mesh mesh)]
     (.add scene three-mesh)))
 
-(defn- setup-camera [camera]
-  (set! (.-x (.-position camera)) 5)
+(defn- setup-camera [camera pivot-pos]
+  (set! (.-x (.-position camera)) (:camera-look-at config))
   (set! (.-y (.-position camera)) 0)
-  (set! (.-z (.-position camera)) 20)
-  (.lookAt camera (THREE.Vector3. 5 0 0)))
+  (set! (.-z (.-position camera)) (:camera-distance config))
+  (.lookAt camera pivot-pos))
+
+(defonce camera-pivot (THREE.Object3D.))
 
 (defn setup [initial-context]
-  (draw-fields (:scene initial-context)
-               (make-fields)
-               (ci/infinite-palette (c/random-palette)
-                                    (:infinite-params config)))
-  (setup-camera (:camera initial-context))
-  (.setClearColor (:renderer initial-context) (:background-color config) 1.0)
-  initial-context)
+  (let [pivot-pos (THREE.Vector3. (:camera-look-at config) 0 0)
+        camera (:camera initial-context)
+        scene (:scene initial-context)
+        palette (c/random-palette)]
+    (draw-fields (:scene initial-context)
+                 (make-fields)
+                 (ci/infinite-palette palette (:infinite-params config)))
+    (setup-camera camera pivot-pos)
+    (set! (.-position camera-pivot) pivot-pos)
+    (.add camera-pivot camera)
+    (.add scene camera-pivot)
+
+    (.setClearColor (:renderer initial-context) (:background-color config) 1.0)
+    initial-context))
 
 (defn reload [context]
   (let [scene (:scene context)]
     (u/clear-scene scene)
+    (.remove camera-pivot (:camera context))
     (setup context)))
 
 (defn animate [context]
-  (let []
+  (let [rot (.-x (.-rotation camera-pivot))]
+    (set! (.-x (.-rotation camera-pivot)) (+ rot (:rotation-speed config)))
     context))

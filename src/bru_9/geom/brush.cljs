@@ -3,7 +3,8 @@
             [thi.ng.math.noise :as n]
             [bru-9.util :as u]
             [thi.ng.geom.core :as g]
-            [thi.ng.geom.circle :as cir]))
+            [thi.ng.geom.circle :as cir]
+            [thi.ng.geom.vector :as v]))
 
 ; A brush returns the shape which will be projected along a spline. It should
 ; take at least two parameters as input. The first parameter t represents the
@@ -24,11 +25,15 @@
 
 (defn rotating-quad [t size angle]
   (let [a (* t angle)
-        radius size ;(* size (u/pow (u/sin (* t m/PI)) 2))
-        shape (g/rotate (cir/circle radius) a)]
-    (g/vertices shape 4)))
+        verts (g/vertices (cir/circle size) 4)]
+    (map #(g/rotate % a) verts)))
 
 (defn noise-quad [t size]
   (let [radius (* size (n/noise1 t))
         shape (cir/circle radius)]
     (g/vertices shape 4)))
+
+(defn wobbler [t size]
+  (let [shape (cir/circle size)
+        offsetfn (fn [v] (m/+ v (v/randvec3 (* size 4))))]
+    (map offsetfn (g/vertices shape 5))))

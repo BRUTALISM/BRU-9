@@ -162,7 +162,8 @@
 (defonce started (atom false))
 
 (defn start []
-  (let [renderer (THREE.WebGLRenderer. #js {:canvas canvas})
+  (let [renderer (THREE.WebGLRenderer. #js {:canvas canvas
+                                            :antialias true})
         scene (THREE.Scene.)
         camera (THREE.PerspectiveCamera. 0 0 0 0)
         light (THREE.PointLight. 0xffffff 1.5 20)

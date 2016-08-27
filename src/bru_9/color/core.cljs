@@ -6,7 +6,7 @@
         pals
         {
          :ohai ["#3784FF"]
-         :santa ["#FFFFFF"]
+         ;:santa ["#FFFFFF"]
          :ballin ["#2055CD" "#F44677"]
          :tower ["#FC3B36" "#2AB4CD"]
          :swet ["#3C7CE6" "#F8746D"]
