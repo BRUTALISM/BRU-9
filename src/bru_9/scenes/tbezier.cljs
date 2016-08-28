@@ -122,11 +122,12 @@
          offset-positions)))
 
 (defn- draw-fields
-  "Draws the given field using the given infinite palette."
+  "Draws the given field using the given infinite palette. Returns the splines."
   [scene fields palette]
   (let [mesh-acc (glm/gl-mesh (:mesh-geometry-size config) #{:col})
         res (:spline-resolution config)
         brushes (:brushes config)
+        splines (make-field-splines fields)
         generate-profiles
         (fn [count brush]
           (let [mfn
@@ -144,12 +145,21 @@
                             {:mesh acc, :attribs {:col colors}})))
         mesh (reduce #(ptf-spline %1 (first %2) (second %2))
                      mesh-acc
-                     (map vector (make-field-splines fields) palette))
+                     (map vector splines palette))
         three-mesh (i/three-mesh mesh)]
-    (.add scene three-mesh)))
+    (.add scene three-mesh)
+    splines))
+
+(defn- calculate-x-extents [splines]
+  (let [extfn
+        (fn [[min max] point]
+          [(if (< (:x point) (:x min)) point min)
+           (if (> (:x point) (:x max)) point max)])
+        all-points (mapcat :points splines)]
+    (reduce extfn [(first all-points) (first all-points)] all-points)))
 
 (defn- setup-camera [camera pivot-pos]
-  (set! (.-x (.-position camera)) (:camera-look-at config))
+  (set! (.-x (.-position camera)) (.-x pivot-pos))
   (set! (.-y (.-position camera)) 0)
   (set! (.-z (.-position camera)) (:camera-distance config))
   (.lookAt camera pivot-pos))
@@ -157,13 +167,13 @@
 (defonce camera-pivot (THREE.Object3D.))
 
 (defn setup [initial-context]
-  (let [pivot-pos (THREE.Vector3. (:camera-look-at config) 0 0)
-        camera (:camera initial-context)
+  (let [camera (:camera initial-context)
         scene (:scene initial-context)
-        palette (c/random-palette)]
-    (draw-fields (:scene initial-context)
-                 (make-fields)
-                 (ci/infinite-palette palette (:infinite-params config)))
+        palette (c/random-palette)
+        infinite (ci/infinite-palette palette (:infinite-params config))
+        splines (draw-fields (:scene initial-context) (make-fields) infinite)
+        [xmin xmax] (calculate-x-extents splines)
+        pivot-pos (THREE.Vector3. (:x (m/div (m/+ xmax xmin) 2)) 0 0)]
     (setup-camera camera pivot-pos)
     (set! (.-position camera-pivot) pivot-pos)
     (.add camera-pivot camera)
