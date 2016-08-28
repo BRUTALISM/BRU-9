@@ -56,7 +56,7 @@
              :mulfn-base 0.7
              :mulfn-jump-chance 0.2
              :mulfn-jump-intensity 1.2
-             :wander-probability 0.3
+             :wander-probability 0.2
              :spline-resolution 8
              :mesh-geometry-size 131070
              :brushes (vals brushes)
