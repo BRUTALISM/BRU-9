@@ -38,21 +38,13 @@
 
 (enable-console-print!)
 
-;; The vertical extent of the canvas in world space (this is basically defining
-;; your visible portion of the scene in vertical units - horizontal extents
-;; depend on window's aspect ratio).
-(def ymax 2)
-
 (def canvas (.getElementById js/document "main_canvas"))
 
 (defonce context (atom {}))
 
 (defn set-camera-params []
   (let [camera (:camera @context)
-        ratio (/ (.-clientWidth canvas) (.-clientHeight canvas))
-        xmax (* ymax ratio)
-        xmax2 (/ xmax 2)
-        ymax2 (/ ymax 2)]
+        ratio (/ (.-clientWidth canvas) (.-clientHeight canvas))]
     (set! (.-fov camera) 40)
     (set! (.-aspect camera) ratio)
     (set! (.-near camera) 0.1)
