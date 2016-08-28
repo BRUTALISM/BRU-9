@@ -26,7 +26,7 @@
    :sine05 (sample-brush #(br/sine % 0.005 m/PI 5 2))
    :sine09 (sample-brush #(br/sine % 0.009 m/PI 5 2))
    :sine11 (sample-brush #(br/sine % 0.011 m/PI 5 2))
-   :sine20 (sample-brush #(br/sine % 0.020 m/PI 5 2))
+   :sine15 (sample-brush #(br/sine % 0.015 m/PI 5 2))
 
    ;:wobble24 (sample-brush #(br/wobbler % 0.24))
 
@@ -53,10 +53,10 @@
              :field-count 2
              :field-general-direction v/V3X
              :field-random-following 1.0
-             :mulfn-base 0.6
+             :mulfn-base 0.7
              :mulfn-jump-chance 0.2
              :mulfn-jump-intensity 1.2
-             :wander-probability 0.5
+             :wander-probability 0.3
              :spline-resolution 8
              :mesh-geometry-size 131070
              :brushes (vals brushes)
