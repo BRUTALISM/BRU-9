@@ -23,10 +23,10 @@
 
 (def brushes
   {
-   :sine05 (sample-brush #(br/sine % 0.005 m/PI 5 2))
-   :sine09 (sample-brush #(br/sine % 0.009 m/PI 5 2))
-   :sine11 (sample-brush #(br/sine % 0.011 m/PI 5 2))
-   :sine15 (sample-brush #(br/sine % 0.015 m/PI 5 2))
+   :sine05 (sample-brush #(br/sine % 0.005 m/PI 3 2))
+   :sine09 (sample-brush #(br/sine % 0.009 m/PI 3 2))
+   :sine11 (sample-brush #(br/sine % 0.011 m/PI 3 2))
+   :sine15 (sample-brush #(br/sine % 0.015 m/PI 3 2))
 
    ;:wobble24 (sample-brush #(br/wobbler % 0.24))
 
@@ -49,15 +49,15 @@
              :curve-tightness-max 0.1
              :spline-hops 5
              :offset-radius 0.05
-             :field-dimensions [5 5 5]
+             :field-dimensions [10 5 5]
              :field-count 2
              :field-general-direction v/V3X
              :field-random-following 1.0
              :mulfn-base 0.7
              :mulfn-jump-chance 0.2
              :mulfn-jump-intensity 1.2
-             :wander-probability 0.2
-             :spline-resolution 8
+             :wander-probability 0.25
+             :spline-resolution 10
              :mesh-geometry-size 131070
              :brushes (vals brushes)
              :infinite-params {:hue 0.0
