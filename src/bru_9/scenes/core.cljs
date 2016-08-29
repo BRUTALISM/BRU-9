@@ -1,7 +1,7 @@
 (ns bru-9.scenes.core
   (:require-macros
    [cljs.core.async.macros :refer [go alt!]])
-  (:require [bru-9.scenes.tbezier :as tbezier]
+  (:require [bru-9.scenes.throwups :as throwups]
             [bru-9.scenes.tthree :as tthree]
             [bru-9.scenes.tparse :as tparse]
             [bru-9.scenes.tfield :as tfield]
@@ -31,9 +31,9 @@
                      :ptf {:setup-fn tptf/setup
                             :reload-fn tptf/reload
                             :animate-fn tptf/animate}
-                     :bezier {:setup-fn tbezier/setup
-                              :reload-fn tbezier/reload
-                              :animate-fn tbezier/animate}})
+                     :bezier {:setup-fn throwups/setup
+                              :reload-fn throwups/reload
+                              :animate-fn throwups/animate}})
 (def active-sketch-config (:bezier sketch-configs))
 
 (enable-console-print!)

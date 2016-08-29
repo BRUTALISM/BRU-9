@@ -1,4 +1,4 @@
-(ns bru-9.scenes.tbezier
+(ns bru-9.scenes.throwups
   (:require [bru-9.color.core :as c]
             [bru-9.color.infinite :as ci]
             [bru-9.field.core :as f]
