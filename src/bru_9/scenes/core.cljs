@@ -1,6 +1,6 @@
 (ns bru-9.scenes.core
   (:require-macros
-   [cljs.core.async.macros :refer [go alt!]])
+    [cljs.core.async.macros :refer [go alt!]])
   (:require [bru-9.scenes.throwups :as throwups]
             [bru-9.scenes.tthree :as tthree]
             [bru-9.scenes.tparse :as tparse]
@@ -21,20 +21,20 @@
 ;; active-sketch-config to use a different key (and don't forget to add
 ;; sketch-specific hooks to the sketch-config map).
 (def sketch-configs {:three {:setup-fn tthree/setup
-                              :animate-fn tthree/animate}
+                             :animate-fn tthree/animate}
                      :parse {:setup-fn tparse/setup
-                              :reload-fn tparse/reload
-                              :animate-fn tparse/animate}
+                             :reload-fn tparse/reload
+                             :animate-fn tparse/animate}
                      :field {:setup-fn tfield/setup
-                              :reload-fn tfield/reload
-                              :animate-fn tfield/animate}
+                             :reload-fn tfield/reload
+                             :animate-fn tfield/animate}
                      :ptf {:setup-fn tptf/setup
-                            :reload-fn tptf/reload
-                            :animate-fn tptf/animate}
-                     :bezier {:setup-fn throwups/setup
-                              :reload-fn throwups/reload
-                              :animate-fn throwups/animate}})
-(def active-sketch-config (:bezier sketch-configs))
+                           :reload-fn tptf/reload
+                           :animate-fn tptf/animate}
+                     :throwups {:setup-fn throwups/setup
+                                :reload-fn throwups/reload
+                                :animate-fn throwups/animate}})
+(def active-sketch-config (:throwups sketch-configs))
 
 (enable-console-print!)
 
@@ -47,10 +47,6 @@
     (set! (.-aspect camera) ratio)
     (set! (.-near camera) 0.1)
     (set! (.-far camera) 1000)
-    (set! (.-x (.-position camera)) 30)
-    (set! (.-y (.-position camera)) 10)
-    (set! (.-z (.-position camera)) 30)
-    (.lookAt camera (THREE.Vector3. 0 0 0))
     (.updateProjectionMatrix camera)))
 
 (defn event-chan [elem event]
@@ -62,21 +58,22 @@
   (let [resize-chan (event-chan js/window "resize")
         {:keys [renderer canvas]} @context]
     (go
-     (loop []
-       (let [_ (<! resize-chan)
-             width (.-innerWidth js/window)
-             height (.-innerHeight js/window)]
-         (set! (.-width canvas) width)
-         (set! (.-height canvas) height)
-         (.setViewport renderer 0 0 width height)
-         (set-camera-params)
-         (recur))))))
+      (loop []
+        (let [_ (<! resize-chan)
+              pixel-ratio (or (.-devicePixelRatio js/window) 1.0)
+              width (* (.-innerWidth js/window) pixel-ratio)
+              height (* (.-innerHeight js/window) pixel-ratio)]
+          (set! (.-width canvas) width)
+          (set! (.-height canvas) height)
+          (.setViewport renderer 0 0 width height)
+          (set-camera-params)
+          (recur))))))
 
 (defn debug-loop []
   (go
-   (loop []
-     (.add (:scene @context) (interop/debug->mesh (<! debug/channel)))
-     (recur))))
+    (loop []
+      (.add (:scene @context) (interop/debug->mesh (<! debug/channel)))
+      (recur))))
 
 (defn keyboard-loop []
   (let [keydown-chan (event-chan js/window "keydown")
@@ -86,18 +83,18 @@
                 65 (v/vec3 -1 0 0)
                 68 (v/vec3 1 0 0)}]
     (go
-     (loop [directions #{}]
-       (let [[event ch] (async/alts! [keydown-chan keyup-chan])
-             code (.-keyCode event)
-             new-directions (if-let [dir (get dirmap code)]
-                              (if (= ch keydown-chan)
-                                (conj directions dir)
-                                (disj directions dir))
-                              directions)
-             camera-movement (m/normalize
-                              (reduce m/+ (v/vec3 0) new-directions))]
-         (reset! context (assoc @context :camera-movement camera-movement))
-         (recur new-directions))))))
+      (loop [directions #{}]
+        (let [[event ch] (async/alts! [keydown-chan keyup-chan])
+              code (.-keyCode event)
+              new-directions (if-let [dir (get dirmap code)]
+                               (if (= ch keydown-chan)
+                                 (conj directions dir)
+                                 (disj directions dir))
+                               directions)
+              camera-movement (m/normalize
+                                (reduce m/+ (v/vec3 0) new-directions))]
+          (reset! context (assoc @context :camera-movement camera-movement))
+          (recur new-directions))))))
 
 (defn mouse-loop []
   (let [canvas (:canvas @context)
@@ -107,23 +104,23 @@
                                (event-chan canvas "mouseleave")
                                (event-chan canvas "mouseup")])]
     (go
-     (loop []
-       (let [[e1 ch] (async/alts! [click-chan move-chan end-chan])]
-         (if (= ch click-chan)
-           (loop [lastX (.-clientX e1)
-                  lastY (.-clientY e1)]
-             (alt!
-              move-chan
-              ([e2] (let [sens (:mouse-sensitivity config)
-                          x (.-clientX e2)
-                          y (.-clientY e2)
-                          xrot (* sens (- lastX x))
-                          yrot (* sens (- lastY y))]
-                      (reset! context
-                              (assoc @context :camera-rotation [xrot yrot]))
-                      (recur x y)))
-              end-chan true)))
-         (recur))))))
+      (loop []
+        (let [[e1 ch] (async/alts! [click-chan move-chan end-chan])]
+          (if (= ch click-chan)
+            (loop [lastX (.-clientX e1)
+                   lastY (.-clientY e1)]
+              (alt!
+                move-chan
+                ([e2] (let [sens (:mouse-sensitivity config)
+                            x (.-clientX e2)
+                            y (.-clientY e2)
+                            xrot (* sens (- lastX x))
+                            yrot (* sens (- lastY y))]
+                        (reset! context
+                                (assoc @context :camera-rotation [xrot yrot]))
+                        (recur x y)))
+                end-chan true)))
+          (recur))))))
 
 (defn update-camera []
   (let [direction (:camera-movement @context)]))
