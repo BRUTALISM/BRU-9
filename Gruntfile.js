@@ -130,7 +130,7 @@ function getBuildMeta() {
     version: tokens[2].replace(/"/g, "").trim(),
     date:    moment().format("YYYY-MM-DD")
   };
-  var commit = exec("git rev-list HEAD --count", {silent:true}).output.trim();
+  var commit = exec("git rev-list HEAD --count", {silent:true}).trim();
   if (commit != '') {
     build.commit = "pre";
   } else {
@@ -277,7 +277,7 @@ grunt.registerTask('makensis', function() {
                   "-DPRODUCT_VERSION=" + config.version,
                   "-DRELEASE_DIR=" + config.releaseDir,
                   "-DOUTFILE=" + config.outFile,
-                  "scripts/build-windows-exe.nsi"].join(" "));
+                  "script/build-windows-exe.nsi"].join(" "));
 
   if(ret.code === 0) {
     grunt.log.writeln("\nInstaller created. Removing win32 folder:", config.releaseDir.cyan);
@@ -323,7 +323,7 @@ grunt.registerTask('release-mac', function() {
       grunt.config.set("appdmg", {
         options: {
           "title": "bru-9",
-          "background": "scripts/dmg/TestBkg.png",
+          "background": "script/dmg/TestBkg.png",
           "icon-size": 80,
           "contents": [
             { "x": 448, "y": 344, "type": "link", "path": "/Applications" },
