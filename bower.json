@@ -1,0 +1,17 @@
+{
+  "name": "bru-9",
+  "version": "0.1.0",
+  "dependencies": {
+    "bootstrap": "3.3.6"
+  },
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "spec"
+  ]
+}

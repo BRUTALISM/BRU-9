@@ -13,8 +13,7 @@
             [thi.ng.geom.webgl.glmesh :as glm]
             [thi.ng.geom.attribs :as attr]
             [bru-9.color.infinite :as ci]
-            [bru-9.interop :as i]
-            [thi.ng.color.core :as tc]))
+            [bru-9.interop :as i]))
 
 (defn sample-brush [brushfn]
   (let [sample-count 100

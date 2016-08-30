@@ -18,3 +18,13 @@ main.js
 .cljs_rhino_repl/
 resources/public/js/compiled
 /.idea
+/app/js/p
+/node_modules
+/electron
+/app/config.json
+/app/*.log
+/builds
+/app/components
+/spec/static/test.js
+/.repl*
+*-init.clj
