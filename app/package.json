@@ -1,6 +1,6 @@
 {
   "name" : "bru-9",
-  "version" : "0.0-DEV",
+  "version" : "0.1-DEV",
   "build-commit" : "0000",
   "build-date" : "0000-00-00",
   "main" : "app.js",

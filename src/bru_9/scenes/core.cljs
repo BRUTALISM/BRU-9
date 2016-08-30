@@ -38,12 +38,10 @@
 
 (enable-console-print!)
 
-(def canvas (.getElementById js/document "main_canvas"))
-
 (defonce context (atom {}))
 
 (defn set-camera-params []
-  (let [camera (:camera @context)
+  (let [{:keys [camera canvas]} @context
         ratio (/ (.-clientWidth canvas) (.-clientHeight canvas))]
     (set! (.-fov camera) 40)
     (set! (.-aspect camera) ratio)
@@ -62,7 +60,7 @@
 
 (defn resize-loop []
   (let [resize-chan (event-chan js/window "resize")
-        renderer (:renderer @context)]
+        {:keys [renderer canvas]} @context]
     (go
      (loop []
        (let [_ (<! resize-chan)
@@ -91,7 +89,6 @@
      (loop [directions #{}]
        (let [[event ch] (async/alts! [keydown-chan keyup-chan])
              code (.-keyCode event)
-             camera (:camera @context)
              new-directions (if-let [dir (get dirmap code)]
                               (if (= ch keydown-chan)
                                 (conj directions dir)
@@ -103,7 +100,8 @@
          (recur new-directions))))))
 
 (defn mouse-loop []
-  (let [click-chan (event-chan canvas "mousedown")
+  (let [canvas (:canvas @context)
+        click-chan (event-chan canvas "mousedown")
         move-chan (event-chan canvas "mousemove")
         end-chan (async/merge [(event-chan canvas "mouseout")
                                (event-chan canvas "mouseleave")
@@ -154,7 +152,8 @@
 (defonce started (atom false))
 
 (defn start []
-  (let [renderer (THREE.WebGLRenderer. #js {:canvas canvas
+  (let [canvas (.getElementById js/document "main_canvas")
+        renderer (THREE.WebGLRenderer. #js {:canvas canvas
                                             :antialias true})
         scene (THREE.Scene.)
         camera (THREE.PerspectiveCamera. 0 0 0 0)
@@ -163,7 +162,8 @@
         width (* (.-innerWidth js/window) pixel-ratio)
         height (* (.-innerHeight js/window) pixel-ratio)]
 
-    (reset! context {:renderer renderer
+    (reset! context {:canvas canvas
+                     :renderer renderer
                      :scene scene
                      :camera camera})
 
