@@ -322,7 +322,7 @@ grunt.registerTask('release-mac', function() {
       var dmgName = path.join(dirName, path.basename(dirName) + ".dmg");
       grunt.config.set("appdmg", {
         options: {
-          "title": "bru-9",
+          "title": "BRU-9",
           "background": "script/dmg/TestBkg.png",
           "icon-size": 80,
           "contents": [

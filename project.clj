@@ -24,15 +24,16 @@
   :cljsbuild {:builds {:app {:source-paths ["src"]
                              :compiler {:output-to "app/js/p/app.js"
                                         :output-dir "app/js/p/out"
+                                        :libs ["THREE.min.js"]
                                         :asset-path "js/p/out"
                                         :optimizations :none
                                         :pretty-print true
                                         :cache-analysis true}}}}
 
-  :profiles {:dev {:cljsbuild {:builds {:app {:source-paths ["env/dev/cljs"]
-                                              :compiler {:source-map true
+  :profiles {:dev {:cljsbuild {:builds {:app {:compiler {:source-map true
                                                          :main "bru-9.dev"
                                                          :verbose true}
+                                              :source-paths ["env/dev/cljs"]
                                               :figwheel {:on-jsload "bru-9.core/on-js-reload"}}}}
                    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
                    :dependencies [[com.cemerick/piggieback "0.2.1"]

@@ -1,8 +1,9 @@
 {
   "name" : "bru-9",
-  "version" : "0.1-DEV",
-  "build-commit" : "0000",
-  "build-date" : "0000-00-00",
+  "version" : "0.1.0-SNAPSHOT",
   "main" : "app.js",
-  "private": true
+  "author": {
+    "name": "Vladimir Mitrovic",
+    "email": "v@brutalism.rs"
+  }
 }

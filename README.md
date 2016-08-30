@@ -46,9 +46,11 @@ If NSIS is available on the path, a further setup executable will be created for
 Windows. Further, if the release command is run from a OS X machine, a DMG file
 will be created.
 
-To create the release directories:
+To create the release on OS X:
 
-    grunt release
+    grunt cljsbuild-once
+    grunt prepare-release
+    grunt release-mac --force
 
 This will create the directories in the `builds` folder.
 
