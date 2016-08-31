@@ -13,18 +13,17 @@
                  [thi.ng/color "1.1.1"]
                  [thi.ng/typedarrays "0.1.3"]
                  [thi.ng/math "0.2.1"]
-                 [figwheel-sidecar "0.5.0-6"]
+                 [figwheel-sidecar "0.5.4-6"]
                  [cljsjs/react "15.3.1-0"]
                  [cljsjs/nodejs-externs "1.0.4-1"]
                  [reagent "0.6.0-rc"]]
 
   :plugins [[lein-cljsbuild "1.1.4"]
-            [lein-figwheel "0.5.0-3"]]
+            [lein-figwheel "0.5.6"]]
 
   :cljsbuild {:builds {:app {:source-paths ["src"]
                              :compiler {:output-to "app/js/p/app.js"
                                         :output-dir "app/js/p/out"
-                                        :libs ["THREE.min.js"]
                                         :asset-path "js/p/out"
                                         :optimizations :none
                                         :pretty-print true
@@ -38,11 +37,11 @@
                    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
                    :dependencies [[com.cemerick/piggieback "0.2.1"]
                                   [org.clojure/tools.nrepl "0.2.11"]
-                                  [figwheel-sidecar "0.5.0-6"]]
+                                  [figwheel-sidecar "0.5.4-6"]]
                    :plugins [[lein-ancient "0.6.8"]
                              [lein-kibit "0.1.2"]
                              [lein-cljfmt "0.4.1"]
-                             [lein-figwheel "0.5.0-6"]]}
+                             [lein-figwheel "0.5.6"]]}
              :production {:cljsbuild {:builds {:app {:compiler {:optimizations :advanced
                                                                 :main "bru-9.prod"
                                                                 :parallel-build true

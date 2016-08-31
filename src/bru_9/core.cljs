@@ -4,12 +4,10 @@
 
 (enable-console-print!)
 
-(defn main-page
-  []
+(defn main-page []
   [:canvas {:id "main_canvas"}])
 
-(defn mount-root
-  []
+(defn mount-root []
   (reagent/render [main-page] (.getElementById js/document "app")))
 
 (defn on-js-reload []
@@ -19,8 +17,7 @@
   (mount-root)
   (scene/reload))
 
-(defn init!
-  []
+(defn init! []
   (mount-root)
   (scene/run))
 

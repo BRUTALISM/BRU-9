@@ -182,8 +182,11 @@
     (reset! context ((:setup-fn active-sketch-config) @context))))
 
 (defn reload []
-  (if-let [reload-fn (:reload-fn active-sketch-config)]
-    (reload-fn @context)))
+  (let [canvas (.getElementById js/document "main_canvas")]
+    (reset! context (assoc @context :canvas canvas))
+    (println "New canvas: " canvas)
+    (if-let [reload-fn (:reload-fn active-sketch-config)]
+      (reload-fn @context))))
 
 (defn run []
   (let [request-id (:request-id @context)]

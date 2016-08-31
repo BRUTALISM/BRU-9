@@ -10,6 +10,16 @@ development updates on [BRUTALISM's website](http://brutalism.rs).
 
 ## Setup
 
+On Mac/Linux:
+
+    scripts/setup.sh
+
+On Windows:
+
+    script\setup.bat
+
+This will install the node dependencies for the project, along with grunt and bower and will also run `grunt setup`.
+
 To get an interactive development environment run:
 
     lein figwheel
