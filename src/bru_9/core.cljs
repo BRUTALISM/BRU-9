@@ -5,7 +5,7 @@
 (enable-console-print!)
 
 (defn main-page []
-  [:canvas {:id "main_canvas"}])
+  [:span.title "BRUTALISM"])
 
 (defn mount-root []
   (reagent/render [main-page] (.getElementById js/document "app")))

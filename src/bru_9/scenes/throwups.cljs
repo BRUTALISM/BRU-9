@@ -13,7 +13,8 @@
             [thi.ng.geom.webgl.glmesh :as glm]
             [thi.ng.geom.attribs :as attr]
             [bru-9.color.infinite :as ci]
-            [bru-9.interop :as i]))
+            [bru-9.interop :as i]
+            [thi.ng.color.core :as tc]))
 
 (defn sample-brush [brushfn]
   (let [sample-count 100
@@ -35,12 +36,12 @@
    ;:spiky6 (sample-brush #(br/two-sided-spikes % 0.06 5))
 
    ;:sine (sample-brush #(br/sine % 0.5 (rand m/TWO_PI) 5 1))
-   ;:rotating-quad4 (sample-brush #(br/rotating-quad % 0.4 m/HALF_PI))
-   ;:rotating-quad8 (sample-brush #(br/rotating-quad % 0.8 m/HALF_PI))
-   ;:noise-quad (sample-brush #(br/noise-quad % 0.4))
+   :rotating-quad4 (sample-brush #(br/rotating-quad % 0.04 m/HALF_PI))
+   :rotating-quad8 (sample-brush #(br/rotating-quad % 0.08 m/HALF_PI))
+   :noise-quad (sample-brush #(br/noise-quad % 0.4))
    })
 
-(def config {:background-color 0xEEEEEE
+(def config {:background-color 0x111111
              :start-positions-hops 200
              :start-positions-axis-following 2.0
              :start-positions-walk-multiplier 0.03
@@ -59,12 +60,11 @@
              :spline-resolution 10
              :mesh-geometry-size 131070
              :brushes (vals brushes)
-             :infinite-params {:hue 0.0
-                               :saturation 0.0
+             :infinite-params {:hue 0.1
+                               :saturation 0.1
                                :brightness 0.0}
              :rotation-speed 0.00015
-             :camera-distance 11
-             :camera-look-at 5})
+             :camera-distance 20})
 
 (defn- mulfn [_]
   (let [{:keys [mulfn-base mulfn-jump-chance mulfn-jump-intensity]} config]
@@ -169,6 +169,11 @@
   (let [camera (:camera initial-context)
         scene (:scene initial-context)
         palette (c/random-palette)
+        ;bgcolor (-> (rand-nth palette)
+        ;            (tc/random-analog 0.1 0.2 0.0)
+        ;            tc/as-int24
+        ;            :col)
+        bgcolor (:background-color config)
         infinite (ci/infinite-palette palette (:infinite-params config))
         splines (draw-fields (:scene initial-context) (make-fields) infinite)
         [xmin xmax] (calculate-x-extents splines)
@@ -178,7 +183,7 @@
     (.add camera-pivot camera)
     (.add scene camera-pivot)
 
-    (.setClearColor (:renderer initial-context) (:background-color config) 1.0)
+    (.setClearColor (:renderer initial-context) bgcolor 1.0)
     initial-context))
 
 (defn reload [context]
