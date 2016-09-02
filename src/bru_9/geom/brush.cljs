@@ -29,7 +29,7 @@
     (map #(g/rotate % a) verts)))
 
 (defn noise-quad [t size]
-  (let [radius (* size (n/noise1 t))
+  (let [radius (- (* size (n/noise1 t)) 0.05)
         shape (cir/circle radius)]
     (g/vertices shape 4)))
 

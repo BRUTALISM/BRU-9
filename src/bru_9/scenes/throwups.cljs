@@ -21,29 +21,9 @@
         bfn (fn [i] (brushfn (/ i (dec sample-count))))]
     (map bfn (range sample-count))))
 
-(def brushes
-  {
-   :sine05 (sample-brush #(br/sine % 0.005 m/PI 3 2))
-   :sine09 (sample-brush #(br/sine % 0.009 m/PI 3 2))
-   :sine11 (sample-brush #(br/sine % 0.011 m/PI 3 2))
-   :sine15 (sample-brush #(br/sine % 0.015 m/PI 3 2))
-
-   ;:wobble24 (sample-brush #(br/wobbler % 0.24))
-
-   ;:spiky40 (sample-brush #(br/two-sided-spikes % 0.4 5))
-   ;:spiky24 (sample-brush #(br/two-sided-spikes % 0.24 5))
-   ;:spiky12 (sample-brush #(br/two-sided-spikes % 0.12 5))
-   ;:spiky6 (sample-brush #(br/two-sided-spikes % 0.06 5))
-
-   ;:sine (sample-brush #(br/sine % 0.5 (rand m/TWO_PI) 5 1))
-   :rotating-quad4 (sample-brush #(br/rotating-quad % 0.04 m/HALF_PI))
-   :rotating-quad8 (sample-brush #(br/rotating-quad % 0.08 m/HALF_PI))
-   :noise-quad (sample-brush #(br/noise-quad % 0.4))
-   })
-
 (def config {:background-color 0x111111
              :start-positions-hops 200
-             :start-positions-axis-following 2.0
+             :start-positions-axis-following 1.7
              :start-positions-walk-multiplier 0.03
              :curve-tightness-min 0.04
              :curve-tightness-max 0.1
@@ -54,17 +34,41 @@
              :field-general-direction v/V3X
              :field-random-following 1.0
              :mulfn-base 0.7
-             :mulfn-jump-chance 0.2
+             :mulfn-jump-chance 0.3
              :mulfn-jump-intensity 1.2
              :wander-probability 0.25
              :spline-resolution 10
              :mesh-geometry-size 131070
-             :brushes (vals brushes)
+             :brushes [
+                       ;(sample-brush #(br/sine % 0.005 m/PI 3 2))
+                       ;(sample-brush #(br/sine % 0.009 m/PI 3 2))
+                       ;(sample-brush #(br/sine % 0.011 m/PI 3 2))
+                       ;(sample-brush #(br/sine % 0.015 m/PI 3 2))
+
+                       (sample-brush #(br/sine % 0.08 m/PI 3 2))
+                       (sample-brush #(br/sine % 0.16 m/PI 3 2))
+                       (sample-brush #(br/sine % 0.18 m/PI 3 2))
+
+                       ;(sample-brush #(br/wobbler % 0.24))
+
+                       ;(sample-brush #(br/two-sided-spikes % 0.4 5))
+                       ;(sample-brush #(br/two-sided-spikes % 0.24 5))
+                       ;(sample-brush #(br/two-sided-spikes % 0.12 5))
+                       ;(sample-brush #(br/two-sided-spikes % 0.06 5))
+
+                       ;(sample-brush #(br/sine % 0.5 (rand m/TWO_PI) 5 1))
+                       ;(sample-brush #(br/rotating-quad % 0.04 m/HALF_PI))
+                       ;(sample-brush #(br/rotating-quad % 0.08 m/HALF_PI))
+
+                       ;(sample-brush #(br/noise-quad % 0.15))
+                       ;(sample-brush #(br/noise-quad % 0.1))
+                       ;(sample-brush #(br/noise-quad % 0.05))
+                       ]
              :infinite-params {:hue 0.1
-                               :saturation 0.1
+                               :saturation 0.2
                                :brightness 0.0}
              :rotation-speed 0.00015
-             :camera-distance 20})
+             :camera-distance 12})
 
 (defn- mulfn [_]
   (let [{:keys [mulfn-base mulfn-jump-chance mulfn-jump-intensity]} config]

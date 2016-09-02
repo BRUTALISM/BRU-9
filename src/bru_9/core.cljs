@@ -20,4 +20,3 @@
 (defn init! []
   (mount-root)
   (scene/run))
-

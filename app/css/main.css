@@ -13,7 +13,7 @@ canvas {
 }
 
 #app {
-    font-family: 'Fira Mono';
+    font-family: 'Input';
     text-color: white;
     z-index: 2;
     margin: 0 auto;
@@ -24,6 +24,6 @@ canvas {
     background-color: white;
     color: #111;
     text-align: center;
-    font-size: 20pt;
+    font-size: 16pt;
     padding: 2pt;
 }

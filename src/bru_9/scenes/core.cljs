@@ -75,7 +75,19 @@
       (.add (:scene @context) (interop/debug->mesh (<! debug/channel)))
       (recur))))
 
+(declare reload)
 (defn keyboard-loop []
+  (let [keydown-chan (event-chan js/window "keydown")
+        handlers {82 #(reload)}]
+    (go
+      (loop []
+        (let [event (<! keydown-chan)
+              code (.-keyCode event)]
+          (if-let [handler (get handlers code)]
+            (handler))
+          (recur))))))
+
+(defn wasd-loop []
   (let [keydown-chan (event-chan js/window "keydown")
         keyup-chan (event-chan js/window "keyup")
         dirmap {87 (v/vec3 0 0 -1)
@@ -175,8 +187,9 @@
 
     (resize-loop)
     (debug-loop)
-    (keyboard-loop)
+    (wasd-loop)
     (mouse-loop)
+    (keyboard-loop)
 
     ;; Run sketch-specific setup fn
     (reset! context ((:setup-fn active-sketch-config) @context))))
@@ -184,7 +197,6 @@
 (defn reload []
   (let [canvas (.getElementById js/document "main_canvas")]
     (reset! context (assoc @context :canvas canvas))
-    (println "New canvas: " canvas)
     (if-let [reload-fn (:reload-fn active-sketch-config)]
       (reload-fn @context))))
 
