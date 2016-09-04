@@ -20,6 +20,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Leiningen: args4j:2.0.26" level="project" />
     <orderEntry type="library" name="Leiningen: clj-stacktrace:0.2.8" level="project" />
     <orderEntry type="library" name="Leiningen: clj-time:0.11.0" level="project" />
     <orderEntry type="library" name="Leiningen: cljs-http:0.1.39" level="project" />
@@ -32,7 +33,12 @@
     <orderEntry type="library" name="Leiningen: com.cemerick/piggieback:0.2.1" level="project" />
     <orderEntry type="library" name="Leiningen: com.cognitect/transit-cljs:0.8.232" level="project" />
     <orderEntry type="library" name="Leiningen: com.cognitect/transit-js:0.8.755" level="project" />
-    <orderEntry type="library" name="Leiningen: com.google.javascript/closure-compiler:v20151216" level="project" />
+    <orderEntry type="library" name="Leiningen: com.google.code.findbugs/jsr305:1.3.9" level="project" />
+    <orderEntry type="library" name="Leiningen: com.google.code.gson/gson:2.2.4" level="project" />
+    <orderEntry type="library" name="Leiningen: com.google.guava/guava:19.0" level="project" />
+    <orderEntry type="library" name="Leiningen: com.google.javascript/closure-compiler-externs:v20160315" level="project" />
+    <orderEntry type="library" name="Leiningen: com.google.javascript/closure-compiler-unshaded:v20160315" level="project" />
+    <orderEntry type="library" name="Leiningen: com.google.protobuf/protobuf-java:2.5.0" level="project" />
     <orderEntry type="library" name="Leiningen: com.postspectacular/dependency:0.1.2" level="project" />
     <orderEntry type="library" name="Leiningen: com.stuartsierra/component:0.3.1" level="project" />
     <orderEntry type="library" name="Leiningen: com.stuartsierra/dependency:0.2.0" level="project" />
@@ -54,19 +60,19 @@
     <orderEntry type="library" name="Leiningen: net.java.dev.jna/jna:3.2.2" level="project" />
     <orderEntry type="library" name="Leiningen: noencore:0.2.0" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/clojure:1.8.0" level="project" />
-    <orderEntry type="library" name="Leiningen: org.clojure/clojurescript:1.7.228" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojure/clojurescript:1.9.227" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/core.async:0.2.374" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/core.cache:0.6.4" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/core.memoize:0.5.8" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/core.rrb-vector:0.0.11" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/data.json:0.2.6" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/data.priority-map:0.0.4" level="project" />
-    <orderEntry type="library" name="Leiningen: org.clojure/google-closure-library-third-party:0.0-20151016-61277aea" level="project" />
-    <orderEntry type="library" name="Leiningen: org.clojure/google-closure-library:0.0-20151016-61277aea" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojure/google-closure-library-third-party:0.0-20160609-f42b4a24" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojure/google-closure-library:0.0-20160609-f42b4a24" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/tools.analyzer.jvm:0.6.9" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/tools.analyzer:0.6.7" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/tools.nrepl:0.2.11" level="project" />
-    <orderEntry type="library" name="Leiningen: org.clojure/tools.reader:1.0.0-alpha1" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojure/tools.reader:1.0.0-beta3" level="project" />
     <orderEntry type="library" name="Leiningen: org.jsoup/jsoup:1.7.1" level="project" />
     <orderEntry type="library" name="Leiningen: org.mozilla/rhino:1.7R5" level="project" />
     <orderEntry type="library" name="Leiningen: org.ow2.asm/asm-all:4.2" level="project" />

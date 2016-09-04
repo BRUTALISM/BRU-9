@@ -5,7 +5,7 @@
             :url "https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode"}
 
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.7.228"]
+                 [org.clojure/clojurescript "1.9.227"]
                  [org.clojure/core.async "0.2.374"]
                  [cljs-http "0.1.39"]
                  [hickory "0.6.0"]

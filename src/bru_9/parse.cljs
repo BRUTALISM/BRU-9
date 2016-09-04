@@ -13,4 +13,16 @@
         level
         (recur (into level children) (mapcat #(drop 2 %) children))))))
 
-;; (def h "<a><b>1</b><b></b><b>3</b></a><c><d>4</d><d>5</d></c>")
+(defn occurences
+  "Returns all occurences of the given regex in the search-in string. Ignores
+  case."
+  [search-in regex]
+  (map first (re-seq (js/RegExp. regex "i") search-in)))
+
+(defn map-occurences
+  "For each string in search-seq, counts its number of occurences in the
+  search-in string, and returns a map whose keys are strings from searches and
+  values are occurence counts."
+  [search-in search-seq]
+  (zipmap (map #(keyword %) search-seq)
+          (map #(count (occurences search-in %)) search-seq)))

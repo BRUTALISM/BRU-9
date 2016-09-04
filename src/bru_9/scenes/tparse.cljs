@@ -9,7 +9,9 @@
             [thi.ng.geom.webgl.glmesh :as glm]
             [clojure.zip :as zip]))
 
-(def config {:urls ["http://google.com"]})
+(def config {:urls ["http://cnn.com"]
+             :url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
+             :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]})
 
 (defonce *state* (atom {}))
 
@@ -17,7 +19,11 @@
   "Parses the given response, converts its DOM tree into a mesh, and adds the
   mesh to the current Three.js scene"
   [response]
-  (let [limited-nodes (take 50 (parse/level-dom (:body response)))
+  (let [body (:body response)
+        seers (parse/map-occurences body (:all-seeing config))
+        urls (set (parse/occurences body (:url-regex config)))
+        all-nodes (parse/level-dom body)
+        limited-nodes (take 50 all-nodes)
         acc (glm/gl-mesh 65536 #{:col})
         palette (c/random-palette)
         infinite-palette (ci/infinite-palette palette {:hue 0.3
@@ -27,6 +33,10 @@
                      acc nodes-colors)
         three-mesh (i/three-mesh mesh)
         scene (:scene @*state*)]
+    (println "Parsed nodes: " (count all-nodes))
+    (println "URLs: " urls)
+    (println "URL count: " (count urls))
+    (println "Seers: " seers)
     (.add scene three-mesh)))
 
 (defn process-urls
