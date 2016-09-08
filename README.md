@@ -58,7 +58,7 @@ will be created.
 
 To create the release on OS X:
 
-    grunt cljsbuild-once
+    grunt cljsbuild-prod
     grunt prepare-release
     grunt release-mac --force
 

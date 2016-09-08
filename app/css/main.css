@@ -21,9 +21,9 @@ canvas {
 }
 
 .title {
-    background-color: white;
-    color: #111;
+    background-color: #FD373A;
+    color: #FFF;
     text-align: center;
     font-size: 16pt;
-    padding: 2pt;
+    padding: 2pt 4pt;
 }
