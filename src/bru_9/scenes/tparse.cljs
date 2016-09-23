@@ -7,11 +7,13 @@
             [bru-9.color.core :as c]
             [bru-9.color.infinite :as ci]
             [thi.ng.geom.webgl.glmesh :as glm]
-            [clojure.zip :as zip]))
+            [clojure.zip :as zip]
+            [thi.ng.geom.vector :as v]))
 
 (def config {:urls ["http://cnn.com"]
              :url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
-             :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]})
+             :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
+             :camera-distance 30})
 
 (defonce *state* (atom {}))
 
@@ -23,14 +25,15 @@
         seers (parse/map-occurences body (:all-seeing config))
         urls (set (parse/occurences body (:url-regex config)))
         all-nodes (parse/level-dom body)
-        limited-nodes (take 50 all-nodes)
+        limited-nodes (take 3 all-nodes)
         acc (glm/gl-mesh 65536 #{:col})
         palette (c/random-palette)
         infinite-palette (ci/infinite-palette palette {:hue 0.3
                                                        :saturation 0.2})
         nodes-colors (map vector limited-nodes infinite-palette)
-        mesh (reduce #(gtag/tag->mesh %1 (first %2) (second %2))
-                     acc nodes-colors)
+        tagfn (fn [acc [tag color]]
+                 (gtag/tag->mesh acc tag color))
+        mesh (reduce tagfn acc nodes-colors)
         three-mesh (i/three-mesh mesh)
         scene (:scene @*state*)]
     (println "Parsed nodes: " (count all-nodes))
@@ -45,17 +48,25 @@
   [urls]
   (doseq [url urls] (req/get-url url process-response)))
 
+(defn- setup-camera [camera]
+  (set! (.-x (.-position camera)) 0)
+  (set! (.-y (.-position camera)) 0)
+  (set! (.-z (.-position camera)) (:camera-distance config))
+  (.lookAt camera (js/THREE.Vector3. 0 0 0)))
+
 ;; Scene setup & main loop
 
 (defn setup [initial-context]
   (let [scene (:scene initial-context)]
     (reset! *state* (assoc @*state* :scene scene))
+    (setup-camera (:camera initial-context))
     (process-urls (:urls config))
     initial-context))
 
 (defn reload [context]
   (let [scene (:scene context)]
     (u/clear-scene scene)
+    (setup-camera (:camera context))
     (process-urls (:urls config))))
 
 (defn animate [context]

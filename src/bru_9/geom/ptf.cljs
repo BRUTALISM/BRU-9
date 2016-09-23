@@ -1,15 +1,26 @@
 (ns bru-9.geom.ptf
+  (:require-macros [thi.ng.math.macros :as mm])
   (:require [thi.ng.geom.ptf :as ptf]
             [thi.ng.geom.attribs :as attr]
             [thi.ng.geom.core :as g]
-            [thi.ng.geom.basicmesh :as bm]))
+            [thi.ng.geom.basicmesh :as bm]
+            [thi.ng.geom.vector :as v]))
+
+(defn sweep-point
+  "Takes a path point, a PTF normal & binormal and a profile point.
+  Returns profile point projected on path (point)."
+  [p t n b [qx qy qz]]
+  (v/vec3
+    (mm/madd qx (:x n) qy (:x b) qz (:x t) (:x p))
+    (mm/madd qx (:y n) qy (:y b) qz (:y t) (:y p))
+    (mm/madd qx (:z n) qy (:z b) qz (:z t) (:z p))))
 
 (defn sweep-profile
-  [profiles attribs opts [points _ norms bnorms]]
+  [profiles attribs opts [points tangents norms bnorms]]
   (let [{:keys [close? loop?] :or {close? true}} opts
         looped-profiles (cycle profiles)
-        frames (map vector points norms bnorms)
-        tx (fn [[p n b] prof] (mapv #(ptf/sweep-point p n b %) prof))
+        frames (map vector points tangents norms bnorms)
+        tx (fn [[p t n b] prof] (mapv #(sweep-point p t n b %) prof))
         frame0 (tx (first frames) (first profiles))
         nprof (count (first profiles))
         nprof1 (inc nprof)

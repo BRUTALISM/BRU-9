@@ -21,7 +21,7 @@
         bfn (fn [i] (brushfn (/ i (dec sample-count))))]
     (map bfn (range sample-count))))
 
-(def config {:background-color 0x111111
+(def config {:background-color 0x000000
              :start-positions-hops 200
              :start-positions-axis-following 1.7
              :start-positions-walk-multiplier 0.03
@@ -140,7 +140,7 @@
             (map mfn (range count))))
         ptf-spline
         (fn [acc spline color]
-          (let [colors (attr/const-face-attribs (repeat color))
+          (let [colors (attr/const-face-attribs (repeatedly #(tc/random-analog color 0.3)))
                 vertices (g/vertices spline res)
                 brush (rand-nth brushes)]
             (ptf/sweep-mesh vertices
