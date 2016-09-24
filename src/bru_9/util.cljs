@@ -125,3 +125,11 @@
   (let [t01 (m/clamp t 0 1)
         i (round (* t01 (dec (count coll))))]
     (nth coll i)))
+
+(defn calculate-x-extents [splines]
+  (let [extfn
+        (fn [[min max] point]
+          [(if (< (:x point) (:x min)) point min)
+           (if (> (:x point) (:x max)) point max)])
+        all-points (mapcat :points splines)]
+    (reduce extfn [(first all-points) (first all-points)] all-points)))

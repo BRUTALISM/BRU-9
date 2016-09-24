@@ -121,14 +121,6 @@
     (.add scene three-mesh)
     splines))
 
-(defn- calculate-x-extents [splines]
-  (let [extfn
-        (fn [[min max] point]
-          [(if (< (:x point) (:x min)) point min)
-           (if (> (:x point) (:x max)) point max)])
-        all-points (mapcat :points splines)]
-    (reduce extfn [(first all-points) (first all-points)] all-points)))
-
 ; Scene-related stuff
 
 (defn- setup-camera [camera pivot-pos]
@@ -155,7 +147,7 @@
                                 field-general-direction
                                 field-random-following)
         splines (draw-fields (:scene initial-context) fields infinite)
-        [xmin xmax] (calculate-x-extents splines)
+        [xmin xmax] (u/calculate-x-extents splines)
         pivot-pos (THREE.Vector3. (:x (m/div (m/+ xmax xmin) 2)) 0 0)]
     (setup-camera camera pivot-pos)
     (set! (.-position camera-pivot) pivot-pos)
