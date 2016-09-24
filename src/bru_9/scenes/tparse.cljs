@@ -14,7 +14,8 @@
 (def config {:url "http://cnn.com"
              :url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
-             :camera-distance 12
+             :node-limit 1
+             :camera-distance 4
              :background-color 0x44AAFF
              :start-positions-axis-following 1.7
              :start-positions-walk-multiplier 0.03
@@ -100,7 +101,7 @@
         seers (parse/map-occurences body (:all-seeing config))
         urls (set (parse/occurences body (:url-regex config)))
         all-nodes (parse/level-dom body)
-        limited-nodes (take 100 all-nodes)
+        limited-nodes (take (:node-limit config) all-nodes)
         mesh (nodes->mesh limited-nodes)
         three-mesh (i/three-mesh mesh)
         scene (:scene @*state*)]
