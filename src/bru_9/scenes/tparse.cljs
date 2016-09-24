@@ -25,7 +25,7 @@
         seers (parse/map-occurences body (:all-seeing config))
         urls (set (parse/occurences body (:url-regex config)))
         all-nodes (parse/level-dom body)
-        limited-nodes (take 3 all-nodes)
+        limited-nodes (take 30 all-nodes)
         acc (glm/gl-mesh 65536 #{:col})
         palette (c/random-palette)
         infinite-palette (ci/infinite-palette palette {:hue 0.3

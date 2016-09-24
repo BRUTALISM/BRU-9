@@ -20,7 +20,7 @@
         profilefn (fn []
                     (map #(if (< (rand) 0.5) (m/+ shoot %) %)
                          (map v/vec3 (g/vertices (rect/rect 0 0 0.5 2)))))
-        profiles (repeatedly profilefn)
+        profiles (take num-points (repeatedly profilefn))
         colorfn (fn [] (c/random-analog color 0.3))
         colors (attr/const-face-attribs (repeatedly colorfn))
         sweep-params {:mesh acc

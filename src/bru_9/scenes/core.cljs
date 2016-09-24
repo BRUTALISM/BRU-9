@@ -34,7 +34,7 @@
                      :throwups {:setup-fn throwups/setup
                                 :reload-fn throwups/reload
                                 :animate-fn throwups/animate}})
-(def active-sketch-config (:parse sketch-configs))
+(def active-sketch-config (:throwups sketch-configs))
 
 (enable-console-print!)
 
