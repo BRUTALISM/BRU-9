@@ -27,8 +27,8 @@
                           size-multiplier (- 1 t)           ; TODO: implement
                           ]
                       (v3rect angle size-multiplier)))
-        colorfn (fn [] (c/random-analog color 0.3))
-        colors (attr/const-face-attribs (repeatedly colorfn))
+        colorfn (fn [c] (c/adjust-saturation c -0.007))
+        colors (attr/const-face-attribs (iterate colorfn color))
         sweep-params {:mesh acc
                       :attribs {:col colors}}]
     (ptf/sweep-mesh points (map profilefn (range tdiv)) sweep-params)))

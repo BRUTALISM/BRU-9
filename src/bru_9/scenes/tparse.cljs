@@ -14,14 +14,14 @@
 (def config {:url "http://cnn.com"
              :url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
-             :node-limit 1
+             :node-limit 100
              :camera-distance 4
              :background-color 0x44AAFF
              :start-positions-axis-following 1.7
              :start-positions-walk-multiplier 0.03
              :curve-tightness-min 0.04
              :curve-tightness-max 0.1
-             :spline-hops 5
+             :spline-hops 4
              :offset-radius 0.05
              :field-dimensions [10 5 5]
              :field-count 2
