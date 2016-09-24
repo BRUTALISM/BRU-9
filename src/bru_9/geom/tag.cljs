@@ -12,18 +12,23 @@
   mesh, writing it into the given accumulator mesh."
   [acc tag spline color spline-resolution]
   (let [points (g/vertices spline spline-resolution)
-        point-count (count points)
         w (rand 0.2)
         h (rand 0.2)
-        v3rect (fn [angle]
-                 (map v/vec3 (g/vertices (rect/rect 0 0 w h))))
-        max-angle (/ m/HALF_PI 4)
+        v3rect (fn [angle size-multiplier]
+                 (let [w (* w size-multiplier)
+                       h (* h size-multiplier)]
+                   ; TODO: implement rotation
+                   (map v/vec3 (g/vertices (rect/rect 0 0 w h)))))
+        max-angle (/ m/HALF_PI 2)
+        tdiv (dec (count points))
         profilefn (fn [i]
-                    (let [t (/ i point-count)
-                          angle (+ (- max-angle) (* 2 t max-angle))]
-                      (v3rect angle)))
+                    (let [t (/ i tdiv)
+                          angle (+ (- max-angle) (* 2 t max-angle))
+                          size-multiplier (- 1 t)           ; TODO: implement
+                          ]
+                      (v3rect angle size-multiplier)))
         colorfn (fn [] (c/random-analog color 0.3))
         colors (attr/const-face-attribs (repeatedly colorfn))
         sweep-params {:mesh acc
                       :attribs {:col colors}}]
-    (ptf/sweep-mesh points (map profilefn (range point-count)) sweep-params)))
+    (ptf/sweep-mesh points (map profilefn (range tdiv)) sweep-params)))
