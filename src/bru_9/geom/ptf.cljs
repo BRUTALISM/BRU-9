@@ -23,7 +23,6 @@
         tx (fn [[p t n b] prof] (mapv #(sweep-point p t n b %) prof))
         frame0 (tx (first frames) (first profiles))
         nprof (count (first profiles))
-        nprof1 (inc nprof)
         numf (dec (count points))
         attr-state {:du (/ 1.0 nprof) :dv (/ 1.0 numf)}
         frames (if loop?
@@ -46,7 +45,7 @@
                                  attribs
                                  (assoc atts :u (double (/ j nprof))))))
                            (concat faces))]
-            [faces curr (inc i) (+ fid nprof1)]))]
+            [faces curr (inc i) (+ fid nprof)]))]
     (first (reduce sweep
                    [nil (if close? (conj frame0 (first frame0)) frame0) 0 0]
                    (map vector frames looped-profiles)))))
