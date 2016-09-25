@@ -1,5 +1,6 @@
 (ns bru-9.geom.tag
   (:require [bru-9.geom.ptf :as ptf]
+            [bru-9.color.ptf :as cptf]
             [thi.ng.geom.core :as g]
             [thi.ng.geom.vector :as v]
             [thi.ng.geom.attribs :as attr]
@@ -20,15 +21,15 @@
                    ; TODO: implement rotation
                    (map v/vec3 (g/vertices (rect/rect 0 0 w h)))))
         max-angle (/ m/HALF_PI 2)
-        tdiv (dec (count points))
+        steps (dec (count points))
+        toffset (+ 1 (rand 1))                              ; TODO: temporary
         profilefn (fn [i]
-                    (let [t (/ i tdiv)
+                    (let [t (/ i steps)
                           angle (+ (- max-angle) (* 2 t max-angle))
-                          size-multiplier (- 1 t)           ; TODO: implement
+                          size-multiplier (- toffset t)           ; TODO: implement
                           ]
                       (v3rect angle size-multiplier)))
-        colorfn (fn [c] (c/adjust-saturation c -0.007))
-        colors (attr/const-face-attribs (iterate colorfn color))
+        colors (cptf/rect-gradient-attribs color (c/random-analog color 0.3) steps)
         sweep-params {:mesh acc
                       :attribs {:col colors}}]
-    (ptf/sweep-mesh points (map profilefn (range tdiv)) sweep-params)))
+    (ptf/sweep-mesh points (map profilefn (range steps)) sweep-params)))

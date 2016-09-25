@@ -13,7 +13,7 @@
             [thi.ng.math.core :as m]))
 
 (def config
-  {:wasd-speed 0.2
+  {:wasd-speed 0.1
    :mouse-sensitivity 0.4})
 
 ;; Each sketch has a couple of hooks that tie into the main loop defined in this
