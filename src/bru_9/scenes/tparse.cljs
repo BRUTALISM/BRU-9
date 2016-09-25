@@ -14,9 +14,9 @@
 (def config {:url "http://cnn.com"
              :url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
-             :node-limit 100
-             :camera-distance 4
-             :background-color 0x44AAFF
+             :node-limit 200
+             :camera-distance 8
+             :background-color 0x111111
              :start-positions-axis-following 1.7
              :start-positions-walk-multiplier 0.03
              :curve-tightness-min 0.04
