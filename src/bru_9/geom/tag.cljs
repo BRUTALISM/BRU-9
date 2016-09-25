@@ -29,7 +29,7 @@
                           size-multiplier (- toffset t)           ; TODO: implement
                           ]
                       (v3rect angle size-multiplier)))
-        colors (cptf/rect-gradient-attribs color (c/random-analog color 0.3) steps)
+        colors (cptf/ptf-gradient-attribs color (c/random-analog color 0.3) 4 steps)
         sweep-params {:mesh acc
                       :attribs {:col colors}}]
     (ptf/sweep-mesh points (map profilefn (range steps)) sweep-params)))
