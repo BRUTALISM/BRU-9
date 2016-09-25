@@ -11,9 +11,9 @@
 (def classes
   {:header #{:html :head :meta :title :body}
    :external #{:link :script}
-   :scaffolding #{:div :span :footer :noscript}
+   :scaffolding #{:div :span :header :footer :noscript :style :nav :main :aside}
    :content #{:h1 :h2 :h3 :h4 :h5 :h6 :p :a :b :code :pre :tt :input :ul :li
-              :form :img}})
+              :form :img :textarea}})
 
 (defn classify
   "Returns the set of classes (not related to CSS classes) the given tag belongs

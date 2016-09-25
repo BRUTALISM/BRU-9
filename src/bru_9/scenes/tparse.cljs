@@ -11,7 +11,7 @@
             [bru-9.geom.generators :as gen]
             [thi.ng.math.core :as m]))
 
-(def config {:url "http://cnn.com"
+(def config {:url "http://pitchfork.com"
              :url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
              :node-limit 200
