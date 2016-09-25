@@ -4,10 +4,35 @@
             [bru-9.util :as u]
             [thi.ng.geom.core :as g]
             [thi.ng.geom.vector :as v]
-            [thi.ng.geom.attribs :as attr]
             [thi.ng.geom.rect :as rect]
             [thi.ng.color.core :as c]
             [thi.ng.math.core :as m]))
+
+(def classes
+  {:header #{:html :head :meta :title :body}
+   :external #{:link :script}
+   :scaffolding #{:div :span :footer :noscript}
+   :content #{:h1 :h2 :h3 :h4 :h5 :h6 :p :a :b :code :pre :tt :input :ul :li
+              :form :img}})
+
+(defn classify
+  "Returns the set of classes (not related to CSS classes) the given tag belongs
+  to. See the classes map in this namespace for possible class values."
+  [tag]
+  (let [cs (reduce-kv #(if (%3 tag) (conj %1 %2) %1) #{} classes)]
+    (if (empty? cs) (println "Tag not classified: " tag))
+    cs))
+
+(defn get-configuration
+  "Returns the drawing configuration map for the given tag class."
+  [class]
+  (let [envelopes {}]
+    ))
+
+(defn envelope [t tag]
+  (let [sizes {:meta 2.0}
+        base (get sizes (first tag) 1.0)]
+    (- base t)))
 
 (defn tag->mesh
   "Converts a given Hiccup node representing one DOM element into a colored
@@ -28,12 +53,11 @@
              (m/+ v3 zoff)]))
         max-angle (/ m/PI 2)
         steps (dec (count points))
-        toffset (+ 1 (rand 0.5))                            ; TODO: temporary
+        tag-classes (classify (first tag))
         profilefn (fn [i]
                     (let [t (/ i steps)
                           angle (+ (- max-angle) (* 2 t max-angle))
-                          size-multiplier (- toffset t)     ; TODO: implement
-                          ]
+                          size-multiplier (envelope t tag)]
                       (rotated-rect angle size-multiplier)))
         colors (cptf/ptf-gradient-attribs color (c/random-analog color 0.3) 4 steps)
         sweep-params {:mesh acc
