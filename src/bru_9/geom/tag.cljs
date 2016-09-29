@@ -9,14 +9,22 @@
             [thi.ng.math.core :as m]))
 
 (def class-configs
+  ; Potential params:
+  ; * spline sampling resolution – smaller for short, large shapes
+  ; * transport along subset of spline (for shorter shapes) – can also be
+  ;   controlled via :spline-hops, but at this stage spline hops have already
+  ;   been performed.
+  ; * envelope shape – bulging, heavier shapes for short & important tag
+  ;   classes, thin and pointy style (similar to current one) for others
   {:header {:envelope-size 0.2}
-   :external {:envelope-size 0.5}
+   :external {:envelope-size 0.3}
    :scaffolding {:envelope-size 0.1}
-   :content {:envelope-size 0.3}
+   :content {:envelope-size 0.5}
    :default {:envelope-size 0.1}})
 
 (def classes
   {:header #{:html :head :meta :title :body}
+   ; TODO: :external should be drawn onto separate fields (see Trello)
    :external #{:link :script}
    :scaffolding #{:div :span :header :footer :noscript :style :nav :main :aside}
    :content #{:h1 :h2 :h3 :h4 :h5 :h6 :p :a :b :code :pre :tt :input :ul :li
@@ -47,7 +55,7 @@
         tag-class (first (classify (first tag)))
         class-config (get class-configs tag-class)
         size (u/rand-magnitude (:envelope-size class-config) 0.1 0.0 10000000)
-        max-angle (/ m/PI 2)
+        max-angle m/HALF_PI
         steps (dec (count points))
         rotated-rect
         (fn [angle size]

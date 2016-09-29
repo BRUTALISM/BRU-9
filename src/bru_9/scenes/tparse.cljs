@@ -14,7 +14,7 @@
 (def config {:url "http://pitchfork.com"
              :url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
-             :node-limit 200
+             :node-limit 300
              :camera-distance 15
              :background-color 0x111111
              :start-positions-axis-following 1.7
