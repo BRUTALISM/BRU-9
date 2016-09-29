@@ -15,6 +15,12 @@
    :content #{:h1 :h2 :h3 :h4 :h5 :h6 :p :a :b :code :pre :tt :input :ul :li
               :form :img :textarea}})
 
+(def class-configs
+  {:header {:envelope-size 0.3}
+   :external {:envelope-size 0.1}
+   :scaffolding {:envelope-size 0.2}
+   :content {:envelope-size 0.4}})
+
 (defn classify
   "Returns the set of classes (not related to CSS classes) the given tag belongs
   to. See the classes map in this namespace for possible class values."
@@ -23,43 +29,39 @@
     (if (empty? cs) (println "Tag not classified: " tag))
     cs))
 
-(defn get-configuration
-  "Returns the drawing configuration map for the given tag class."
-  [class]
-  (let [envelopes {}]
-    ))
-
-(defn envelope [t tag]
-  (let [sizes {:meta 2.0}
-        base (get sizes (first tag) 1.0)]
-    (- base t)))
+(defn envelope [t]
+  ; TODO: Implement a smarter algo. Different one for each tag class.
+  (+ 0.2 (* t 0.8)))
 
 (defn tag->mesh
   "Converts a given Hiccup node representing one DOM element into a colored
   mesh, writing it into the given accumulator mesh."
   [acc tag spline color spline-resolution]
   (let [points (g/vertices spline spline-resolution)
-        w (rand 0.2)
-        h (rand 0.1)
+        tag-class (first (classify (first tag)))
+        class-config (get class-configs tag-class)
+        size (u/rand-magnitude (:envelope-size class-config) 0.1 0.0 10000000)
+        max-angle (/ m/PI 2)
+        steps (dec (count points))
         rotated-rect
-        (fn [angle size-multiplier]
-          (let [w (* w size-multiplier)
-                h (* h size-multiplier)
+        (fn [angle size]
+          (let [h size
+                w (/ h 4)
                 zoff (v/vec3 0 0 (* (/ h 2) (u/sin angle)))
                 [v0 v1 v2 v3] (map v/vec3 (g/vertices (rect/rect 0 0 w h)))]
             [(m/- v0 zoff)
              (m/- v1 zoff)
              (m/+ v2 zoff)
              (m/+ v3 zoff)]))
-        max-angle (/ m/PI 2)
-        steps (dec (count points))
-        tag-classes (classify (first tag))
         profilefn (fn [i]
                     (let [t (/ i steps)
                           angle (+ (- max-angle) (* 2 t max-angle))
-                          size-multiplier (envelope t tag)]
-                      (rotated-rect angle size-multiplier)))
-        colors (cptf/ptf-gradient-attribs color (c/random-analog color 0.3) 4 steps)
+                          tsize (* size (envelope t))]
+                      (rotated-rect angle tsize)))
+        gradc (c/random-analog color 0.3)
+        colors (cptf/ptf-gradient-attribs color gradc 4 steps)
         sweep-params {:mesh acc
                       :attribs {:col colors}}]
-    (ptf/sweep-mesh points (map profilefn (range steps)) sweep-params)))
+    (ptf/sweep-mesh points
+                    (map profilefn (range steps))
+                    sweep-params)))

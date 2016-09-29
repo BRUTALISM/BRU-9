@@ -11,18 +11,19 @@
             [bru-9.geom.generators :as gen]
             [thi.ng.math.core :as m]))
 
-(def config {:url "http://pitchfork.com"
+(def config {:url "http://bbc.com"
              :url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
              :node-limit 200
              :camera-distance 8
              :background-color 0x111111
              :start-positions-axis-following 1.7
-             :start-positions-walk-multiplier 0.03
+             ; TODO: calculate walk multiplier based on number of nodes
+             :start-positions-walk-multiplier 0.02
              :curve-tightness-min 0.04
-             :curve-tightness-max 0.1
+             :curve-tightness-max 0.08
              :spline-hops 4
-             :offset-radius 0.05
+             :offset-radius 0.1
              :field-dimensions [10 5 5]
              :field-count 2
              :field-general-direction v/V3X
