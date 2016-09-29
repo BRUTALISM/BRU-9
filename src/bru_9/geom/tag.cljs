@@ -8,6 +8,13 @@
             [thi.ng.color.core :as c]
             [thi.ng.math.core :as m]))
 
+(def class-configs
+  {:header {:envelope-size 0.2}
+   :external {:envelope-size 0.5}
+   :scaffolding {:envelope-size 0.1}
+   :content {:envelope-size 0.3}
+   :default {:envelope-size 0.1}})
+
 (def classes
   {:header #{:html :head :meta :title :body}
    :external #{:link :script}
@@ -15,19 +22,18 @@
    :content #{:h1 :h2 :h3 :h4 :h5 :h6 :p :a :b :code :pre :tt :input :ul :li
               :form :img :textarea}})
 
-(def class-configs
-  {:header {:envelope-size 0.3}
-   :external {:envelope-size 0.1}
-   :scaffolding {:envelope-size 0.2}
-   :content {:envelope-size 0.4}})
+(defn all-classes [] (reduce #(into %1 %2) #{} (vals classes)))
 
 (defn classify
   "Returns the set of classes (not related to CSS classes) the given tag belongs
   to. See the classes map in this namespace for possible class values."
   [tag]
   (let [cs (reduce-kv #(if (%3 tag) (conj %1 %2) %1) #{} classes)]
-    (if (empty? cs) (println "Tag not classified: " tag))
-    cs))
+    (if (empty? cs)
+      (do
+        (println "Tag not classified: " tag)
+        #{:default})
+      cs)))
 
 (defn envelope [t]
   ; TODO: Implement a smarter algo. Different one for each tag class.

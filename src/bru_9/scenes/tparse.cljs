@@ -11,15 +11,15 @@
             [bru-9.geom.generators :as gen]
             [thi.ng.math.core :as m]))
 
-(def config {:url "http://bbc.com"
+(def config {:url "http://pitchfork.com"
              :url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
              :node-limit 200
-             :camera-distance 8
+             :camera-distance 15
              :background-color 0x111111
              :start-positions-axis-following 1.7
              ; TODO: calculate walk multiplier based on number of nodes
-             :start-positions-walk-multiplier 0.02
+             :start-positions-walk-multiplier 0.03
              :curve-tightness-min 0.04
              :curve-tightness-max 0.08
              :spline-hops 4
@@ -36,7 +36,8 @@
              :mesh-geometry-size 131070
              :infinite-params {:hue 0.1
                                :saturation 0.2
-                               :brightness 0.0}})
+                               :brightness -0.3}
+             :rotation-speed 0.0005})
 
 (defonce *state* (atom {}))
 
@@ -102,7 +103,9 @@
         seers (parse/map-occurences body (:all-seeing config))
         urls (set (parse/occurences body (:url-regex config)))
         all-nodes (parse/level-dom body)
-        limited-nodes (take (:node-limit config) all-nodes)
+        node-classes (gtag/all-classes)
+        filtered-nodes (filter #(get node-classes (first %)) all-nodes)
+        limited-nodes (take (:node-limit config) filtered-nodes)
         mesh (nodes->mesh limited-nodes)
         three-mesh (i/three-mesh mesh)
         scene (:scene @*state*)]
@@ -150,5 +153,6 @@
     (on-reload context)))
 
 (defn animate [context]
-  (let []
+  (let [rot (.-x (.-rotation camera-pivot))]
+    (set! (.-x (.-rotation camera-pivot)) (+ rot (:rotation-speed config)))
     context))
