@@ -152,3 +152,17 @@
         mini (Math/max (long minimum) (- (long val) rounded-fraction))
         maxi (Math/min (long maximum) (+ (long val) rounded-fraction))]
     (rand-int-range mini maxi)))
+
+(defn saw
+  "Returns a symmetrical saw function. The function starts from ybase, rises
+  linearly to ymax when t = 0.5, and then starts descending back toward ybase,
+  reaching it in t = 1. The only parameter of the returned function is t, which
+  is clamped to the [0, 1] range."
+  [ybase ymax]
+  (fn [t]
+    (let [t (m/clamp t 0.0 1.0)
+          height (- ymax ybase)
+          coeff (* height 2)]
+      (if (< t 0.5)
+        (+ ybase (* t coeff))
+        (+ ymax (* (- t 0.5)(- coeff)))))))
