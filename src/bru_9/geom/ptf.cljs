@@ -18,7 +18,7 @@
 (defn sweep-profile
   [profiles attribs opts [points tangents norms bnorms]]
   (let [{:keys [close? loop?] :or {close? true}} opts
-        looped-profiles (cycle profiles)
+        looped-profiles (cycle (rest profiles))
         frames (map vector points tangents norms bnorms)
         tx (fn [[p t n b] prof] (mapv #(sweep-point p t n b %) prof))
         frame0 (tx (first frames) (first profiles))
