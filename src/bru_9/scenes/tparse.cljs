@@ -21,7 +21,7 @@
              ; TODO: calculate walk multiplier based on number of nodes
              :start-positions-walk-multiplier 0.03
              :curve-tightness-min 0.04
-             :curve-tightness-max 0.08
+             :curve-tightness-max 0.1
              :spline-hops 4
              :offset-radius 0.1
              :field-dimensions [10 5 5]
@@ -36,7 +36,7 @@
              :mesh-geometry-size 131070
              :infinite-params {:hue 0.1
                                :saturation 0.2
-                               :brightness -0.3}
+                               :brightness -0.1}
              :rotation-speed 0.0005})
 
 (defonce *state* (atom {}))
