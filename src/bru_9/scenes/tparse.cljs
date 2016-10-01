@@ -14,30 +14,30 @@
 (def config {:url "http://pitchfork.com"
              :url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
-             :node-limit 300
-             :camera-distance 15
+             :node-limit 400
+             :camera-distance 14
              :background-color 0x111111
              :start-positions-axis-following 1.7
              ; TODO: calculate walk multiplier based on number of nodes
-             :start-positions-walk-multiplier 0.03
+             :start-positions-walk-multiplier 0.025
              :curve-tightness-min 0.04
              :curve-tightness-max 0.1
              :spline-hops 4
-             :offset-radius 0.1
+             :offset-radius 0.2
              :field-dimensions [10 5 5]
              :field-count 2
              :field-general-direction v/V3X
-             :field-random-following 1.0
-             :mulfn-base 0.7
-             :mulfn-jump-chance 0.3
-             :mulfn-jump-intensity 1.2
+             :field-random-following 1.3
+             :mulfn-base 0.8
+             :mulfn-jump-chance 0.2
+             :mulfn-jump-intensity 1.0
              :wander-probability 0.25
              :spline-resolution 10
              :mesh-geometry-size 131070
              :infinite-params {:hue 0.1
                                :saturation 0.2
                                :brightness -0.1}
-             :rotation-speed 0.0005})
+             :rotation-speed 0.0002})
 
 (defonce *state* (atom {}))
 

@@ -18,11 +18,11 @@
   ;   been performed.
   ; * envelope shape – bulging, heavier shapes for short & important tag
   ;   classes, thin and pointy style (similar to current one) for others
-  {:header {:envelope-size 0.15}
+  {:header {:envelope-size 0.2}
    :external {:envelope-size 0.12}
-   :scaffolding {:envelope-size 0.08}
+   :scaffolding {:envelope-size 0.05}
    :content {:envelope-size 0.4}
-   :default {:envelope-size 0.1}})
+   :default {:envelope-size 0.2}})
 
 (def classes
   {:header #{:html :head :meta :title :body}
