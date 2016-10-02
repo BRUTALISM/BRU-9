@@ -58,7 +58,7 @@
 ; Filters the vertices of a spline according to tag class
 (defmulti filter-spline (fn [tag] (classify tag)))
 (defmethod filter-spline :content [_ vertices]
-  (map #(u/nth01 vertices %) (range 0.0 1.01 0.5)))
+  (map #(u/nth01 vertices %) [0.0 0.2 1.0]))
 (defmethod filter-spline :default [_ vertices]
   vertices)
 

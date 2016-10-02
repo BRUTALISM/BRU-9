@@ -5,18 +5,18 @@
   (let [convert (fn [cols] (map c/css cols))
         pals
         {
-         ;:tar ["#000000"]
-         ;:santa ["#FFFFFF"]
-         ;
-         ;:ohai ["#3784FF"]
-         ;:ball ["#F44677"]
-         ;:to ["#FC3B36"]
-         ;:wer ["#2AB4CD"]
+         :tar ["#000000"]
+         :santa ["#FFFFFF"]
 
-         :ballin ["#2055CD" "#F44677"]
-         :tower ["#FC3B36" "#2AB4CD"]
-         :swet ["#3C7CE6" "#F8746D"]
-         :flume ["#FE639C" "#913597"]
+         :ohai ["#3784FF"]
+         :ball ["#F44677"]
+         :to ["#FC3B36"]
+         :wer ["#2AB4CD"]
+
+         ;:ballin ["#2055CD" "#F44677"]
+         ;:tower ["#FC3B36" "#2AB4CD"]
+         ;:swet ["#3C7CE6" "#F8746D"]
+         ;:flume ["#FE639C" "#913597"]
 
          ;:maller ["#f21d6b" "#f2358d" "#35d0f2" "#f29e38" "#f23535"]
          ;:div ["#031431" "#3C7DB7" "#F7AA11" "#D10013" "#FB0B00"]

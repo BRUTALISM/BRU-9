@@ -5,7 +5,7 @@
 (enable-console-print!)
 
 (defn main-page []
-  [:span.title "BRUTALISM"])
+  [:span.title "PROTOTYPE"])
 
 (defn mount-root []
   (reagent/render [main-page] (.getElementById js/document "app")))
