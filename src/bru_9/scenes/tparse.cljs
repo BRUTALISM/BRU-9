@@ -9,7 +9,8 @@
             [thi.ng.geom.webgl.glmesh :as glm]
             [thi.ng.geom.vector :as v]
             [bru-9.geom.generators :as gen]
-            [thi.ng.math.core :as m]))
+            [thi.ng.math.core :as m]
+            [thi.ng.color.core :as tc]))
 
 (def config {:url "http://pitchfork.com"
              :url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
@@ -19,11 +20,11 @@
              :background-color 0x111111
              :start-positions-axis-following 1.7
              ; TODO: calculate walk multiplier based on number of nodes
-             :start-positions-walk-multiplier 0.025
+             :start-positions-walk-multiplier 0.01
              :curve-tightness-min 0.04
              :curve-tightness-max 0.1
              :spline-hops 4
-             :offset-radius 0.2
+             :offset-radius 0.5
              :field-dimensions [10 5 5]
              :field-count 2
              :field-general-direction v/V3X
@@ -84,6 +85,7 @@
         start-positions (make-start-positions (count nodes))
         splines (gen/make-field-splines fields start-positions mulfn config)
         palette (make-palette)
+        ;palette (repeatedly tc/random-rgb)
         nodes-splines-colors (map vector nodes splines palette)
         tagfn (fn [acc [tag spline color]]
                 (gtag/tag->mesh acc tag spline color
@@ -103,8 +105,8 @@
         seers (parse/map-occurences body (:all-seeing config))
         urls (set (parse/occurences body (:url-regex config)))
         all-nodes (parse/level-dom body)
-        node-classes (gtag/all-classes)
-        filtered-nodes (filter #(get node-classes (first %)) all-nodes)
+        supported-tags (gtag/all-tags)
+        filtered-nodes (filter #(get supported-tags (first %)) all-nodes)
         limited-nodes (take (:node-limit config) filtered-nodes)
         mesh (nodes->mesh limited-nodes)
         three-mesh (i/three-mesh mesh)

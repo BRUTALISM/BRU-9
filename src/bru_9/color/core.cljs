@@ -5,7 +5,7 @@
   (let [convert (fn [cols] (map c/css cols))
         pals
         {
-         :tar ["#000000"]
+         ;:tar ["#000000"]
          :santa ["#FFFFFF"]
 
          :ohai ["#3784FF"]

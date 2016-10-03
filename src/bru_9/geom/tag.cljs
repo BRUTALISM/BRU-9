@@ -33,18 +33,14 @@
    :content #{:h1 :h2 :h3 :h4 :h5 :h6 :p :b :code :pre :tt :ul :li
               :img}})
 
-(defn all-classes [] (reduce #(into %1 %2) #{} (vals classes)))
+(defn all-tags [] (reduce #(into %1 %2) #{} (vals classes)))
 
 (defn classify
   "Returns the class (not related to CSS class) the given tag belongs to. See
   the classes map in this namespace for possible class values."
   [tag]
   (let [cs (reduce-kv #(if (%3 tag) (conj %1 %2) %1) #{} classes)]
-    (if (empty? cs)
-      (do
-        (println "Tag not classified: " tag)
-        :default)
-      (first cs))))
+    (if (empty? cs) :default (first cs))))
 
 ; Shape and envelope functions
 
@@ -52,8 +48,10 @@
 (defmulti envelope (fn [tag] (classify tag)))
 (defmethod envelope :content [_]
   (u/saw 0.1 1.0))
-(defmethod envelope :default [_]
+(defmethod envelope :scaffolding [_]
   (fn [t] (+ 0.2 (* t 0.8))))
+(defmethod envelope :default [_]
+  (u/saw 0.3 1.0))
 
 ; Filters the vertices of a spline according to tag class
 (defmulti filter-spline (fn [tag] (classify tag)))
