@@ -79,7 +79,15 @@
 
 (declare setup-pivot)
 
-(defn nodes->mesh [nodes]
+(defn background-nodes->mesh [nodes]
+  (let []
+    []))
+
+(defn external-nodes->mesh [nodes]
+  (let []
+    []))
+
+(defn main-nodes->mesh [nodes]
   (let [acc (glm/gl-mesh (:mesh-geometry-size config) #{:col})
         fields (make-fields)
         start-positions (make-start-positions (count nodes))
@@ -93,9 +101,20 @@
         mesh (reduce tagfn acc nodes-splines-colors)]
     (swap! *state* assoc :splines splines)
     (setup-pivot)
-    mesh))
+    [mesh]))
 
 ; URL parsing
+
+(defn split-nodes
+  "Splits the nodes into background, external, and main nodes. Background nodes
+  will get rendered as background, external ones will be rendered as thin lines
+  wrapping around the main sculpture."
+  [nodes]
+  (let [render-context #(case (gtag/classify %)
+                         :header :background
+                         :external :external
+                         :main)]
+    (group-by render-context nodes)))
 
 (defn process-response
   "Parses the given response, converts its DOM tree into a mesh, and adds the
@@ -106,16 +125,20 @@
         urls (set (parse/occurences body (:url-regex config)))
         all-nodes (parse/level-dom body)
         supported-tags (gtag/all-tags)
-        filtered-nodes (filter #(get supported-tags (first %)) all-nodes)
-        limited-nodes (take (:node-limit config) filtered-nodes)
-        mesh (nodes->mesh limited-nodes)
-        three-mesh (i/three-mesh mesh)
+        supported-nodes (filter #(get supported-tags (first %)) all-nodes)
+        {:keys [background external main]} (split-nodes supported-nodes)
+        background-meshes (background-nodes->mesh background)
+        external-meshes (external-nodes->mesh external)
+        main-meshes (main-nodes->mesh (take (:node-limit config) main))
+        all-meshes (reduce into []
+                           [background-meshes external-meshes main-meshes])
+        three-meshes (map #(i/three-mesh %) all-meshes)
         scene (:scene @*state*)]
     (println "Parsed nodes: " (count all-nodes))
     (println "URLs: " urls)
     (println "URL count: " (count urls))
     (println "Seers: " seers)
-    (.add scene three-mesh)))
+    (doseq [mesh three-meshes] (.add scene mesh))))
 
 ; Scene setup & main loop
 
