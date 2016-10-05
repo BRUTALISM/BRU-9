@@ -11,13 +11,6 @@
 ; Classification and per-class configuration
 
 (def class-configs
-  ; Potential params:
-  ; * spline sampling resolution – smaller for short, large shapes
-  ; * transport along subset of spline (for shorter shapes) – can also be
-  ;   controlled via :spline-hops, but at this stage spline hops have already
-  ;   been performed.
-  ; * envelope shape – bulging, heavier shapes for short & important tag
-  ;   classes, thin and pointy style (similar to current one) for others
   {:header {:envelope-size 0.2}
    :external {:envelope-size 0.12}
    :scaffolding {:envelope-size 0.05}
@@ -26,7 +19,6 @@
 
 (def classes
   {:header #{:html :head :meta :title :body}
-   ; TODO: :external should be drawn onto separate fields (see Trello)
    :external #{:link :script}
    :scaffolding #{:div :span :header :footer :noscript :style :nav :main :aside
                   :a :input :form :textarea}

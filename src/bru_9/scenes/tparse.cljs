@@ -1,4 +1,6 @@
 (ns bru-9.scenes.tparse
+  (:require-macros
+    [cljs.core.async.macros :refer [go go-loop alt!]])
   (:require [bru-9.requests :as req]
             [bru-9.parse :as parse]
             [bru-9.geom.tag :as gtag]
@@ -10,12 +12,14 @@
             [thi.ng.geom.vector :as v]
             [bru-9.geom.generators :as gen]
             [thi.ng.math.core :as m]
-            [thi.ng.color.core :as tc]))
+            [thi.ng.color.core :as tc]
+            [cljs.core.async :as async :refer [<! >!]]))
 
 (def config {:url "http://pitchfork.com"
              :url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
-             :node-limit 400
+             :node-limit 1000
+             :nodes-per-batch 100
              :camera-distance 14
              :background-color 0x111111
              :start-positions-axis-following 1.7
@@ -79,29 +83,31 @@
 
 (declare setup-pivot)
 
-(defn background-nodes->mesh [nodes]
+(defn background-nodes->mesh [{:keys [nodes splines palette]}]
   (let []
-    []))
+    ; TODO: Implement.
+    nil))
 
-(defn external-nodes->mesh [nodes]
+(defn external-nodes->mesh [{:keys [nodes splines palette]}]
   (let []
-    []))
+    ; TODO: Implement.
+    nil))
 
-(defn main-nodes->mesh [nodes]
-  (let [acc (glm/gl-mesh (:mesh-geometry-size config) #{:col})
-        fields (make-fields)
-        start-positions (make-start-positions (count nodes))
-        splines (gen/make-field-splines fields start-positions mulfn config)
-        palette (make-palette)
-        ;palette (repeatedly tc/random-rgb)
+(defn make-main-splines [fields start-positions mulfn config]
+  (let [splines (gen/make-field-splines fields start-positions mulfn config)]
+    (swap! *state* assoc :splines splines)
+    (setup-pivot)
+    splines))
+
+(defn main-nodes->mesh [{:keys [nodes splines palette]}]
+  (let [gl-mesh (glm/gl-mesh (:mesh-geometry-size config) #{:col})
         nodes-splines-colors (map vector nodes splines palette)
         tagfn (fn [acc [tag spline color]]
                 (gtag/tag->mesh acc tag spline color
-                                (:spline-resolution config)))
-        mesh (reduce tagfn acc nodes-splines-colors)]
-    (swap! *state* assoc :splines splines)
-    (setup-pivot)
-    [mesh]))
+                                (:spline-resolution config)))]
+    (go
+      (>! (:mesh-chan @*state*)
+          (reduce tagfn gl-mesh nodes-splines-colors)))))
 
 ; URL parsing
 
@@ -120,27 +126,63 @@
   "Parses the given response, converts its DOM tree into a mesh, and adds the
   mesh to the current Three.js scene"
   [response]
-  (let [body (:body response)
+  (let [{:keys [node-limit nodes-per-batch]} config
+        body (:body response)
         seers (parse/map-occurences body (:all-seeing config))
         urls (set (parse/occurences body (:url-regex config)))
         all-nodes (parse/level-dom body)
         supported-tags (gtag/all-tags)
         supported-nodes (filter #(get supported-tags (first %)) all-nodes)
-        {:keys [background external main]} (split-nodes supported-nodes)
-        background-meshes (background-nodes->mesh background)
-        external-meshes (external-nodes->mesh external)
-        main-meshes (main-nodes->mesh (take (:node-limit config) main))
-        all-meshes (reduce into []
-                           [background-meshes external-meshes main-meshes])
-        three-meshes (map #(i/three-mesh %) all-meshes)
-        scene (:scene @*state*)]
+        limited-nodes (take node-limit supported-nodes)
+        {:keys [background external main]} (split-nodes limited-nodes)
+        part (fn [ns]
+               (partition nodes-per-batch nodes-per-batch [] ns))
+        fields (make-fields)
+        start-positions (make-start-positions (count limited-nodes))
+        splines (make-main-splines fields start-positions mulfn config)
+        palette (make-palette)]
     (println "Parsed nodes: " (count all-nodes))
     (println "URLs: " urls)
     (println "URL count: " (count urls))
     (println "Seers: " seers)
-    (doseq [mesh three-meshes] (.add scene mesh))))
+    (go
+      (doseq [[ns ss] (map vector (part main) (part splines))]
+        (>! (:seed-chan @*state*)
+            {:context :main
+             :params {:nodes ns
+                      :splines ss
+                      :palette palette}}))
+      ; TODO: add seeds for background and external nodes
+      )))
 
-; Scene setup & main loop
+; Scene setup & loops
+
+(defn seed-loop
+  "Starts a go-loop which reads seeds from seed-chan, decides which processing
+  function to use, and runs it with the parameters (:params) read from the seed.
+  The processing function puts its results into the mesh channel (accessible
+  from *state*)."
+  [seed-chan]
+  (let [proc-fns {:background background-nodes->mesh
+                  :external external-nodes->mesh
+                  :main main-nodes->mesh}]
+    (go-loop
+      []
+      (let [{:keys [context params]} (<! seed-chan)
+            proc-fn (get proc-fns context)]
+        (proc-fn params)
+        (recur)))))
+
+(defn mesh-loop
+  "Starts a go-loop which reads meshes from mesh-chan, converts them to Three.js
+  meshes, and adds them to the scene."
+  [mesh-chan]
+  (go-loop
+    []
+    (let [mesh (<! mesh-chan)
+          three-mesh (i/three-mesh mesh)]
+      (.add (:scene @*state*) three-mesh)
+      (recur))))
 
 (defn- setup-camera [camera pivot-pos]
   (set! (.-x (.-position camera)) (.-x pivot-pos))
@@ -167,9 +209,15 @@
     context))
 
 (defn setup [initial-context]
-  (swap! *state* assoc :scene (:scene initial-context))
-  (swap! *state* assoc :camera (:camera initial-context))
-  (on-reload initial-context))
+  (let [seed-chan (async/chan 10)
+        mesh-chan (async/chan 10)]
+    (swap! *state* assoc :scene (:scene initial-context))
+    (swap! *state* assoc :camera (:camera initial-context))
+    (swap! *state* assoc :seed-chan seed-chan)
+    (swap! *state* assoc :mesh-chan mesh-chan)
+    (seed-loop seed-chan)
+    (mesh-loop mesh-chan)
+    (on-reload initial-context)))
 
 (defn reload [context]
   (let [scene (:scene context)]
