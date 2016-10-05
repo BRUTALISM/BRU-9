@@ -105,9 +105,8 @@
         tagfn (fn [acc [tag spline color]]
                 (gtag/tag->mesh acc tag spline color
                                 (:spline-resolution config)))]
-    (go
-      (>! (:mesh-chan @*state*)
-          (reduce tagfn gl-mesh nodes-splines-colors)))))
+    (async/put! (:mesh-chan @*state*)
+                (reduce tagfn gl-mesh nodes-splines-colors))))
 
 ; URL parsing
 
@@ -139,36 +138,37 @@
                (partition nodes-per-batch nodes-per-batch [] ns))
         fields (make-fields)
         start-positions (make-start-positions (count limited-nodes))
-        splines (make-main-splines fields start-positions mulfn config)
+        main-splines (make-main-splines fields start-positions mulfn config)
         palette (make-palette)]
     (println "Parsed nodes: " (count all-nodes))
     (println "URLs: " urls)
     (println "URL count: " (count urls))
     (println "Seers: " seers)
-    (go
-      (doseq [[ns ss] (map vector (part main) (part splines))]
-        (>! (:seed-chan @*state*)
-            {:context :main
-             :params {:nodes ns
-                      :splines ss
-                      :palette palette}}))
-      ; TODO: add seeds for background and external nodes
-      )))
+    ; TODO: add seeds for background and external nodes
+    (doseq [[nodes splines] (map vector (part main) (part main-splines))]
+      (async/put! (:seed-chan @*state*)
+                  {:context :main
+                   :params {:nodes nodes
+                            :splines splines
+                            :palette palette}}))))
 
 ; Scene setup & loops
 
 (defn seed-loop
   "Starts a go-loop which reads seeds from seed-chan, decides which processing
   function to use, and runs it with the parameters (:params) read from the seed.
-  The processing function puts its results into the mesh channel (accessible
-  from *state*)."
-  [seed-chan]
+  Reads from seed-chan are followed by a read from anim-chan, which must
+  succeed before the rest of the logic runs. This way we're letting at least one
+  animation frame to run before processing the next seed. The processing
+  function puts its results into the mesh channel (accessible from *state*)."
+  [seed-chan anim-chan]
   (let [proc-fns {:background background-nodes->mesh
                   :external external-nodes->mesh
                   :main main-nodes->mesh}]
     (go-loop
       []
       (let [{:keys [context params]} (<! seed-chan)
+            _ (<! anim-chan)
             proc-fn (get proc-fns context)]
         (proc-fn params)
         (recur)))))
@@ -210,12 +210,14 @@
 
 (defn setup [initial-context]
   (let [seed-chan (async/chan 10)
+        anim-chan (async/chan (async/dropping-buffer 1))
         mesh-chan (async/chan 10)]
     (swap! *state* assoc :scene (:scene initial-context))
     (swap! *state* assoc :camera (:camera initial-context))
     (swap! *state* assoc :seed-chan seed-chan)
+    (swap! *state* assoc :anim-chan anim-chan)
     (swap! *state* assoc :mesh-chan mesh-chan)
-    (seed-loop seed-chan)
+    (seed-loop seed-chan anim-chan)
     (mesh-loop mesh-chan)
     (on-reload initial-context)))
 
@@ -228,4 +230,5 @@
 (defn animate [context]
   (let [rot (.-x (.-rotation camera-pivot))]
     (set! (.-x (.-rotation camera-pivot)) (+ rot (:rotation-speed config)))
+    (async/put! (:anim-chan @*state*) true)
     context))
