@@ -15,16 +15,18 @@
             [thi.ng.color.core :as tc]
             [cljs.core.async :as async :refer [<! >!]]))
 
-(def config {:url "http://pitchfork.com"
-             :url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
+(def config {:url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
+             ;:url "http://brutalism.rs"
+             ;:url "http://apple.com"
+             :url "http://pitchfork.com"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
-             :node-limit 1000
+             :node-limit 5000
              :nodes-per-batch 100
              :camera-distance 14
              :background-color 0x111111
-             :start-positions-axis-following 1.7
+             :start-positions-axis-following 1.5
              ; TODO: calculate walk multiplier based on number of nodes
-             :start-positions-walk-multiplier 0.01
+             :start-positions-walk-multiplier 0.015
              :curve-tightness-min 0.04
              :curve-tightness-max 0.1
              :spline-hops 4
@@ -32,12 +34,12 @@
              :field-dimensions [10 5 5]
              :field-count 2
              :field-general-direction v/V3X
-             :field-random-following 1.3
+             :field-random-following 1.6
              :mulfn-base 0.8
-             :mulfn-jump-chance 0.2
+             :mulfn-jump-chance 0.1
              :mulfn-jump-intensity 1.0
              :wander-probability 0.25
-             :spline-resolution 10
+             :spline-resolution 8
              :mesh-geometry-size 131070
              :infinite-params {:hue 0.1
                                :saturation 0.2
@@ -130,9 +132,7 @@
         seers (parse/map-occurences body (:all-seeing config))
         urls (set (parse/occurences body (:url-regex config)))
         all-nodes (parse/level-dom body)
-        supported-tags (gtag/all-tags)
-        supported-nodes (filter #(get supported-tags (first %)) all-nodes)
-        limited-nodes (take node-limit supported-nodes)
+        limited-nodes (take node-limit all-nodes)
         {:keys [background external main]} (split-nodes limited-nodes)
         part (fn [ns]
                (partition nodes-per-batch nodes-per-batch [] ns))

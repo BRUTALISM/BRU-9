@@ -11,7 +11,8 @@
            children [(first filtered)]]
       (if (empty? children)
         level
-        (recur (into level children) (mapcat #(drop 2 %) children))))))
+        (recur (into level (filter #(keyword? (first %)) children))
+               (mapcat #(drop 2 %) (filter sequential? children)))))))
 
 (defn occurences
   "Returns all occurences of the given regex in the search-in string. Ignores

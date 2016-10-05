@@ -14,7 +14,7 @@
   {:header {:envelope-size 0.2}
    :external {:envelope-size 0.12}
    :scaffolding {:envelope-size 0.05}
-   :content {:envelope-size 0.4}
+   :content {:envelope-size 0.5}
    :default {:envelope-size 0.2}})
 
 (def classes
@@ -23,9 +23,7 @@
    :scaffolding #{:div :span :header :footer :noscript :style :nav :main :aside
                   :a :input :form :textarea}
    :content #{:h1 :h2 :h3 :h4 :h5 :h6 :p :b :code :pre :tt :ul :li
-              :img}})
-
-(defn all-tags [] (reduce #(into %1 %2) #{} (vals classes)))
+              :img :path :polygon :svg}})
 
 (defn classify
   "Returns the class (not related to CSS class) the given tag belongs to. See

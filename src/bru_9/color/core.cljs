@@ -6,7 +6,7 @@
         pals
         {
          ;:tar ["#000000"]
-         :santa ["#FFFFFF"]
+         ;:santa ["#FFFFFF"]
 
          :ohai ["#3784FF"]
          :ball ["#F44677"]
