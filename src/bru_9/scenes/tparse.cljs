@@ -11,21 +11,21 @@
             [thi.ng.geom.webgl.glmesh :as glm]
             [thi.ng.geom.vector :as v]
             [bru-9.geom.generators :as gen]
+            [bru-9.geom.bezier :as b]
             [thi.ng.math.core :as m]
             [thi.ng.color.core :as tc]
             [cljs.core.async :as async :refer [<! >!]]))
 
 (def config {:url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
              ;:url "http://brutalism.rs"
-             ;:url "http://apple.com"
-             :url "http://pitchfork.com"
+             :url "http://apple.com"
+             ;:url "http://pitchfork.com"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
              :node-limit 5000
              :nodes-per-batch 100
              :camera-distance 14
              :background-color 0x111111
              :start-positions-axis-following 1.5
-             ; TODO: calculate walk multiplier based on number of nodes
              :start-positions-walk-multiplier 0.015
              :curve-tightness-min 0.04
              :curve-tightness-max 0.1
@@ -39,7 +39,7 @@
              :mulfn-jump-chance 0.1
              :mulfn-jump-intensity 1.0
              :wander-probability 0.25
-             :spline-resolution 8
+             :spline-resolution 10
              :mesh-geometry-size 131070
              :infinite-params {:hue 0.1
                                :saturation 0.2
@@ -83,17 +83,32 @@
         infinite (ci/infinite-palette palette (:infinite-params config))]
     infinite))
 
-(declare setup-pivot)
+(defn nodes->mesh [{:keys [nodes splines palette]} tagfn]
+  (let [gl-mesh (glm/gl-mesh (:mesh-geometry-size config) #{:col})
+        nodes-splines-colors (map vector nodes splines palette)]
+    (async/put! (:mesh-chan @*state*)
+                (reduce tagfn gl-mesh nodes-splines-colors))))
 
 (defn background-nodes->mesh [{:keys [nodes splines palette]}]
   (let []
     ; TODO: Implement.
     nil))
 
-(defn external-nodes->mesh [{:keys [nodes splines palette]}]
+(defn make-external-splines [start-positions num]
+  (let [field (first (gen/make-fields 1 [5 5 5] v/V3Y 1.0))
+        start-positions (repeatedly num #(rand-nth start-positions))]
+    (map #(b/spline-walk field % 3 mulfn 0.05) start-positions)))
+
+(declare main-nodes->mesh)
+(defn external-nodes->mesh
+  ;[{:keys [nodes splines palette]}]
+  [params]
   (let []
     ; TODO: Implement.
-    nil))
+    (main-nodes->mesh params)
+    ))
+
+(declare setup-pivot)
 
 (defn make-main-splines [fields start-positions mulfn config]
   (let [splines (gen/make-field-splines fields start-positions mulfn config)]
@@ -101,14 +116,11 @@
     (setup-pivot)
     splines))
 
-(defn main-nodes->mesh [{:keys [nodes splines palette]}]
-  (let [gl-mesh (glm/gl-mesh (:mesh-geometry-size config) #{:col})
-        nodes-splines-colors (map vector nodes splines palette)
-        tagfn (fn [acc [tag spline color]]
+(defn main-nodes->mesh [params]
+  (let [tagfn (fn [acc [tag spline color]]
                 (gtag/tag->mesh acc tag spline color
                                 (:spline-resolution config)))]
-    (async/put! (:mesh-chan @*state*)
-                (reduce tagfn gl-mesh nodes-splines-colors))))
+    (nodes->mesh params tagfn)))
 
 ; URL parsing
 
@@ -117,7 +129,7 @@
   will get rendered as background, external ones will be rendered as thin lines
   wrapping around the main sculpture."
   [nodes]
-  (let [render-context #(case (gtag/classify %)
+  (let [render-context #(case (gtag/classify (first %))
                          :header :background
                          :external :external
                          :main)]
@@ -137,20 +149,29 @@
         part (fn [ns]
                (partition nodes-per-batch nodes-per-batch [] ns))
         fields (make-fields)
-        start-positions (make-start-positions (count limited-nodes))
+        start-positions (make-start-positions (count main))
         main-splines (make-main-splines fields start-positions mulfn config)
+        ext-splines (make-external-splines start-positions (count external))
         palette (make-palette)]
     (println "Parsed nodes: " (count all-nodes))
     (println "URLs: " urls)
     (println "URL count: " (count urls))
     (println "Seers: " seers)
-    ; TODO: add seeds for background and external nodes
+    (println "External nodes: " (count external))
     (doseq [[nodes splines] (map vector (part main) (part main-splines))]
       (async/put! (:seed-chan @*state*)
                   {:context :main
                    :params {:nodes nodes
                             :splines splines
-                            :palette palette}}))))
+                            :palette palette}}))
+    (doseq [[nodes splines] (map vector (part external) (part ext-splines))]
+      (async/put! (:seed-chan @*state*)
+                  {:context :external
+                   :params {:nodes nodes
+                            :splines splines
+                            :palette palette}}))
+    ; TODO: add seeds for background nodes
+    ))
 
 ; Scene setup & loops
 
