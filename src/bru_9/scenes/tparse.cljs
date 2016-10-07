@@ -36,12 +36,13 @@
              :start-positions-walk-multiplier 0.015
              :start-positions-random-offset 0.5
              :external-radius-min 1.0
-             :external-radius-max 2.5
-             :external-angle-min m/QUARTER_PI
+             :external-radius-max 2.6
+             :external-angle-min m/SIXTH_PI
              :external-angle-max m/HALF_PI
              :external-tightness-min 0.1
-             :external-tightness-max 1.0
-             :external-x-wobble 0.5
+             :external-tightness-max 0.3
+             :external-x-wobble 1.2
+             :external-node-count 6
              :curve-tightness-min 0.04
              :curve-tightness-max 0.1
              :spline-hops 4
@@ -121,6 +122,7 @@
         tmin (:external-tightness-min config)
         tmax (:external-tightness-max config)
         xw (:external-x-wobble config)
+        node-count (:external-node-count config)
         angling
         (fn [a] (+ a (u/rand-range amin amax)))
         make-node
@@ -130,9 +132,9 @@
             (m/+ p (g/rotate-around-axis v v/V3X a))))
         make-spline-nodes
         (fn [start-pos]
-          ; TODO: find out what's causing those huge spikes
-          ; TODO: make 5 a param
-          (map make-node (repeat 5 start-pos) (iterate angling 0)))
+          (map make-node
+               (repeat node-count start-pos)
+               (iterate angling (rand m/TWO_PI))))
         make-spline
         (fn [nodes]
           (b/auto-spline3 nodes (u/rand-range tmin tmax)))
@@ -143,7 +145,7 @@
   [params]
   ; TODO: 99% same as main-nodes->mesh, refactor (use different colors though)
   (let [tagfn (fn [acc [tag spline color]]
-                (gtag/tag->mesh acc tag spline tc/YELLOW
+                (gtag/tag->mesh acc tag spline color
                                 (:spline-resolution config)))]
     (nodes->mesh params tagfn)))
 
