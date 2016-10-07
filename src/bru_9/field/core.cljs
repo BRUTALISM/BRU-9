@@ -19,7 +19,7 @@
   [0, 1] range, representing the percentage of the total number of hops the
   function is being invoked at. This way, you can modulate the speed of walking
   as you do the walking."
-  ([f startpos hops] (walk f startpos hops (fn [_] 1)))
+  ([f startpos hops] (walk f startpos hops (constantly 1)))
   ([f startpos hops mulfn]
    (loop [ps [], pos startpos, hopsleft hops]
      (if (> hopsleft 0)

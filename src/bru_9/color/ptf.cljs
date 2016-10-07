@@ -1,6 +1,5 @@
 (ns bru-9.color.ptf
   (:require [thi.ng.geom.attribs :as attr]
-            [thi.ng.color.core :as c]
             [thi.ng.math.core :as m]))
 
 (defn gradient-ordering

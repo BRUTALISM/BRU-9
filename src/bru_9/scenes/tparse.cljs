@@ -1,25 +1,32 @@
 (ns bru-9.scenes.tparse
   (:require-macros
     [cljs.core.async.macros :refer [go go-loop alt!]])
-  (:require [bru-9.requests :as req]
+  (:require [cljs.core.async :as async :refer [<! >!]]
+            [bru-9.requests :as req]
             [bru-9.parse :as parse]
             [bru-9.geom.tag :as gtag]
             [bru-9.interop :as i]
             [bru-9.util :as u]
             [bru-9.color.core :as c]
             [bru-9.color.infinite :as ci]
-            [thi.ng.geom.webgl.glmesh :as glm]
-            [thi.ng.geom.vector :as v]
             [bru-9.geom.generators :as gen]
             [bru-9.geom.bezier :as b]
+            [bru-9.geom.ptf :as ptf]
+            [bru-9.field.linear :as fl]
+            [bru-9.debug :as d]
+            [thi.ng.geom.webgl.glmesh :as glm]
+            [thi.ng.geom.vector :as v]
             [thi.ng.math.core :as m]
             [thi.ng.color.core :as tc]
-            [cljs.core.async :as async :refer [<! >!]]))
+            [thi.ng.geom.core :as g]
+            [thi.ng.geom.circle :as cir]
+            [thi.ng.geom.attribs :as attr]))
 
 (def config {:url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
              ;:url "http://brutalism.rs"
-             :url "http://apple.com"
-             ;:url "http://pitchfork.com"
+             ;:url "http://polumenta.zardina.org"
+             ;:url "http://apple.com"
+             :url "http://pitchfork.com"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
              :node-limit 5000
              :nodes-per-batch 100
@@ -27,10 +34,17 @@
              :background-color 0x111111
              :start-positions-axis-following 1.5
              :start-positions-walk-multiplier 0.015
+             :start-positions-random-offset 0.5
+             :external-radius-min 1.0
+             :external-radius-max 2.5
+             :external-angle-min m/QUARTER_PI
+             :external-angle-max m/HALF_PI
+             :external-tightness-min 0.1
+             :external-tightness-max 1.0
+             :external-x-wobble 0.5
              :curve-tightness-min 0.04
              :curve-tightness-max 0.1
              :spline-hops 4
-             :offset-radius 0.5
              :field-dimensions [10 5 5]
              :field-count 2
              :field-general-direction v/V3X
@@ -44,7 +58,8 @@
              :infinite-params {:hue 0.1
                                :saturation 0.2
                                :brightness -0.1}
-             :rotation-speed 0.0002})
+             :rotation-speed 0.0                            ;0.0002
+             })
 
 (defonce *state* (atom {}))
 
@@ -89,24 +104,50 @@
     (async/put! (:mesh-chan @*state*)
                 (reduce tagfn gl-mesh nodes-splines-colors))))
 
+; Background mesh generation
+
 (defn background-nodes->mesh [{:keys [nodes splines palette]}]
   (let []
     ; TODO: Implement.
     nil))
 
-(defn make-external-splines [start-positions num]
-  (let [field (first (gen/make-fields 1 [5 5 5] v/V3Y 1.0))
-        start-positions (repeatedly num #(rand-nth start-positions))]
-    (map #(b/spline-walk field % 3 mulfn 0.05) start-positions)))
+; External mesh generation
 
-(declare main-nodes->mesh)
+(defn make-external-splines [start-positions num]
+  (let [rmin (:external-radius-min config)
+        rmax (:external-radius-max config)
+        amin (:external-angle-min config)
+        amax (:external-angle-max config)
+        tmin (:external-tightness-min config)
+        tmax (:external-tightness-max config)
+        xw (:external-x-wobble config)
+        angling
+        (fn [a] (+ a (u/rand-range amin amax)))
+        make-node
+        (fn [p a]
+          (let [r (u/rand-range rmin rmax)
+                v (v/vec3 (u/rand-range (- xw) xw) 0 r)]
+            (m/+ p (g/rotate-around-axis v v/V3X a))))
+        make-spline-nodes
+        (fn [start-pos]
+          ; TODO: find out what's causing those huge spikes
+          ; TODO: make 5 a param
+          (map make-node (repeat 5 start-pos) (iterate angling 0)))
+        make-spline
+        (fn [nodes]
+          (b/auto-spline3 nodes (u/rand-range tmin tmax)))
+        start-positions (repeatedly num #(rand-nth start-positions))]
+    (map make-spline (map make-spline-nodes start-positions))))
+
 (defn external-nodes->mesh
-  ;[{:keys [nodes splines palette]}]
   [params]
-  (let []
-    ; TODO: Implement.
-    (main-nodes->mesh params)
-    ))
+  ; TODO: 99% same as main-nodes->mesh, refactor (use different colors though)
+  (let [tagfn (fn [acc [tag spline color]]
+                (gtag/tag->mesh acc tag spline tc/YELLOW
+                                (:spline-resolution config)))]
+    (nodes->mesh params tagfn)))
+
+; Main mesh generation
 
 (declare setup-pivot)
 
@@ -157,7 +198,6 @@
     (println "URLs: " urls)
     (println "URL count: " (count urls))
     (println "Seers: " seers)
-    (println "External nodes: " (count external))
     (doseq [[nodes splines] (map vector (part main) (part main-splines))]
       (async/put! (:seed-chan @*state*)
                   {:context :main

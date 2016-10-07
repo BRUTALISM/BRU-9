@@ -29,6 +29,8 @@
 (defn pow [x p] (.pow js/Math x p))
 (defn sin [x] (.sin js/Math x))
 (defn cos [x] (.cos js/Math x))
+(defn atan [x] (.atan js/Math x))
+(defn sqrt [x] (.sqrt js/Math x))
 
 (defn rand-range [min max]
   (+ min (rand (- max min))))

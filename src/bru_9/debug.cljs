@@ -12,7 +12,7 @@
 ;; {:color thi.ng.color
 ;;  :geom [v1 v2 v3 ... (treated as a line strip, v1 -> v2, v2 -> v3, ...)]}
 
-(defonce channel (chan (async/buffer 65535)))
+(defonce channel (chan (async/dropping-buffer 100)))
 
 ; TODO: (put! ...) instead of (go (>! ...))
 (defn- put [d] (go (>! channel d)))
