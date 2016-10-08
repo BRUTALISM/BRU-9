@@ -15,11 +15,11 @@
    :external {:envelope-size 0.02}
    :scaffolding {:envelope-size 0.05}
    :content {:envelope-size 0.5}
-   :default {:envelope-size 0.2}})
+   :default {:envelope-size 0.02}})
 
 (def classes
   {:header #{:html :head :meta :title :body}
-   :external #{:link :script}
+   :external #{:script :link}
    :scaffolding #{:div :span :header :footer :noscript :style :nav :main :aside
                   :a :input :form :textarea}
    :content #{:h1 :h2 :h3 :h4 :h5 :h6 :p :b :code :pre :tt :ul :li
@@ -46,7 +46,7 @@
 ; Filters the vertices of a spline according to tag class
 (defmulti filter-spline (fn [tag] (classify tag)))
 (defmethod filter-spline :content [_ vertices]
-  (map #(u/nth01 vertices %) [0.0 0.2 1.0]))
+  (map #(u/nth01 vertices %) [0.0 0.2 0.8]))
 (defmethod filter-spline :default [_ vertices]
   vertices)
 
@@ -70,7 +70,7 @@
         tag-class (classify tag-key)
         class-config (get class-configs tag-class)
         {:keys [envelope-size]} class-config
-        size (u/rand-magnitude envelope-size 0.1 0.0 10000000)
+        size (u/rand-magnitude envelope-size 0.05 0.0 10000000)
         max-angle m/HALF_PI
         points (filter-spline tag-key (g/vertices spline spline-resolution))
         idiv (-> points count dec double)

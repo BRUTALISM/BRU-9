@@ -25,18 +25,20 @@
 (def config {:url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
              ;:url "http://brutalism.rs"
              ;:url "http://polumenta.zardina.org"
-             ;:url "http://apple.com"
-             :url "http://pitchfork.com"
+             :url "http://apple.com"
+             ;:url "http://slashdot.org"
+             ;:url "http://pitchfork.com"
+             ;:url "http://nytimes.com"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
              :node-limit 5000
              :nodes-per-batch 100
-             :camera-distance 14
+             :camera-distance 16
              :background-color 0x111111
-             :start-positions-axis-following 1.5
+             :start-positions-axis-following 1.4
              :start-positions-walk-multiplier 0.015
-             :start-positions-random-offset 0.5
+             :start-positions-random-offset 0.3
              :external-radius-min 1.0
-             :external-radius-max 2.6
+             :external-radius-max 3.0
              :external-angle-min m/SIXTH_PI
              :external-angle-max m/HALF_PI
              :external-tightness-min 0.1
@@ -126,7 +128,7 @@
         angling
         (fn [a] (+ a (u/rand-range amin amax)))
         make-node
-        (fn [p a]
+        (fn [p a rmax]
           (let [r (u/rand-range rmin rmax)
                 v (v/vec3 (u/rand-range (- xw) xw) 0 r)]
             (m/+ p (g/rotate-around-axis v v/V3X a))))
@@ -134,7 +136,8 @@
         (fn [start-pos]
           (map make-node
                (repeat node-count start-pos)
-               (iterate angling (rand m/TWO_PI))))
+               (iterate angling (rand m/TWO_PI))
+               (repeatedly #(u/rand-range rmin rmax))))
         make-spline
         (fn [nodes]
           (b/auto-spline3 nodes (u/rand-range tmin tmax)))
@@ -145,7 +148,7 @@
   [params]
   ; TODO: 99% same as main-nodes->mesh, refactor (use different colors though)
   (let [tagfn (fn [acc [tag spline color]]
-                (gtag/tag->mesh acc tag spline color
+                (gtag/tag->mesh acc tag spline tc/RED
                                 (:spline-resolution config)))]
     (nodes->mesh params tagfn)))
 
