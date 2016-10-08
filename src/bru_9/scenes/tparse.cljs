@@ -19,22 +19,22 @@
             [thi.ng.math.core :as m]
             [thi.ng.color.core :as tc]
             [thi.ng.geom.core :as g]
-            [thi.ng.geom.circle :as cir]
+            [thi.ng.geom.sphere :as sphere]
             [thi.ng.geom.attribs :as attr]))
 
 (def config {:url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
              ;:url "http://brutalism.rs"
              ;:url "http://polumenta.zardina.org"
-             :url "http://apple.com"
+             ;:url "http://apple.com"
              ;:url "http://slashdot.org"
-             ;:url "http://pitchfork.com"
+             :url "http://pitchfork.com"
              ;:url "http://nytimes.com"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
              :node-limit 5000
              :nodes-per-batch 100
              :camera-distance 16
              :background-color 0x111111
-             :start-positions-axis-following 1.4
+             :start-positions-axis-following 1.5
              :start-positions-walk-multiplier 0.015
              :start-positions-random-offset 0.3
              :external-radius-min 1.0
@@ -57,7 +57,7 @@
              :mulfn-jump-intensity 1.0
              :wander-probability 0.25
              :spline-resolution 10
-             :mesh-geometry-size 131070
+             :mesh-geometry-size 65535
              :infinite-params {:hue 0.1
                                :saturation 0.2
                                :brightness -0.1}
@@ -101,20 +101,30 @@
         infinite (ci/infinite-palette palette (:infinite-params config))]
     infinite))
 
-(defn nodes->mesh [{:keys [nodes splines palette]} tagfn]
+(defn spline-nodes->mesh [{:keys [nodes splines palette]}]
   (let [gl-mesh (glm/gl-mesh (:mesh-geometry-size config) #{:col})
-        nodes-splines-colors (map vector nodes splines palette)]
+        nodes-splines-colors (map vector nodes splines palette)
+        tagfn (fn [acc [tag spline color]]
+                (gtag/tag->mesh acc tag spline color
+                                (:spline-resolution config)))]
     (async/put! (:mesh-chan @*state*)
                 (reduce tagfn gl-mesh nodes-splines-colors))))
 
-; Background mesh generation
+; Spline creation
 
-(defn background-nodes->mesh [{:keys [nodes splines palette]}]
-  (let []
-    ; TODO: Implement.
-    nil))
-
-; External mesh generation
+(defn make-background-splines [start-positions num]
+  (let [
+        ;[xmin xmax] (u/calculate-x-extents (:splines @*state*))
+        ;xmin (:x xmin)
+        ;xmax (:x xmax)
+        splinefn
+        (fn []
+          (let [[r0 r1 r2] (repeatedly 3 #(v/randvec3 20))]
+            (b/auto-spline3 [(m/+ (v/vec3 -50 0 -20) r0)
+                             (m/+ (v/vec3 0 0 -20) r1)
+                             (m/+ (v/vec3 50 0 -20) r2)]
+                            0.1)))]
+    (repeatedly num splinefn)))
 
 (defn make-external-splines [start-positions num]
   (let [rmin (:external-radius-min config)
@@ -125,34 +135,23 @@
         tmax (:external-tightness-max config)
         xw (:external-x-wobble config)
         node-count (:external-node-count config)
-        angling
-        (fn [a] (+ a (u/rand-range amin amax)))
+        angling (fn [a] (+ a (u/rand-range amin amax)))
         make-node
         (fn [p a rmax]
           (let [r (u/rand-range rmin rmax)
                 v (v/vec3 (u/rand-range (- xw) xw) 0 r)]
             (m/+ p (g/rotate-around-axis v v/V3X a))))
-        make-spline-nodes
+        make-spline-vertices
         (fn [start-pos]
           (map make-node
                (repeat node-count start-pos)
                (iterate angling (rand m/TWO_PI))
                (repeatedly #(u/rand-range rmin rmax))))
         make-spline
-        (fn [nodes]
-          (b/auto-spline3 nodes (u/rand-range tmin tmax)))
+        (fn [vertices]
+          (b/auto-spline3 vertices (u/rand-range tmin tmax)))
         start-positions (repeatedly num #(rand-nth start-positions))]
-    (map make-spline (map make-spline-nodes start-positions))))
-
-(defn external-nodes->mesh
-  [params]
-  ; TODO: 99% same as main-nodes->mesh, refactor (use different colors though)
-  (let [tagfn (fn [acc [tag spline color]]
-                (gtag/tag->mesh acc tag spline tc/RED
-                                (:spline-resolution config)))]
-    (nodes->mesh params tagfn)))
-
-; Main mesh generation
+    (map make-spline (map make-spline-vertices start-positions))))
 
 (declare setup-pivot)
 
@@ -161,12 +160,6 @@
     (swap! *state* assoc :splines splines)
     (setup-pivot)
     splines))
-
-(defn main-nodes->mesh [params]
-  (let [tagfn (fn [acc [tag spline color]]
-                (gtag/tag->mesh acc tag spline color
-                                (:spline-resolution config)))]
-    (nodes->mesh params tagfn)))
 
 ; URL parsing
 
@@ -198,25 +191,35 @@
         start-positions (make-start-positions (count main))
         main-splines (make-main-splines fields start-positions mulfn config)
         ext-splines (make-external-splines start-positions (count external))
-        palette (make-palette)]
+        bg-splines (make-background-splines start-positions (count background))
+        main-palette (make-palette)
+        ext-palette (repeat tc/YELLOW)
+        bg-palette (map #(tc/adjust-brightness % -0.7) main-palette)
+        bg-color (:col (tc/as-int24 (first bg-palette)))]
+    (println "URL: " (:url config))
     (println "Parsed nodes: " (count all-nodes))
     (println "URLs: " urls)
     (println "URL count: " (count urls))
     (println "Seers: " seers)
+    (.setClearColor (:renderer @*state*) bg-color 1.0)
     (doseq [[nodes splines] (map vector (part main) (part main-splines))]
       (async/put! (:seed-chan @*state*)
                   {:context :main
                    :params {:nodes nodes
                             :splines splines
-                            :palette palette}}))
+                            :palette main-palette}}))
     (doseq [[nodes splines] (map vector (part external) (part ext-splines))]
       (async/put! (:seed-chan @*state*)
                   {:context :external
                    :params {:nodes nodes
                             :splines splines
-                            :palette palette}}))
-    ; TODO: add seeds for background nodes
-    ))
+                            :palette ext-palette}}))
+    (doseq [[nodes splines] (map vector (part background) (part bg-splines))]
+      (async/put! (:seed-chan @*state*)
+                  {:context :background
+                   :params {:nodes nodes
+                            :splines splines
+                            :palette bg-palette}}))))
 
 ; Scene setup & loops
 
@@ -228,16 +231,12 @@
   animation frame to run before processing the next seed. The processing
   function puts its results into the mesh channel (accessible from *state*)."
   [seed-chan anim-chan]
-  (let [proc-fns {:background background-nodes->mesh
-                  :external external-nodes->mesh
-                  :main main-nodes->mesh}]
-    (go-loop
-      []
-      (let [{:keys [context params]} (<! seed-chan)
-            _ (<! anim-chan)
-            proc-fn (get proc-fns context)]
-        (proc-fn params)
-        (recur)))))
+  (go-loop
+    []
+    (let [seed (<! seed-chan)
+          _ (<! anim-chan)]
+      (spline-nodes->mesh (:params seed))
+      (recur))))
 
 (defn mesh-loop
   "Starts a go-loop which reads meshes from mesh-chan, converts them to Three.js
@@ -270,7 +269,6 @@
 (defn- on-reload [context]
   (let [{:keys [renderer]} context
         {:keys [background-color]} config]
-    (.setClearColor renderer background-color 1.0)
     (req/get-url (:url config) process-response)
     context))
 
@@ -280,6 +278,7 @@
         mesh-chan (async/chan 10)]
     (swap! *state* assoc :scene (:scene initial-context))
     (swap! *state* assoc :camera (:camera initial-context))
+    (swap! *state* assoc :renderer (:renderer initial-context))
     (swap! *state* assoc :seed-chan seed-chan)
     (swap! *state* assoc :anim-chan anim-chan)
     (swap! *state* assoc :mesh-chan mesh-chan)

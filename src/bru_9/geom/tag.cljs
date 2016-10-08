@@ -11,7 +11,7 @@
 ; Classification and per-class configuration
 
 (def class-configs
-  {:header {:envelope-size 0.2}
+  {:header {:envelope-size 8.0}
    :external {:envelope-size 0.02}
    :scaffolding {:envelope-size 0.05}
    :content {:envelope-size 0.5}
@@ -34,8 +34,9 @@
 
 ; Shape and envelope functions
 
-; Returns the envelope function for the given tag
-(defmulti envelope (fn [tag] (classify tag)))
+(defmulti envelope
+  "Returns the envelope function for the given tag."
+  (fn [tag] (classify tag)))
 (defmethod envelope :content [_]
   (u/saw 0.1 1.0))
 (defmethod envelope :scaffolding [_]
@@ -43,14 +44,17 @@
 (defmethod envelope :default [_]
   (u/saw 0.3 1.0))
 
-; Filters the vertices of a spline according to tag class
-(defmulti filter-spline (fn [tag] (classify tag)))
+(defmulti filter-spline
+  "Filters the vertices of a spline according to tag class."
+  (fn [tag] (classify tag)))
+(defmethod filter-spline :background [_ vertices]
+  (map #(u/nth01 vertices %) [0.0 0.5 1.0]))
 (defmethod filter-spline :content [_ vertices]
   (map #(u/nth01 vertices %) [0.0 0.2 0.8]))
 (defmethod filter-spline :default [_ vertices]
   vertices)
 
-(defn rotated-rect [angle size]
+(defn rotated-rect [{:keys [angle size]}]
   (let [height size
         width (/ height 4)
         zoff (v/vec3 0 0 (* (/ height 2) (u/sin angle)))
@@ -59,6 +63,22 @@
      (m/- v1 zoff)
      (m/+ v2 zoff)
      (m/+ v3 zoff)]))
+
+(defn triangle [{:keys [size]}]
+  (let [h3 (* size 0.2886751347)
+        a2 (* size 0.5)
+        p0 (v/vec3 (- a2) (- h3) 0.0)
+        p1 (v/vec3 a2 (- h3) 0.0)
+        p2 (v/vec3 0.0 (* 2 h3) 0.0)]
+    [p0 p1 p2]))
+
+(defmulti ptf-frame
+  "Returns the vertices of the PTF frame for the given tag."
+  (fn [tag] (classify tag)))
+(defmethod ptf-frame :background [_ params]
+  (triangle params))
+(defmethod ptf-frame :default [_ params]
+  (rotated-rect params))
 
 ; Main PTF logic (per tag)
 
@@ -79,7 +99,7 @@
                     (let [t (/ i idiv)
                           angle (+ (- max-angle) (* 2 t max-angle))
                           tsize (* size (envelope-fn t))]
-                      (rotated-rect angle tsize)))
+                      (ptf-frame tag-class {:angle angle :size tsize})))
         gradc (c/random-analog color 0.2)
         colors (cptf/ptf-gradient-attribs color gradc 4 idiv)
         sweep-params {:mesh acc
