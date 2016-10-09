@@ -11,9 +11,9 @@
 ; Classification and per-class configuration
 
 (def class-configs
-  {:header {:envelope-size 8.0}
+  {:header {:envelope-size 0.1}
    :external {:envelope-size 0.02}
-   :scaffolding {:envelope-size 0.05}
+   :scaffolding {:envelope-size 0.06}
    :content {:envelope-size 0.5}
    :default {:envelope-size 0.02}})
 
@@ -40,7 +40,7 @@
 (defmethod envelope :content [_]
   (u/saw 0.1 1.0))
 (defmethod envelope :scaffolding [_]
-  (fn [t] (+ 0.2 (* t 0.8))))
+  (fn [t] (+ 0.05 (* t 0.95))))
 (defmethod envelope :default [_]
   (u/saw 0.3 1.0))
 
@@ -90,7 +90,7 @@
         tag-class (classify tag-key)
         class-config (get class-configs tag-class)
         {:keys [envelope-size]} class-config
-        size (u/rand-magnitude envelope-size 0.05 0.0 10000000)
+        size (u/rand-magnitude envelope-size 0.1 0.0 10000000)
         max-angle m/HALF_PI
         points (filter-spline tag-key (g/vertices spline spline-resolution))
         idiv (-> points count dec double)

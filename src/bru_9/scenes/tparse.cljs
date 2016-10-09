@@ -23,12 +23,12 @@
             [thi.ng.geom.attribs :as attr]))
 
 (def config {:url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
-             ;:url "http://brutalism.rs"
              ;:url "http://polumenta.zardina.org"
+             ;:url "http://brutalism.rs/category/process/"
              ;:url "http://apple.com"
-             ;:url "http://slashdot.org"
              :url "http://pitchfork.com"
              ;:url "http://nytimes.com"
+             ;:url "http://slashdot.org"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
              :node-limit 5000
              :nodes-per-batch 100
@@ -36,7 +36,7 @@
              :background-color 0x111111
              :start-positions-axis-following 1.5
              :start-positions-walk-multiplier 0.015
-             :start-positions-random-offset 0.3
+             :start-positions-random-offset 0.4
              :external-radius-min 1.0
              :external-radius-max 3.0
              :external-angle-min m/SIXTH_PI
@@ -44,7 +44,7 @@
              :external-tightness-min 0.1
              :external-tightness-max 0.3
              :external-x-wobble 1.2
-             :external-node-count 6
+             :external-node-count 5
              :curve-tightness-min 0.04
              :curve-tightness-max 0.1
              :spline-hops 4
@@ -60,8 +60,8 @@
              :mesh-geometry-size 65535
              :infinite-params {:hue 0.1
                                :saturation 0.2
-                               :brightness -0.1}
-             :rotation-speed 0.0                            ;0.0002
+                               :brightness 0.2}
+             :rotation-speed 0.0002
              })
 
 (defonce *state* (atom {}))
@@ -98,6 +98,7 @@
 
 (defn- make-palette []
   (let [palette (c/random-palette)
+        ;palette [(-> (tc/random-rgb) (tc/adjust-saturation 1.0))]
         infinite (ci/infinite-palette palette (:infinite-params config))]
     infinite))
 
@@ -113,11 +114,7 @@
 ; Spline creation
 
 (defn make-background-splines [start-positions num]
-  (let [
-        ;[xmin xmax] (u/calculate-x-extents (:splines @*state*))
-        ;xmin (:x xmin)
-        ;xmax (:x xmax)
-        splinefn
+  (let [splinefn
         (fn []
           (let [[r0 r1 r2] (repeatedly 3 #(v/randvec3 20))]
             (b/auto-spline3 [(m/+ (v/vec3 -50 0 -20) r0)
@@ -154,12 +151,34 @@
     (map make-spline (map make-spline-vertices start-positions))))
 
 (declare setup-pivot)
-
 (defn make-main-splines [fields start-positions mulfn config]
   (let [splines (gen/make-field-splines fields start-positions mulfn config)]
     (swap! *state* assoc :splines splines)
     (setup-pivot)
     splines))
+
+; Background vignette handling
+
+(defonce vignette-texture (.load (THREE.TextureLoader.) "img/vignette.png"))
+
+(defn- vignette-material [color]
+  (THREE.MeshBasicMaterial. #js {:map vignette-texture
+                                 :shading js/THREE.FlatShading
+                                 :color (-> color tc/as-int32 :col)}))
+
+(defn- setup-vignette [camera]
+  (let [material (vignette-material tc/WHITE)
+        geometry (THREE.PlaneGeometry. 60 30)
+        plane (THREE.Mesh. geometry material)]
+    (set! (.-x (.-position plane)) (.-x (.-position camera)))
+    (set! (.-y (.-position plane)) (.-y (.-position camera)))
+    (set! (.-z (.-position plane)) -40)
+    (.add camera plane)
+    (swap! *state* assoc :vignette plane)))
+
+(defn- set-vignette-color [color]
+  (let [new-material (vignette-material color)]
+    (set! (.-material (:vignette @*state*)) new-material)))
 
 ; URL parsing
 
@@ -193,15 +212,15 @@
         ext-splines (make-external-splines start-positions (count external))
         bg-splines (make-background-splines start-positions (count background))
         main-palette (make-palette)
-        ext-palette (repeat tc/YELLOW)
-        bg-palette (map #(tc/adjust-brightness % -0.7) main-palette)
-        bg-color (:col (tc/as-int24 (first bg-palette)))]
+        ext-palette main-palette
+        bg-palette main-palette
+        set-lightness (fn [c l] (tc/hsla (tc/hue c) (tc/saturation c) l))]
     (println "URL: " (:url config))
     (println "Parsed nodes: " (count all-nodes))
     (println "URLs: " urls)
     (println "URL count: " (count urls))
     (println "Seers: " seers)
-    (.setClearColor (:renderer @*state*) bg-color 1.0)
+    (set-vignette-color (set-lightness (first main-palette) 0.25))
     (doseq [[nodes splines] (map vector (part main) (part main-splines))]
       (async/put! (:seed-chan @*state*)
                   {:context :main
@@ -275,7 +294,8 @@
 (defn setup [initial-context]
   (let [seed-chan (async/chan 10)
         anim-chan (async/chan (async/dropping-buffer 1))
-        mesh-chan (async/chan 10)]
+        mesh-chan (async/chan 10)
+        camera (:camera initial-context)]
     (swap! *state* assoc :scene (:scene initial-context))
     (swap! *state* assoc :camera (:camera initial-context))
     (swap! *state* assoc :renderer (:renderer initial-context))
@@ -284,6 +304,7 @@
     (swap! *state* assoc :mesh-chan mesh-chan)
     (seed-loop seed-chan anim-chan)
     (mesh-loop mesh-chan)
+    (setup-vignette camera)
     (on-reload initial-context)))
 
 (defn reload [context]
