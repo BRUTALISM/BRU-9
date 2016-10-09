@@ -166,7 +166,6 @@
                                             :antialias true})
         scene (THREE.Scene.)
         camera (THREE.PerspectiveCamera. 0 0 0 0)
-        light (THREE.PointLight. 0xffffff 1.5 20)
         pixel-ratio (or (.-devicePixelRatio js/window) 1.0)
         width (* (.-innerWidth js/window) pixel-ratio)
         height (* (.-innerHeight js/window) pixel-ratio)]
@@ -181,9 +180,6 @@
     (.setViewport renderer 0 0 width height)
 
     (set-camera-params)
-
-    (.set (.-position light) 1 1 1)
-    (.add scene light)
 
     (resize-loop)
     (debug-loop)
