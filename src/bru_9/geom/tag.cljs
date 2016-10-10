@@ -11,7 +11,7 @@
 ; Classification and per-class configuration
 
 (def class-configs
-  {:header {:envelope-size 0.1}
+  {:header {:envelope-size 0.04}
    :external {:envelope-size 0.02}
    :scaffolding {:envelope-size 0.06}
    :content {:envelope-size 0.5}
@@ -37,6 +37,8 @@
 (defmulti envelope
   "Returns the envelope function for the given tag."
   (fn [tag] (classify tag)))
+(defmethod envelope :header [_]
+  (u/saw 0.2 1.0))
 (defmethod envelope :content [_]
   (u/saw 0.1 1.0))
 (defmethod envelope :scaffolding [_]
@@ -47,10 +49,8 @@
 (defmulti filter-spline
   "Filters the vertices of a spline according to tag class."
   (fn [tag] (classify tag)))
-(defmethod filter-spline :background [_ vertices]
-  (map #(u/nth01 vertices %) [0.0 0.5 1.0]))
 (defmethod filter-spline :content [_ vertices]
-  (map #(u/nth01 vertices %) [0.0 0.2 0.8]))
+  (map #(u/nth01 vertices %) [0.0 0.3 1.0]))
 (defmethod filter-spline :default [_ vertices]
   vertices)
 
@@ -75,7 +75,7 @@
 (defmulti ptf-frame
   "Returns the vertices of the PTF frame for the given tag."
   (fn [tag] (classify tag)))
-(defmethod ptf-frame :background [_ params]
+(defmethod ptf-frame :header [_ params]
   (triangle params))
 (defmethod ptf-frame :default [_ params]
   (rotated-rect params))
@@ -99,7 +99,7 @@
                     (let [t (/ i idiv)
                           angle (+ (- max-angle) (* 2 t max-angle))
                           tsize (* size (envelope-fn t))]
-                      (ptf-frame tag-class {:angle angle :size tsize})))
+                      (ptf-frame tag-key {:angle angle :size tsize})))
         gradc (c/random-analog color 0.2)
         colors (cptf/ptf-gradient-attribs color gradc 4 idiv)
         sweep-params {:mesh acc

@@ -36,7 +36,9 @@
              :background-color 0x111111
              :start-positions-axis-following 1.5
              :start-positions-walk-multiplier 0.015
-             :start-positions-random-offset 0.4
+             :start-positions-random-offset 0.5
+             :background-points-per-spline 6
+             :background-spline-tightness 0.2
              :external-radius-min 1.0
              :external-radius-max 3.0
              :external-angle-min m/SIXTH_PI
@@ -59,9 +61,9 @@
              :spline-resolution 10
              :mesh-geometry-size 65535
              :infinite-params {:hue 0.1
-                               :saturation 0.2
-                               :brightness 0.2}
-             :rotation-speed 0.0002
+                               :saturation 0.1
+                               :brightness 0.1}
+             :rotation-speed 0.0001
              })
 
 (defonce *state* (atom {}))
@@ -114,14 +116,15 @@
 ; Spline creation
 
 (defn make-background-splines [start-positions num]
-  (let [splinefn
-        (fn []
-          (let [[r0 r1 r2] (repeatedly 3 #(v/randvec3 20))]
-            (b/auto-spline3 [(m/+ (v/vec3 -50 0 -20) r0)
-                             (m/+ (v/vec3 0 0 -20) r1)
-                             (m/+ (v/vec3 50 0 -20) r2)]
-                            0.1)))]
-    (repeatedly num splinefn)))
+  (let [pps (:background-points-per-spline config)
+        group-size (int (u/floor (/ (count start-positions) pps)))
+        tuples (->> start-positions
+                    (partition group-size)
+                    (map shuffle)
+                    (apply interleave)
+                    (partition pps))
+        tightness (:background-spline-tightness config)]
+    (map #(b/auto-spline3 % tightness) (take num tuples))))
 
 (defn make-external-splines [start-positions num]
   (let [rmin (:external-radius-min config)
@@ -213,7 +216,7 @@
         bg-splines (make-background-splines start-positions (count background))
         main-palette (make-palette)
         ext-palette main-palette
-        bg-palette main-palette
+        bg-palette (repeat tc/RED)
         set-lightness (fn [c l] (tc/hsla (tc/hue c) (tc/saturation c) l))]
     (println "URL: " (:url config))
     (println "Parsed nodes: " (count all-nodes))
@@ -221,6 +224,12 @@
     (println "URL count: " (count urls))
     (println "Seers: " seers)
     (set-vignette-color (set-lightness (first main-palette) 0.25))
+    (doseq [[nodes splines] (map vector (part background) (part bg-splines))]
+      (async/put! (:seed-chan @*state*)
+                  {:context :background
+                   :params {:nodes nodes
+                            :splines splines
+                            :palette bg-palette}}))
     (doseq [[nodes splines] (map vector (part main) (part main-splines))]
       (async/put! (:seed-chan @*state*)
                   {:context :main
@@ -232,13 +241,7 @@
                   {:context :external
                    :params {:nodes nodes
                             :splines splines
-                            :palette ext-palette}}))
-    (doseq [[nodes splines] (map vector (part background) (part bg-splines))]
-      (async/put! (:seed-chan @*state*)
-                  {:context :background
-                   :params {:nodes nodes
-                            :splines splines
-                            :palette bg-palette}}))))
+                            :palette ext-palette}}))))
 
 ; Scene setup & loops
 

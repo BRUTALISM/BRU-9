@@ -9,9 +9,9 @@
          ;:santa ["#FFFFFF"]
 
          :ohai ["#3784FF"]
-         :ball ["#F44677"]
-         :to ["#FC3B36"]
-         :wer ["#2AB4CD"]
+         ;:ball ["#F44677"]
+         ;:to ["#FC3B36"]
+         ;:wer ["#2AB4CD"]
 
          ;:ballin ["#2055CD" "#F44677"]
          ;:tower ["#FC3B36" "#2AB4CD"]
