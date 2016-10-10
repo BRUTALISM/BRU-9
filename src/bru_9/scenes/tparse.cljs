@@ -24,9 +24,9 @@
 
 (def config {:url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
              ;:url "http://polumenta.zardina.org"
-             ;:url "http://brutalism.rs/category/process/"
+             :url "http://brutalism.rs/category/process/"
              ;:url "http://apple.com"
-             :url "http://pitchfork.com"
+             ;:url "http://pitchfork.com"
              ;:url "http://nytimes.com"
              ;:url "http://slashdot.org"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
@@ -38,7 +38,8 @@
              :start-positions-walk-multiplier 0.015
              :start-positions-random-offset 0.5
              :background-points-per-spline 6
-             :background-spline-tightness 0.2
+             :background-spline-tightness 0.05
+             :background-spline-random-offset 0.1
              :external-radius-min 1.0
              :external-radius-max 3.0
              :external-angle-min m/SIXTH_PI
@@ -118,7 +119,9 @@
 (defn make-background-splines [start-positions num]
   (let [pps (:background-points-per-spline config)
         group-size (int (u/floor (/ (count start-positions) pps)))
+        random-offset (:background-spline-random-offset config)
         tuples (->> start-positions
+                    (map #(m/+ % (v/randvec3 random-offset)))
                     (partition group-size)
                     (map shuffle)
                     (apply interleave)
