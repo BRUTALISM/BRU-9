@@ -11,6 +11,7 @@
             [bru-9.color.infinite :as ci]
             [bru-9.geom.generators :as gen]
             [bru-9.geom.bezier :as b]
+            [bru-9.geom.vignette :as vig]
             [thi.ng.geom.webgl.glmesh :as glm]
             [thi.ng.geom.vector :as v]
             [thi.ng.math.core :as m]
@@ -21,8 +22,8 @@
              ;:url "http://polumenta.zardina.org"
              ;:url "http://brutalism.rs/category/process/"
              ;:url "http://apple.com"
-             :url "http://pitchfork.com"
-             ;:url "http://nytimes.com"
+             ;:url "http://pitchfork.com"
+             :url "http://nytimes.com"
              ;:url "http://slashdot.org"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
              :node-limit 5000
@@ -158,29 +159,6 @@
     (setup-pivot)
     splines))
 
-; Background vignette handling
-
-(defonce vignette-texture (.load (THREE.TextureLoader.) "img/vignette.png"))
-
-(defn- vignette-material [color]
-  (THREE.MeshBasicMaterial. #js {:map vignette-texture
-                                 :shading js/THREE.FlatShading
-                                 :color (-> color tc/as-int32 :col)}))
-
-(defn- setup-vignette [camera]
-  (let [material (vignette-material tc/WHITE)
-        geometry (THREE.PlaneGeometry. 60 30)
-        plane (THREE.Mesh. geometry material)]
-    (set! (.-x (.-position plane)) (.-x (.-position camera)))
-    (set! (.-y (.-position plane)) (.-y (.-position camera)))
-    (set! (.-z (.-position plane)) -40)
-    (.add camera plane)
-    (swap! *state* assoc :vignette plane)))
-
-(defn- set-vignette-color [color]
-  (let [new-material (vignette-material color)]
-    (set! (.-material (:vignette @*state*)) new-material)))
-
 ; URL parsing
 
 (defn split-nodes
@@ -221,7 +199,11 @@
     (println "URLs: " urls)
     (println "URL count: " (count urls))
     (println "Seers: " seers)
-    (set-vignette-color (set-lightness (first main-palette) 0.25))
+    (vig/set-vignette-color (:vignette @*state*)
+                            (tc/hsla 0 0 1.0)
+                            (tc/css "#283844")
+                            ;(set-lightness (first main-palette) 0.75)
+                            )
     (doseq [[nodes splines] (map vector (part background) (part bg-splines))]
       (async/put! (:seed-chan @*state*)
                   {:context :background
@@ -305,7 +287,7 @@
     (swap! *state* assoc :mesh-chan mesh-chan)
     (seed-loop seed-chan anim-chan)
     (mesh-loop mesh-chan)
-    (setup-vignette camera)
+    (swap! *state* assoc :vignette (vig/setup-vignette camera))
     (on-reload initial-context)))
 
 (defn reload [context]
