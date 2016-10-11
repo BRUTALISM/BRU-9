@@ -8,12 +8,14 @@
             [thi.ng.color.core :as c]
             [thi.ng.math.core :as m]))
 
+(def config {:scaffolding-ratio 8.0})
+
 ; Classification and per-class configuration
 
 (def class-configs
   {:header {:envelope-size 0.04}
-   :external {:envelope-size 0.02}
-   :scaffolding {:envelope-size 0.06}
+   :external {:envelope-size 0.025}
+   :scaffolding {:envelope-size 0.07}
    :content {:envelope-size 0.5}
    :default {:envelope-size 0.02}})
 
@@ -44,19 +46,19 @@
 (defmethod envelope :scaffolding [_]
   (fn [t] (+ 0.05 (* t 0.95))))
 (defmethod envelope :default [_]
-  (u/saw 0.3 1.0))
+  (u/saw 0.1 1.0))
 
 (defmulti filter-spline
   "Filters the vertices of a spline according to tag class."
   (fn [tag] (classify tag)))
 (defmethod filter-spline :content [_ vertices]
-  (map #(u/nth01 vertices %) [0.0 0.3 1.0]))
+  (map #(u/nth01 vertices %) [0.0 0.2 1.0]))
 (defmethod filter-spline :default [_ vertices]
   vertices)
 
-(defn rotated-rect [{:keys [angle size]}]
+(defn rotated-rect [{:keys [angle size ratio]}]
   (let [height size
-        width (/ height 4)
+        width (/ height ratio)
         zoff (v/vec3 0 0 (* (/ height 2) (u/sin angle)))
         [v0 v1 v2 v3] (map v/vec3 (g/vertices (rect/rect 0 0 width height)))]
     [(m/- v0 zoff)
@@ -90,16 +92,19 @@
         tag-class (classify tag-key)
         class-config (get class-configs tag-class)
         {:keys [envelope-size]} class-config
-        size (u/rand-magnitude envelope-size 0.1 0.0 10000000)
+        size (u/rand-magnitude envelope-size 0.2 0.0 10000000)
         max-angle m/HALF_PI
         points (filter-spline tag-key (g/vertices spline spline-resolution))
         idiv (-> points count dec double)
         envelope-fn (envelope tag-key)
+        ratio (:scaffolding-ratio config)
         profilefn (fn [i]
                     (let [t (/ i idiv)
                           angle (+ (- max-angle) (* 2 t max-angle))
                           tsize (* size (envelope-fn t))]
-                      (ptf-frame tag-key {:angle angle :size tsize})))
+                      (ptf-frame tag-key {:angle angle
+                                          :size tsize
+                                          :ratio ratio})))
         gradc (c/random-analog color 0.2)
         colors (cptf/ptf-gradient-attribs color gradc 4 idiv)
         sweep-params {:mesh acc

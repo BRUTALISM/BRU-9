@@ -24,9 +24,9 @@
 
 (def config {:url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
              ;:url "http://polumenta.zardina.org"
-             :url "http://brutalism.rs/category/process/"
+             ;:url "http://brutalism.rs/category/process/"
              ;:url "http://apple.com"
-             ;:url "http://pitchfork.com"
+             :url "http://pitchfork.com"
              ;:url "http://nytimes.com"
              ;:url "http://slashdot.org"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
@@ -39,7 +39,7 @@
              :start-positions-random-offset 0.5
              :background-points-per-spline 6
              :background-spline-tightness 0.05
-             :background-spline-random-offset 0.1
+             :background-spline-random-offset 0.2
              :external-radius-min 1.0
              :external-radius-max 3.0
              :external-angle-min m/SIXTH_PI
@@ -56,7 +56,7 @@
              :field-general-direction v/V3X
              :field-random-following 1.6
              :mulfn-base 0.8
-             :mulfn-jump-chance 0.1
+             :mulfn-jump-chance 0.05
              :mulfn-jump-intensity 1.0
              :wander-probability 0.25
              :spline-resolution 10
