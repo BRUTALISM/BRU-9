@@ -11,16 +11,11 @@
             [bru-9.color.infinite :as ci]
             [bru-9.geom.generators :as gen]
             [bru-9.geom.bezier :as b]
-            [bru-9.geom.ptf :as ptf]
-            [bru-9.field.linear :as fl]
-            [bru-9.debug :as d]
             [thi.ng.geom.webgl.glmesh :as glm]
             [thi.ng.geom.vector :as v]
             [thi.ng.math.core :as m]
             [thi.ng.color.core :as tc]
-            [thi.ng.geom.core :as g]
-            [thi.ng.geom.sphere :as sphere]
-            [thi.ng.geom.attribs :as attr]))
+            [thi.ng.geom.core :as g]))
 
 (def config {:url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
              ;:url "http://polumenta.zardina.org"
