@@ -3,7 +3,7 @@
     [cljs.core.async.macros :refer [go alt!]])
   (:require [bru-9.scenes.throwups :as throwups]
             [bru-9.scenes.tthree :as tthree]
-            [bru-9.scenes.tparse :as tparse]
+            [bru-9.scenes.main :as main]
             [bru-9.scenes.tfield :as tfield]
             [bru-9.scenes.tptf :as tptf]
             [bru-9.debug :as debug]
@@ -22,9 +22,9 @@
 ;; sketch-specific hooks to the sketch-config map).
 (def sketch-configs {:three {:setup-fn tthree/setup
                              :animate-fn tthree/animate}
-                     :parse {:setup-fn tparse/setup
-                             :reload-fn tparse/reload
-                             :animate-fn tparse/animate}
+                     :main {:setup-fn main/setup
+                            :reload-fn main/reload
+                            :animate-fn main/animate}
                      :field {:setup-fn tfield/setup
                              :reload-fn tfield/reload
                              :animate-fn tfield/animate}
@@ -34,7 +34,7 @@
                      :throwups {:setup-fn throwups/setup
                                 :reload-fn throwups/reload
                                 :animate-fn throwups/animate}})
-(def active-sketch-config (:parse sketch-configs))
+(def active-sketch-config (:main sketch-configs))
 
 (enable-console-print!)
 
