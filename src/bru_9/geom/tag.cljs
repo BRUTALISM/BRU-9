@@ -17,6 +17,7 @@
    :external {:envelope-size 0.025}
    :scaffolding {:envelope-size 0.07}
    :content {:envelope-size 0.5}
+   :outward {:envelope-size 0.03}
    :default {:envelope-size 0.02}})
 
 (def classes
@@ -25,7 +26,9 @@
    :scaffolding #{:div :span :header :footer :noscript :style :nav :main :aside
                   :a :input :form :textarea}
    :content #{:h1 :h2 :h3 :h4 :h5 :h6 :p :b :code :pre :tt :ul :li
-              :img :path :polygon :svg}})
+              :img :path :polygon :svg}
+   ; Custom :url tag for URLs found w/ text search
+   :outward #{:url}})
 
 (defn classify
   "Returns the class (not related to CSS class) the given tag belongs to. See
@@ -45,6 +48,8 @@
   (u/saw 0.1 1.0))
 (defmethod envelope :scaffolding [_]
   (fn [t] (+ 0.05 (* t 0.95))))
+(defmethod envelope :outward [_]
+  (fn [t] (- 1.0 t)))
 (defmethod envelope :default [_]
   (u/saw 0.1 1.0))
 

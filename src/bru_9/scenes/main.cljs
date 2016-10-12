@@ -16,13 +16,15 @@
             [thi.ng.geom.vector :as v]
             [thi.ng.math.core :as m]
             [thi.ng.color.core :as tc]
-            [thi.ng.geom.core :as g]))
+            [thi.ng.geom.core :as g]
+            [bru-9.field.core :as f]))
 
 (def config {:url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
              ;:url "http://polumenta.zardina.org"
              ;:url "http://brutalism.rs/category/process/"
+             :url "http://www.businessinsider.com"
              ;:url "http://apple.com"
-             :url "http://field.io"
+             ;:url "http://field.io"
              ;:url "http://pitchfork.com"
              ;:url "http://nytimes.com"
              ;:url "http://slashdot.org"
@@ -45,6 +47,9 @@
              :external-tightness-max 0.3
              :external-x-wobble 1.2
              :external-node-count 5
+             :url-spline-tightness 0.05
+             :url-spline-hops 4
+             :url-spline-multiplier 4.0
              :curve-tightness-min 0.04
              :curve-tightness-max 0.1
              :spline-hops 4
@@ -160,6 +165,24 @@
     (setup-pivot)
     splines))
 
+(defn make-url-splines [start-positions fields num]
+  (let [tightness (:url-spline-tightness config)
+        hops (:url-spline-hops config)
+        multiplier (:url-spline-multiplier config)
+        mulfn (fn [t] (* (+ 0.5 (* t 0.5)) multiplier))
+        splinefn
+        (fn [pos]
+          (let [points (f/walk (rand-nth fields) pos hops mulfn)
+                last-point (last points)
+                second-last-point (nth points (- (count points) 2))
+                last-vec (m/normalize (m/- last-point second-last-point))
+                offset (m/normalize (v/vec3 0 (:y last-point) (:z last-point)))
+                addition (m/* (m/+ last-vec offset) multiplier)
+                added (m/+ last-point addition)
+                all-points (conj points added)]
+            (b/auto-spline3 all-points tightness)))]
+    (take num (map splinefn (shuffle start-positions)))))
+
 ; URL parsing
 
 (defn split-nodes
@@ -173,6 +196,14 @@
                          :main)]
     (group-by render-context nodes)))
 
+(defn- enqueue-batches [context nodes splines palette]
+  (doseq [[ns ss] (map vector nodes splines)]
+    (async/put! (:seed-chan @*state*)
+                {:context context
+                 :params {:nodes ns
+                          :splines ss
+                          :palette palette}})))
+
 (defn process-response
   "Parses the given response, converts its DOM tree into a mesh, and adds the
   mesh to the current Three.js scene"
@@ -180,7 +211,8 @@
   (let [{:keys [node-limit nodes-per-batch]} config
         body (:body response)
         seers (parse/map-occurences body (:all-seeing config))
-        urls (set (parse/occurences body (:url-regex config)))
+        urls (map (fn [u] [:url u])
+                  (set (parse/occurences body (:url-regex config))))
         all-nodes (parse/level-dom body)
         limited-nodes (take node-limit all-nodes)
         {:keys [background external main]} (split-nodes limited-nodes)
@@ -191,9 +223,11 @@
         main-splines (make-main-splines fields start-positions mulfn config)
         ext-splines (make-external-splines start-positions (count external))
         bg-splines (make-background-splines start-positions (count background))
+        url-splines (make-url-splines start-positions fields (count urls))
         main-palette (make-palette)
         ext-palette main-palette
         bg-palette (repeat tc/RED)
+        url-palette main-palette
         ;set-lightness (fn [c l] (tc/hsla (tc/hue c) (tc/saturation c) l))
         ]
     (println "URL: " (:url config))
@@ -206,24 +240,10 @@
                             (tc/css "#283844")
                             ;(set-lightness (first main-palette) 0.75)
                             )
-    (doseq [[nodes splines] (map vector (part background) (part bg-splines))]
-      (async/put! (:seed-chan @*state*)
-                  {:context :background
-                   :params {:nodes nodes
-                            :splines splines
-                            :palette bg-palette}}))
-    (doseq [[nodes splines] (map vector (part main) (part main-splines))]
-      (async/put! (:seed-chan @*state*)
-                  {:context :main
-                   :params {:nodes nodes
-                            :splines splines
-                            :palette main-palette}}))
-    (doseq [[nodes splines] (map vector (part external) (part ext-splines))]
-      (async/put! (:seed-chan @*state*)
-                  {:context :external
-                   :params {:nodes nodes
-                            :splines splines
-                            :palette ext-palette}}))))
+    (enqueue-batches :background (part background) (part bg-splines) bg-palette)
+    (enqueue-batches :main (part main) (part main-splines) main-palette)
+    (enqueue-batches :external (part external) (part ext-splines) ext-palette)
+    (enqueue-batches :urls (part urls) (part url-splines) url-palette)))
 
 ; Scene setup & loops
 
