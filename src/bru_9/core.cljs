@@ -5,7 +5,7 @@
 (enable-console-print!)
 
 (defn main-page []
-  [])
+  [:p ""])
 
 (defn mount-root []
   (reagent/render [main-page] (.getElementById js/document "app")))

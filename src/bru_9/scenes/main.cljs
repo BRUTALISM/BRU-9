@@ -66,8 +66,7 @@
              :infinite-params {:hue 0.1
                                :saturation 0.1
                                :brightness 0.1}
-             :rotation-speed 0.00012
-             })
+             :rotation-speed 0.00011})
 
 (defonce *state* (atom {}))
 
@@ -226,7 +225,10 @@
         url-splines (make-url-splines start-positions fields (count urls))
         main-palette (make-palette)
         ext-palette main-palette
-        bg-palette (repeat tc/RED)
+        bg-palette (repeat (-> (first main-palette)
+                               (tc/rotate-hue 0.5)
+                               (tc/adjust-brightness 1.0)
+                               (tc/adjust-saturation 1.0)))
         url-palette main-palette
         set-lightness (fn [c l] (tc/hsla (tc/hue c) (tc/saturation c) l))]
     (println "URL: " (:url config))
