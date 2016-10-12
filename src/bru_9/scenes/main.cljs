@@ -22,9 +22,9 @@
 (def config {:url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
              ;:url "http://polumenta.zardina.org"
              ;:url "http://brutalism.rs/category/process/"
-             :url "http://www.businessinsider.com"
              ;:url "http://apple.com"
              ;:url "http://field.io"
+             :url "http://www.businessinsider.com"
              ;:url "http://pitchfork.com"
              ;:url "http://nytimes.com"
              ;:url "http://slashdot.org"
@@ -47,7 +47,7 @@
              :external-tightness-max 0.3
              :external-x-wobble 1.2
              :external-node-count 5
-             :url-spline-tightness 0.05
+             :url-spline-tightness 0.2
              :url-spline-hops 4
              :url-spline-multiplier 4.0
              :curve-tightness-min 0.04
@@ -66,7 +66,7 @@
              :infinite-params {:hue 0.1
                                :saturation 0.1
                                :brightness 0.1}
-             :rotation-speed 0.0001
+             :rotation-speed 0.00012
              })
 
 (defonce *state* (atom {}))
@@ -228,18 +228,15 @@
         ext-palette main-palette
         bg-palette (repeat tc/RED)
         url-palette main-palette
-        ;set-lightness (fn [c l] (tc/hsla (tc/hue c) (tc/saturation c) l))
-        ]
+        set-lightness (fn [c l] (tc/hsla (tc/hue c) (tc/saturation c) l))]
     (println "URL: " (:url config))
     (println "Parsed nodes: " (count all-nodes))
     (println "URLs: " urls)
     (println "URL count: " (count urls))
     (println "Seers: " seers)
     (vig/set-vignette-color (:vignette @*state*)
-                            (tc/hsla 0 0 1.0)
-                            (tc/css "#283844")
-                            ;(set-lightness (first main-palette) 0.75)
-                            )
+                            (set-lightness (first main-palette) 0.85)
+                            (set-lightness (first main-palette) 0.70))
     (enqueue-batches :background (part background) (part bg-splines) bg-palette)
     (enqueue-batches :main (part main) (part main-splines) main-palette)
     (enqueue-batches :external (part external) (part ext-splines) ext-palette)
