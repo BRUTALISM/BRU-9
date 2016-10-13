@@ -36,20 +36,6 @@
              :start-positions-axis-following 1.5
              :start-positions-walk-multiplier 0.015
              :start-positions-random-offset 0.5
-             :background-points-per-spline 6
-             :background-spline-tightness 0.05
-             :background-spline-random-offset 0.2
-             :external-radius-min 1.0
-             :external-radius-max 3.0
-             :external-angle-min m/SIXTH_PI
-             :external-angle-max m/HALF_PI
-             :external-tightness-min 0.1
-             :external-tightness-max 0.3
-             :external-x-wobble 1.2
-             :external-node-count 5
-             :url-spline-tightness 0.2
-             :url-spline-hops 4
-             :url-spline-multiplier 4.0
              :curve-tightness-min 0.04
              :curve-tightness-max 0.1
              :spline-hops 4
@@ -61,12 +47,30 @@
              :mulfn-jump-chance 0.05
              :mulfn-jump-intensity 1.0
              :wander-probability 0.25
-             :spline-resolution 10
+             :default-spline-resolution 10
              :mesh-geometry-size 65535
+             :palette-colors 2
              :infinite-params {:hue 0.1
                                :saturation 0.1
                                :brightness 0.1}
-             :rotation-speed 0.00011})
+             :rotation-speed 0.00011
+             :background-points-per-spline 6
+             :background-spline-tightness 0.05
+             :background-spline-random-offset 0.2
+             :content-spline-resolution 3
+             :external-radius-min 1.0
+             :external-radius-max 3.0
+             :external-angle-min m/SIXTH_PI
+             :external-angle-max m/HALF_PI
+             :external-tightness-min 0.1
+             :external-tightness-max 0.3
+             :external-x-wobble 1.2
+             :external-node-count 5
+             :external-spline-resolution 16
+             :url-spline-tightness 0.2
+             :url-spline-hops 4
+             :url-spline-multiplier 4.0
+             :url-spline-resolution 20})
 
 (defonce *state* (atom {}))
 
@@ -101,17 +105,24 @@
     (+ mulfn-base (if (< (rand) mulfn-jump-chance) mulfn-jump-intensity 0))))
 
 (defn- make-palette []
-  (let [palette (c/random-palette)
-        ;palette [(-> (tc/random-rgb) (tc/adjust-saturation 1.0))]
+  (let [color-generator #(-> (tc/random-rgb)
+                             (tc/adjust-saturation 1.0))
+        palette (repeatedly (:palette-colors config) color-generator)
         infinite (ci/infinite-palette palette (:infinite-params config))]
     infinite))
+
+(defn spline-resolution [tag]
+  (case (gtag/classify (first tag))
+    :content (:content-spline-resolution config)
+    :outward (:url-spline-resolution config)
+    :external (:external-spline-resolution config)
+    (:default-spline-resolution config)))
 
 (defn spline-nodes->mesh [{:keys [nodes splines palette]}]
   (let [gl-mesh (glm/gl-mesh (:mesh-geometry-size config) #{:col})
         nodes-splines-colors (map vector nodes splines palette)
         tagfn (fn [acc [tag spline color]]
-                (gtag/tag->mesh acc tag spline color
-                                (:spline-resolution config)))]
+                (gtag/tag->mesh acc tag spline color (spline-resolution tag)))]
     (async/put! (:mesh-chan @*state*)
                 (reduce tagfn gl-mesh nodes-splines-colors))))
 
@@ -225,17 +236,15 @@
         url-splines (make-url-splines start-positions fields (count urls))
         main-palette (make-palette)
         ext-palette main-palette
-        bg-palette (repeat (-> (first main-palette)
-                               (tc/rotate-hue 0.5)
-                               (tc/adjust-brightness 1.0)
-                               (tc/adjust-saturation 1.0)))
+        mid-hue (/ (+ (tc/hue (first main-palette))
+                      (tc/hue (second main-palette))) 2)
+        bg-palette (repeat (tc/rotate-hue (tc/hsla mid-hue 1.0 1.0) 0.5))
         url-palette main-palette
         set-lightness (fn [c l] (tc/hsla (tc/hue c) (tc/saturation c) l))]
-    (println "URL: " (:url config))
-    (println "Parsed nodes: " (count all-nodes))
-    (println "URLs: " urls)
-    (println "URL count: " (count urls))
-    (println "Seers: " seers)
+    (println "=== URL: " (:url config))
+    (println "=== Parsed nodes: " (count all-nodes))
+    (println "=== URL count: " (count urls))
+    (println "=== Seers: " seers)
     (vig/set-vignette-color (:vignette @*state*)
                             (set-lightness (first main-palette) 0.85)
                             (set-lightness (first main-palette) 0.70))
