@@ -7,7 +7,6 @@
             [bru-9.geom.tag :as gtag]
             [bru-9.interop :as i]
             [bru-9.util :as u]
-            [bru-9.color.core :as c]
             [bru-9.color.infinite :as ci]
             [bru-9.geom.generators :as gen]
             [bru-9.geom.bezier :as b]
@@ -23,8 +22,8 @@
              ;:url "http://polumenta.zardina.org"
              ;:url "http://brutalism.rs/category/process/"
              ;:url "http://apple.com"
-             ;:url "http://field.io"
-             :url "http://www.businessinsider.com"
+             :url "http://field.io"
+             ;:url "http://www.businessinsider.com"
              ;:url "http://pitchfork.com"
              ;:url "http://nytimes.com"
              ;:url "http://slashdot.org"
@@ -299,10 +298,8 @@
     (.add scene camera-pivot)))
 
 (defn- on-reload [context]
-  (let [{:keys [renderer]} context
-        {:keys [background-color]} config]
-    (req/get-url (:url config) process-response)
-    context))
+  (req/get-url (:url config) process-response)
+  context)
 
 (defn setup [initial-context]
   (let [seed-chan (async/chan 10)
