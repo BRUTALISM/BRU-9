@@ -32,11 +32,11 @@
              :nodes-per-batch 100
              :camera-distance 16
              :background-color 0x111111
-             :start-positions-axis-following 1.5
-             :start-positions-walk-multiplier 0.015
+             :start-positions-axis-following 1.6
+             :start-positions-walk-multiplier 0.014
              :start-positions-random-offset 0.5
              :curve-tightness-min 0.04
-             :curve-tightness-max 0.1
+             :curve-tightness-max 0.16
              :spline-hops 4
              :field-dimensions [10 5 5]
              :field-count 2
@@ -45,7 +45,7 @@
              :mulfn-base 0.8
              :mulfn-jump-chance 0.05
              :mulfn-jump-intensity 1.0
-             :wander-probability 0.25
+             :wander-probability 0.2
              :default-spline-resolution 10
              :mesh-geometry-size 65535
              :palette-colors 2
@@ -55,8 +55,8 @@
              :rotation-speed 0.00011
              :background-points-per-spline 6
              :background-spline-tightness 0.05
-             :background-spline-random-offset 0.2
-             :content-spline-resolution 3
+             :background-spline-random-offset 0.14
+             :content-spline-resolution 4
              :external-radius-min 1.0
              :external-radius-max 3.0
              :external-angle-min m/SIXTH_PI
@@ -240,10 +240,10 @@
         bg-palette (repeat (tc/rotate-hue (tc/hsla mid-hue 1.0 1.0) 0.5))
         url-palette main-palette
         set-lightness (fn [c l] (tc/hsla (tc/hue c) (tc/saturation c) l))]
-    (println "=== URL: " (:url config))
-    (println "=== Parsed nodes: " (count all-nodes))
-    (println "=== URL count: " (count urls))
-    (println "=== Seers: " seers)
+    (println "-- URL: " (:url config))
+    (println "-- Parsed nodes: " (count all-nodes))
+    (println "-- URL count: " (count urls))
+    (println "-- Seers: " seers)
     (vig/set-vignette-color (:vignette @*state*)
                             (set-lightness (first main-palette) 0.85)
                             (set-lightness (first main-palette) 0.70))

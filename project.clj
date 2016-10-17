@@ -16,7 +16,7 @@
                  [figwheel-sidecar "0.5.4-6"]
                  [cljsjs/react "15.3.1-0"]
                  [cljsjs/nodejs-externs "1.0.4-1"]
-                 [reagent "0.6.0-rc"]]
+                 [reagent "0.6.0"]]
   :plugins [[lein-cljsbuild "1.1.4"]
             [lein-figwheel "0.5.6"]]
   :cljsbuild
