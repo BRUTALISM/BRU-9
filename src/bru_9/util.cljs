@@ -31,6 +31,7 @@
 (defn cos [x] (.cos js/Math x))
 (defn atan [x] (.atan js/Math x))
 (defn sqrt [x] (.sqrt js/Math x))
+(defn clamp01 [x] (m/clamp x 0.0 1.0))
 
 (defn rand-range [min max]
   (+ min (rand (- max min))))
@@ -124,7 +125,7 @@
   representing the percentage of the range of the given collection. Returns the
   element which is closest to calculated position."
   [coll t]
-  (let [t01 (m/clamp t 0 1)
+  (let [t01 (clamp01 t)
         i (round (* t01 (dec (count coll))))]
     (nth coll i)))
 
@@ -162,7 +163,7 @@
   is clamped to the [0, 1] range."
   [ybase ymax]
   (fn [t]
-    (let [t (m/clamp t 0.0 1.0)
+    (let [t (clamp01 t)
           height (- ymax ybase)
           coeff (* height 2)]
       (if (< t 0.5)

@@ -23,16 +23,14 @@
                           :color2 #js {:type "c"
                                        :value (THREE.Color. col2)}}})))
 
-(defn setup-vignette [camera]
-  (let [material (vignette-material tc/WHITE tc/GRAY)
+(defn setup-vignette [camera color1 color2]
+  (let [material (vignette-material color1 color2)
         geometry (THREE.PlaneGeometry. 60 30)
         plane (THREE.Mesh. geometry material)]
     (set! (.-x (.-position plane)) (.-x (.-position camera)))
     (set! (.-y (.-position plane)) (.-y (.-position camera)))
     (set! (.-z (.-position plane)) -40)
-    (.add camera plane)
-    plane))
+    (.add camera plane)))
 
-(defn set-vignette-color [vignette color1 color2]
-  (let [new-material (vignette-material color1 color2)]
-    (set! (.-material vignette) new-material)))
+(defn adjust-color [color saturation lightness]
+  (tc/hsla (tc/hue color) saturation lightness))

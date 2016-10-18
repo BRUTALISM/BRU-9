@@ -30,10 +30,10 @@
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
              :node-limit 5000
              :nodes-per-batch 100
-             :camera-distance 16
+             :camera-distance 18
              :background-color 0x111111
              :start-positions-axis-following 1.6
-             :start-positions-walk-multiplier 0.014
+             :start-positions-walk-multiplier 0.012
              :start-positions-random-offset 0.5
              :curve-tightness-min 0.04
              :curve-tightness-max 0.16
@@ -41,7 +41,7 @@
              :field-dimensions [10 5 5]
              :field-count 2
              :field-general-direction v/V3X
-             :field-random-following 1.6
+             :field-random-following 1.8
              :mulfn-base 0.8
              :mulfn-jump-chance 0.05
              :mulfn-jump-intensity 1.0
@@ -49,10 +49,16 @@
              :default-spline-resolution 10
              :mesh-geometry-size 65535
              :palette-colors 2
-             :infinite-params {:hue 0.1
-                               :saturation 0.1
-                               :brightness 0.1}
-             :rotation-speed 0.00011
+             :base-brightnesses [0.9 0.5]
+             :infinite-params {:hue 0.03
+                               :saturation 0.2
+                               :brightness 0.2}
+             :rotation-speed 0.00015
+             ;:vignette-inside-lightness 0.06
+             ;:vignette-outside-lightness 0.03
+             :vignette-inside-lightness 0.9
+             :vignette-outside-lightness 0.7
+             :vignette-saturation 1.0
              :background-points-per-spline 6
              :background-spline-tightness 0.05
              :background-spline-random-offset 0.14
@@ -104,11 +110,12 @@
     (+ mulfn-base (if (< (rand) mulfn-jump-chance) mulfn-jump-intensity 0))))
 
 (defn- make-palette []
-  (let [color-generator #(-> (tc/random-rgb)
-                             (tc/adjust-saturation 1.0))
-        palette (repeatedly (:palette-colors config) color-generator)
-        infinite (ci/infinite-palette palette (:infinite-params config))]
-    infinite))
+  (let [brightnesses (cycle (:base-brightnesses config))
+        ; TODO: Neural network instead of random
+        color-generator (fn [b] (tc/hsva (rand) (u/rand-range 0.5 1.0) b))
+        palette (take (:palette-colors config)
+                      (map color-generator brightnesses))]
+    (ci/infinite-palette palette (:infinite-params config))))
 
 (defn spline-resolution [tag]
   (case (gtag/classify (first tag))
@@ -237,16 +244,20 @@
         ext-palette main-palette
         mid-hue (/ (+ (tc/hue (first main-palette))
                       (tc/hue (second main-palette))) 2)
-        bg-palette (repeat (tc/rotate-hue (tc/hsla mid-hue 1.0 1.0) 0.5))
+        bg-palette (ci/infinite-palette [(-> (tc/hsla mid-hue 1.0 0.7)
+                                             (tc/rotate-hue m/PI))]
+                                        (:infinite-params config))
         url-palette main-palette
-        set-lightness (fn [c l] (tc/hsla (tc/hue c) (tc/saturation c) l))]
+        vlin (:vignette-inside-lightness config)
+        vlout (:vignette-outside-lightness config)
+        vsat (:vignette-saturation config)]
     (println "-- URL: " (:url config))
     (println "-- Parsed nodes: " (count all-nodes))
     (println "-- URL count: " (count urls))
     (println "-- Seers: " seers)
-    (vig/set-vignette-color (:vignette @*state*)
-                            (set-lightness (first main-palette) 0.85)
-                            (set-lightness (first main-palette) 0.70))
+    (vig/setup-vignette (:camera @*state*)
+                        (vig/adjust-color (first main-palette) vsat vlin)
+                        (vig/adjust-color (first main-palette) vsat vlout))
     (enqueue-batches :background (part background) (part bg-splines) bg-palette)
     (enqueue-batches :main (part main) (part main-splines) main-palette)
     (enqueue-batches :external (part external) (part ext-splines) ext-palette)
@@ -304,8 +315,7 @@
 (defn setup [initial-context]
   (let [seed-chan (async/chan 10)
         anim-chan (async/chan (async/dropping-buffer 1))
-        mesh-chan (async/chan 10)
-        camera (:camera initial-context)]
+        mesh-chan (async/chan 10)]
     (swap! *state* assoc :scene (:scene initial-context))
     (swap! *state* assoc :camera (:camera initial-context))
     (swap! *state* assoc :renderer (:renderer initial-context))
@@ -314,7 +324,6 @@
     (swap! *state* assoc :mesh-chan mesh-chan)
     (seed-loop seed-chan anim-chan)
     (mesh-loop mesh-chan)
-    (swap! *state* assoc :vignette (vig/setup-vignette camera))
     (on-reload initial-context)))
 
 (defn reload [context]

@@ -2,6 +2,7 @@
   (:require [bru-9.geom.ptf :as ptf]
             [bru-9.color.ptf :as cptf]
             [bru-9.util :as u]
+            [bru-9.color.infinite :as ci]
             [thi.ng.geom.core :as g]
             [thi.ng.geom.vector :as v]
             [thi.ng.geom.rect :as rect]
@@ -15,7 +16,7 @@
 (def class-configs
   {:header {:envelope-size 0.04}
    :external {:envelope-size 0.025}
-   :scaffolding {:envelope-size 0.07}
+   :scaffolding {:envelope-size 0.06}
    :content {:envelope-size 0.5}
    :outward {:envelope-size 0.03}
    :default {:envelope-size 0.02}})
@@ -47,7 +48,8 @@
 (defmethod envelope :content [_]
   (u/saw 0.1 1.0))
 (defmethod envelope :scaffolding [_]
-  (fn [t] (+ 0.05 (* t 0.95))))
+  (let [tip (u/rand-range 0.1 0.5)]
+    (fn [t] (+ tip (* t (- 1 tip))))))
 (defmethod envelope :outward [_]
   (fn [t] (- 1.0 t)))
 (defmethod envelope :default [_]
@@ -97,7 +99,7 @@
         tag-class (classify tag-key)
         class-config (get class-configs tag-class)
         {:keys [envelope-size]} class-config
-        size (u/rand-magnitude envelope-size 0.2 0.0 10000000)
+        size (u/rand-magnitude envelope-size 0.5 0.0 10000000)
         max-angle m/HALF_PI
         points (filter-spline tag-key (g/vertices spline spline-resolution))
         idiv (-> points count dec double)
@@ -110,7 +112,7 @@
                       (ptf-frame tag-key {:angle angle
                                           :size tsize
                                           :ratio ratio})))
-        gradc (c/random-analog color 0.2)
+        gradc (ci/next-color [color] {:hue 0.03 :saturation 0.2 :brightness 0.2})
         colors (cptf/ptf-gradient-attribs color gradc 4 idiv)
         sweep-params {:mesh acc
                       :attribs {:col colors}}]
