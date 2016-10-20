@@ -16,9 +16,9 @@
 (def class-configs
   {:header {:envelope-size 0.04}
    :external {:envelope-size 0.025}
-   :scaffolding {:envelope-size 0.1}
-   :content {:envelope-size 0.5}
-   :outward {:envelope-size 0.03}
+   :scaffolding {:envelope-size 0.08}
+   :content {:envelope-size 0.3}
+   :outward {:envelope-size 0.028}
    :default {:envelope-size 0.02}})
 
 (def classes
@@ -66,7 +66,7 @@
   "Filters the vertices of a spline according to tag class."
   (fn [tag] (classify tag)))
 (defmethod filter-spline :content [_ vertices]
-  (map #(u/nth01 vertices %) [0.0 0.2 0.8]))
+  (map #(u/nth01 vertices %) [0.0 0.1 0.6]))
 (defmethod filter-spline :default [_ vertices]
   vertices)
 

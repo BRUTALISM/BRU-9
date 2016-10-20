@@ -22,10 +22,11 @@
              ;:url "http://polumenta.zardina.org"
              ;:url "http://brutalism.rs/category/process/"
              ;:url "http://apple.com"
-             ;:url "http://field.io"
+             :url "http://field.io"
              ;:url "http://www.businessinsider.com"
-             :url "http://pitchfork.com"
+             ;:url "http://pitchfork.com"
              ;:url "http://nytimes.com"
+             ;:url "http://yahoo.com"
              ;:url "http://slashdot.org"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
              :node-limit 5000
@@ -37,12 +38,13 @@
              :start-positions-random-offset 0.5
              :curve-tightness-min 0.04
              :curve-tightness-max 0.16
-             :spline-hops 4
+             :spline-hops-min 3
+             :spline-hops-max 4
              :field-dimensions [10 5 5]
              :field-count 2
              :field-general-direction v/V3X
              :field-random-following 1.8
-             :mulfn-base 0.8
+             :mulfn-base 0.6
              :mulfn-jump-chance 0.05
              :mulfn-jump-intensity 1.0
              :wander-probability 0.2
@@ -53,7 +55,7 @@
              :infinite-params {:hue 0.03
                                :saturation 0.2
                                :brightness 0.2}
-             :rotation-speed 0.00015
+             :rotation-speed 0.0002
              ;:vignette-inside-lightness 0.06
              ;:vignette-outside-lightness 0.03
              :vignette-inside-lightness 0.9
@@ -295,6 +297,7 @@
   (set! (.-x (.-position camera)) (.-x pivot-pos))
   (set! (.-y (.-position camera)) 0)
   (set! (.-z (.-position camera)) (:camera-distance config))
+  (set! (.-children camera) #js [])
   (.lookAt camera pivot-pos))
 
 (defonce camera-pivot (THREE.Object3D.))
