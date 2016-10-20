@@ -16,7 +16,7 @@
 (def class-configs
   {:header {:envelope-size 0.04}
    :external {:envelope-size 0.025}
-   :scaffolding {:envelope-size 0.06}
+   :scaffolding {:envelope-size 0.1}
    :content {:envelope-size 0.5}
    :outward {:envelope-size 0.03}
    :default {:envelope-size 0.02}})
@@ -48,8 +48,15 @@
 (defmethod envelope :content [_]
   (u/saw 0.1 1.0))
 (defmethod envelope :scaffolding [_]
-  (let [tip (u/rand-range 0.1 0.5)]
-    (fn [t] (+ tip (* t (- 1 tip))))))
+  (let [; keep inner-power below 0.25
+        inner-power 0.11
+        ; exaggeration controls the difference between peaks and the valley of
+        ; the envelope – higher values make lines thinner in the middle
+        exaggeration 2]
+    (fn [t]
+      (u/pow (+ (u/sin (* m/PI (u/pow t inner-power)))
+                (u/sin (* m/PI (u/pow (- 1 t) inner-power))))
+             exaggeration))))
 (defmethod envelope :outward [_]
   (fn [t] (- 1.0 t)))
 (defmethod envelope :default [_]
@@ -112,7 +119,8 @@
                       (ptf-frame tag-key {:angle angle
                                           :size tsize
                                           :ratio ratio})))
-        gradc (ci/next-color [color] {:hue 0.03 :saturation 0.2 :brightness 0.2})
+        gradc (ci/next-color [color]
+                             {:hue 0.03 :saturation 0.2 :brightness 0.2})
         colors (cptf/ptf-gradient-attribs color gradc 4 idiv)
         sweep-params {:mesh acc
                       :attribs {:col colors}}]

@@ -22,9 +22,9 @@
              ;:url "http://polumenta.zardina.org"
              ;:url "http://brutalism.rs/category/process/"
              ;:url "http://apple.com"
-             :url "http://field.io"
+             ;:url "http://field.io"
              ;:url "http://www.businessinsider.com"
-             ;:url "http://pitchfork.com"
+             :url "http://pitchfork.com"
              ;:url "http://nytimes.com"
              ;:url "http://slashdot.org"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
