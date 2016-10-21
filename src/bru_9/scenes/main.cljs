@@ -44,6 +44,7 @@
              :field-count 2
              :field-general-direction v/V3X
              :field-random-following 1.8
+             :field-noise 1.8
              :mulfn-base 0.6
              :mulfn-jump-chance 0.05
              :mulfn-jump-intensity 1.0
@@ -87,11 +88,13 @@
   (let [{:keys [field-count
                 field-general-direction
                 field-random-following
-                field-dimensions]} config]
+                field-dimensions
+                field-noise]} config]
     (gen/make-fields field-count
                      field-dimensions
                      field-general-direction
-                     field-random-following)))
+                     field-random-following
+                     field-noise)))
 
 (defn make-start-positions [count]
   (let [{:keys [start-positions-walk-multiplier

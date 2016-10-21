@@ -9,9 +9,10 @@
 
 ; Highly tweaked generation logic – sculptural, not general.
 
-(defn field-generator [coords random-intensity direction noise-offset]
-  (let [noise-scale 10.0
-        noise-multiplier 1.6
+(defn field-generator [coords params]
+  (let [{:keys [random-intensity direction noise-offset
+                noise-multiplier]} params
+        noise-scale 10.0
         noise-coords (map #(+ noise-offset (/ % noise-scale)) coords)
         noise (-> (apply n/noise3 noise-coords)
                   u/abs
@@ -29,16 +30,22 @@
 
 (defn- noise-offset [] (rand 100))
 
-(defn make-fields [count dimensions direction random-follow]
+(defn make-fields [count dimensions direction random-intensity noise]
   (let [dirs (make-directions direction count)
         noise-offset (noise-offset)
-        fgen (fn [_ dir] (field-generator _ random-follow dir noise-offset))
+        fgen (fn [_ dir] (field-generator _ {:random-intensity random-intensity
+                                             :direction dir
+                                             :noise-offset noise-offset
+                                             :noise-multiplier noise}))
         constructor (fn [dir] (fl/linear-field dimensions #(fgen % dir)))]
     (map constructor dirs)))
 
 (defn make-start-positions-field [dimensions direction random-intensity]
   (let [noise-offset (noise-offset)
-        gen #(field-generator % random-intensity direction noise-offset)]
+        gen #(field-generator % {:random-intensity random-intensity
+                                 :direction direction
+                                 :noise-offset noise-offset
+                                 :noise-multiplier 1.0})]
     (fl/linear-field dimensions gen)))
 
 (defn make-start-positions [field hops mulfn]

@@ -34,6 +34,7 @@
              :field-count 2
              :field-general-direction v/V3X
              :field-random-following 1.0
+             :field-noise 1.6
              :mulfn-base 0.7
              :mulfn-jump-chance 0.3
              :mulfn-jump-intensity 1.2
@@ -138,6 +139,7 @@
                 field-general-direction
                 field-random-following
                 field-dimensions
+                field-noise
                 background-color
                 infinite-params]} config
         palette (c/random-palette)
@@ -145,7 +147,8 @@
         fields (gen/make-fields field-count
                                 field-dimensions
                                 field-general-direction
-                                field-random-following)
+                                field-random-following
+                                field-noise)
         splines (draw-fields (:scene initial-context) fields infinite)
         [xmin xmax] (u/calculate-x-extents splines)
         pivot-pos (THREE.Vector3. (:x (m/div (m/+ xmax xmin) 2)) 0 0)]
