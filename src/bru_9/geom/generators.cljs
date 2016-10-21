@@ -4,12 +4,22 @@
             [bru-9.util :as u]
             [bru-9.field.linear :as fl]
             [bru-9.field.core :as f]
-            [bru-9.geom.bezier :as b]))
+            [bru-9.geom.bezier :as b]
+            [thi.ng.math.noise :as n]))
 
 ; Highly tweaked generation logic – sculptural, not general.
 
-(defn field-generator [_ random-intensity direction]
-  (m/+ direction (v/randvec3 random-intensity)))
+(defn field-generator [coords random-intensity direction noise-offset]
+  (let [noise-scale 10.0
+        noise-multiplier 1.6
+        noise-coords (map #(+ noise-offset (/ % noise-scale)) coords)
+        noise (-> (apply n/noise3 noise-coords)
+                  u/abs
+                  (* noise-multiplier)
+                  (+ 1.0))]
+    (-> direction
+        (m/+ (v/randvec3 random-intensity))
+        (m/* noise))))
 
 (defn make-directions [initial count]
   (loop [dirs [initial], i count]
@@ -17,14 +27,19 @@
       (recur (conj dirs (m/- (last dirs))) (dec i))
       (rest dirs))))
 
+(defn- noise-offset [] (rand 100))
+
 (defn make-fields [count dimensions direction random-follow]
   (let [dirs (make-directions direction count)
-        fgen (fn [_ dir] (field-generator _ random-follow dir))
+        noise-offset (noise-offset)
+        fgen (fn [_ dir] (field-generator _ random-follow dir noise-offset))
         constructor (fn [dir] (fl/linear-field dimensions #(fgen % dir)))]
     (map constructor dirs)))
 
 (defn make-start-positions-field [dimensions direction random-intensity]
-  (fl/linear-field dimensions #(field-generator % random-intensity direction)))
+  (let [noise-offset (noise-offset)
+        gen #(field-generator % random-intensity direction noise-offset)]
+    (fl/linear-field dimensions gen)))
 
 (defn make-start-positions [field hops mulfn]
   (f/walk field v/V3 hops mulfn))

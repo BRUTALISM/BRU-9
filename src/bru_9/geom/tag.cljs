@@ -66,7 +66,7 @@
   "Filters the vertices of a spline according to tag class."
   (fn [tag] (classify tag)))
 (defmethod filter-spline :content [_ vertices]
-  (map #(u/nth01 vertices %) [0.0 0.1 0.6]))
+  (map #(u/nth01 vertices %) [0.0 0.1 0.5]))
 (defmethod filter-spline :default [_ vertices]
   vertices)
 

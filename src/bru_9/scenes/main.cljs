@@ -22,9 +22,9 @@
              ;:url "http://polumenta.zardina.org"
              ;:url "http://brutalism.rs/category/process/"
              ;:url "http://apple.com"
-             :url "http://field.io"
+             ;:url "http://field.io"
              ;:url "http://www.businessinsider.com"
-             ;:url "http://pitchfork.com"
+             :url "http://pitchfork.com"
              ;:url "http://nytimes.com"
              ;:url "http://yahoo.com"
              ;:url "http://slashdot.org"
@@ -34,7 +34,7 @@
              :camera-distance 18
              :background-color 0x111111
              :start-positions-axis-following 1.6
-             :start-positions-walk-multiplier 0.012
+             :start-positions-walk-multiplier 0.01
              :start-positions-random-offset 0.5
              :curve-tightness-min 0.04
              :curve-tightness-max 0.16
@@ -51,11 +51,11 @@
              :default-spline-resolution 10
              :mesh-geometry-size 65535
              :palette-colors 2
-             :base-brightnesses [0.9 0.5]
+             :base-brightnesses [1.0 0.35]
              :infinite-params {:hue 0.03
                                :saturation 0.2
                                :brightness 0.2}
-             :rotation-speed 0.0002
+             :rotation-speed 0.00018
              ;:vignette-inside-lightness 0.06
              ;:vignette-outside-lightness 0.03
              :vignette-inside-lightness 0.9
