@@ -16,11 +16,10 @@
         noise-coords (map #(+ noise-offset (/ % noise-scale)) coords)
         noise (-> (apply n/noise3 noise-coords)
                   u/abs
-                  (* noise-multiplier)
-                  (+ 1.0))]
+                  (* noise-multiplier))]
     (-> direction
         (m/+ (v/randvec3 random-intensity))
-        (m/* noise))))
+        (m/* (+ 1.0 noise)))))
 
 (defn make-directions [initial count]
   (loop [dirs [initial], i count]
@@ -45,7 +44,7 @@
         gen #(field-generator % {:random-intensity random-intensity
                                  :direction direction
                                  :noise-offset noise-offset
-                                 :noise-multiplier 1.0})]
+                                 :noise-multiplier 0.0})]
     (fl/linear-field dimensions gen)))
 
 (defn make-start-positions [field hops mulfn]

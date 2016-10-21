@@ -44,7 +44,7 @@
              :field-count 2
              :field-general-direction v/V3X
              :field-random-following 1.8
-             :field-noise 1.8
+             :field-noise 1.9
              :mulfn-base 0.6
              :mulfn-jump-chance 0.05
              :mulfn-jump-intensity 1.0
