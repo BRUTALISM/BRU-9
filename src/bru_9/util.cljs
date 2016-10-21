@@ -31,10 +31,17 @@
 (defn cos [x] (.cos js/Math x))
 (defn atan [x] (.atan js/Math x))
 (defn sqrt [x] (.sqrt js/Math x))
+(defn log [x] (.log js/Math x))
 (defn clamp01 [x] (m/clamp x 0.0 1.0))
 
 (defn rand-range [min max]
   (+ min (rand (- max min))))
+
+(defn rand-normal []
+  (let [u (- 1 (rand))
+        v (- 1 (rand))]
+    (* (sqrt (* -2.0 (log u)))
+       (cos (* 2.0 m/PI v)))))
 
 (defn frac
   "Returns the result of subtracting (floor x) from x – the part after the

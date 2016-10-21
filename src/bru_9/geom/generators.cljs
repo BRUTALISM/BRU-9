@@ -32,10 +32,11 @@
 (defn make-fields [count dimensions direction random-intensity noise]
   (let [dirs (make-directions direction count)
         noise-offset (noise-offset)
-        fgen (fn [_ dir] (field-generator _ {:random-intensity random-intensity
-                                             :direction dir
-                                             :noise-offset noise-offset
-                                             :noise-multiplier noise}))
+        fgen (fn [coords dir]
+               (field-generator coords {:random-intensity random-intensity
+                                        :direction dir
+                                        :noise-offset noise-offset
+                                        :noise-multiplier noise}))
         constructor (fn [dir] (fl/linear-field dimensions #(fgen % dir)))]
     (map constructor dirs)))
 
@@ -59,8 +60,12 @@
                 curve-tightness-min
                 curve-tightness-max
                 wander-probability]} config
-        offset-starts (map #(m/+ % (v/randvec3 start-positions-random-offset))
-                           start-positions)]
+        offsetfn
+        (fn [pos]
+          (m/+ pos (apply v/vec3
+                          (repeatedly 3 #(* (u/rand-normal)
+                                            start-positions-random-offset)))))
+        offset-starts (map offsetfn start-positions)]
     (map #(b/spline-wander fields
                            %
                            (u/rand-int-range spline-hops-min

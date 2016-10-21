@@ -35,7 +35,7 @@
              :background-color 0x111111
              :start-positions-axis-following 1.6
              :start-positions-walk-multiplier 0.01
-             :start-positions-random-offset 0.5
+             :start-positions-random-offset 0.2
              :curve-tightness-min 0.04
              :curve-tightness-max 0.16
              :spline-hops-min 3
