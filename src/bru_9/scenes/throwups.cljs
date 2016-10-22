@@ -142,8 +142,7 @@
                 field-noise
                 background-color
                 infinite-params]} config
-        palette (c/random-palette)
-        infinite (ci/infinite-palette palette infinite-params)
+        infinite (ci/infinite-palette [(tc/random-rgb)] infinite-params)
         fields (gen/make-fields field-count
                                 field-dimensions
                                 field-general-direction

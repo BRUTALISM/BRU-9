@@ -16,22 +16,23 @@
             [thi.ng.math.core :as m]
             [thi.ng.color.core :as tc]
             [thi.ng.geom.core :as g]
-            [bru-9.field.core :as f]))
+            [bru-9.field.core :as f]
+            [bru-9.color.core :as c]))
 
 (def config {:url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
              ;:url "http://polumenta.zardina.org"
              ;:url "http://brutalism.rs/category/process/"
              ;:url "http://apple.com"
-             :url "http://field.io"
+             ;:url "http://field.io"
              ;:url "http://www.businessinsider.com"
-             ;:url "http://pitchfork.com"
+             :url "http://pitchfork.com"
              ;:url "http://nytimes.com"
              ;:url "http://yahoo.com"
              ;:url "http://slashdot.org"
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
              :node-limit 5000
              :nodes-per-batch 100
-             :camera-distance 18
+             :camera-distance 17
              :background-color 0x111111
              :start-positions-axis-following 1.6
              :start-positions-walk-multiplier 0.01
@@ -43,16 +44,17 @@
              :field-dimensions [10 5 5]
              :field-count 2
              :field-general-direction v/V3X
-             :field-random-following 1.8
+             :field-random-following 1.6
              :field-noise 1.9
-             :mulfn-base 0.6
+             :mulfn-base 0.64
              :mulfn-jump-chance 0.05
              :mulfn-jump-intensity 1.0
-             :wander-probability 0.2
+             :wander-probability 0.06
              :default-spline-resolution 10
              :mesh-geometry-size 65535
              :palette-colors 2
              :base-brightnesses [1.0 0.35]
+             :hue-range 0.1
              :infinite-params {:hue 0.03
                                :saturation 0.2
                                :brightness 0.2}
@@ -113,14 +115,6 @@
 (defn- mulfn [_]
   (let [{:keys [mulfn-base mulfn-jump-chance mulfn-jump-intensity]} config]
     (+ mulfn-base (if (< (rand) mulfn-jump-chance) mulfn-jump-intensity 0))))
-
-(defn- make-palette []
-  (let [brightnesses (cycle (:base-brightnesses config))
-        ; TODO: Neural network instead of random
-        color-generator (fn [b] (tc/hsva (rand) (u/rand-range 0.5 1.0) b))
-        palette (take (:palette-colors config)
-                      (map color-generator brightnesses))]
-    (ci/infinite-palette palette (:infinite-params config))))
 
 (defn spline-resolution [tag]
   (case (gtag/classify (first tag))
@@ -245,7 +239,10 @@
         ext-splines (make-external-splines start-positions (count external))
         bg-splines (make-background-splines start-positions (count background))
         url-splines (make-url-splines start-positions fields (count urls))
-        main-palette (make-palette)
+        base-palette (c/random-palette (:base-brightnesses config)
+                                       (:hue-range config))
+        main-palette (ci/infinite-palette base-palette
+                                          (:infinite-params config))
         ext-palette main-palette
         mid-hue (/ (+ (tc/hue (first main-palette))
                       (tc/hue (second main-palette))) 2)

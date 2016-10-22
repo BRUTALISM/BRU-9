@@ -11,7 +11,8 @@
             [thi.ng.geom.vector :as v]
             [thi.ng.geom.circle :as circle]
             [thi.ng.geom.webgl.glmesh :as glm]
-            [thi.ng.math.core :as m]))
+            [thi.ng.math.core :as m]
+            [thi.ng.color.core :as tc]))
 
 (def config {:elements 20
              :walk-length 32
@@ -46,8 +47,7 @@
 (defn setup [initial-context]
   (let [scene (:scene initial-context)
         acc (glm/gl-mesh 65536 #{:col})
-        palette (c/random-palette)
-        palette (ci/infinite-palette palette {:hue 0.3 :saturation 0.2})
+        palette (ci/infinite-palette [(tc/random-rgb)] {:hue 0.3 :saturation 0.2})
         elem-count (:elements config)
         mesh (reduce element acc (take elem-count palette))
         three-mesh (i/three-mesh mesh)]

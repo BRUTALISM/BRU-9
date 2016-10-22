@@ -1,8 +1,10 @@
 (ns bru-9.color.core
-  (:require [thi.ng.color.core :as c]))
+  (:require [thi.ng.color.core :as tc]
+            [bru-9.util :as u]
+            [thi.ng.math.core :as m]))
 
 (def palettes
-  (let [convert (fn [cols] (map c/css cols))
+  (let [convert (fn [cols] (map tc/css cols))
         pals
         {
          ;:tar ["#000000"]
@@ -32,7 +34,21 @@
          }]
     (zipmap (keys pals) (map convert (vals pals)))))
 
+(defn- avoid-green
+  "Takes a hue in the [0, 1] range and maps it to two split ranges, [0, 0.2] and
+  [0.4, 1.0]."
+  [hue]
+  (let [h (+ 0.4 (* hue 0.8))]
+    (if (>= h 1.0) (dec h) h)))
+
+(defn- random-hue []
+  "Avoids greens."
+  (avoid-green (rand)))
+
 (defn random-palette
-  "Gets a random palette from the palette map."
-  []
-  ((rand-nth (keys palettes)) palettes))
+  "Creates a new base palette where each color will have the corresponding
+  brightness from the brightnesses seq."
+  [brightnesses hue-range]
+  (let [hues (iterate #(avoid-green (+ (* hue-range (m/randnorm)) %))
+                      (random-hue))]
+    (map (fn [b h] (tc/hsva h (u/rand-range 0.5 1.0) b)) brightnesses hues)))

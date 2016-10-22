@@ -16,7 +16,7 @@
 (def class-configs
   {:header {:envelope-size 0.04}
    :external {:envelope-size 0.025}
-   :scaffolding {:envelope-size 0.08}
+   :scaffolding {:envelope-size 0.055}
    :content {:envelope-size 0.3}
    :outward {:envelope-size 0.028}
    :default {:envelope-size 0.02}})
@@ -49,10 +49,10 @@
   (u/saw 0.1 1.0))
 (defmethod envelope :scaffolding [_]
   (let [; keep inner-power below 0.25
-        inner-power 0.11
+        inner-power 0.18
         ; exaggeration controls the difference between peaks and the valley of
         ; the envelope – higher values make lines thinner in the middle
-        exaggeration 2]
+        exaggeration 3.0]
     (fn [t]
       (u/pow (+ (u/sin (* m/PI (u/pow t inner-power)))
                 (u/sin (* m/PI (u/pow (- 1 t) inner-power))))
