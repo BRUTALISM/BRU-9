@@ -38,14 +38,14 @@
              :start-positions-walk-multiplier 0.01
              :start-positions-random-offset 0.22
              :curve-tightness-min 0.04
-             :curve-tightness-max 0.16
+             :curve-tightness-max 0.1
              :spline-hops-min 3
              :spline-hops-max 4
              :field-dimensions [10 5 5]
              :field-count 2
              :field-general-direction v/V3X
              :field-random-following 1.6
-             :field-noise 1.3
+             :field-noise 1.4
              :mulfn-base 0.64
              :mulfn-jump-chance 0.05
              :mulfn-jump-intensity 0.8

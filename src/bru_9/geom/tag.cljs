@@ -16,7 +16,7 @@
 (def class-configs
   {:header {:envelope-size 0.04}
    :external {:envelope-size 0.025}
-   :scaffolding {:envelope-size 0.053}
+   :scaffolding {:envelope-size 0.05}
    :content {:envelope-size 0.3}
    :outward {:envelope-size 0.028}
    :default {:envelope-size 0.02}})
@@ -48,15 +48,26 @@
 (defmethod envelope :content [_]
   (u/saw 0.1 1.0))
 (defmethod envelope :scaffolding [_]
-  (let [; keep inner-power below 0.25
-        inner-power 0.18
-        ; exaggeration controls the difference between peaks and the valley of
-        ; the envelope – higher values make lines thinner in the middle
-        exaggeration 3.0]
-    (fn [t]
-      (u/pow (+ (u/sin (* m/PI (u/pow t inner-power)))
-                (u/sin (* m/PI (u/pow (- 1 t) inner-power))))
-             exaggeration)))
+  ;(let [; keep inner-power below 0.25
+  ;      inner-power 0.18
+  ;      ; exaggeration controls the difference between peaks and the valley of
+  ;      ; the envelope – higher values make lines thinner in the middle
+  ;      exaggeration 3.0]
+  ;  (fn [t]
+  ;    (u/pow (+ (u/sin (* m/PI (u/pow t inner-power)))
+  ;              (u/sin (* m/PI (u/pow (- 1 t) inner-power))))
+  ;           exaggeration)))
+
+  ;(fn [t]
+  ;  (if (< t 0.79)
+  ;    (+ 0.2 (u/pow (* 1.12 t) 2.0))
+  ;    (- 5.0 (* 5.0 t))))
+
+  ;(fn [t] (+ 0.3 (* 0.7 (u/sin (* 3.5 (u/pow t 2.0))))))
+
+  ;(fn [t] (+ 0.2 (u/pow (* 0.9 t) 2.0)))
+
+  (fn [t] (+ 0.2 (* 0.8 t)))
   )
 (defmethod envelope :outward [_]
   (fn [t] (- 1.0 t)))
@@ -74,7 +85,7 @@
 (defn rotated-rect [{:keys [angle size ratio]}]
   (let [height size
         width (/ height ratio)
-        zoff (v/vec3 0 0 (* height (u/sin angle)))
+        zoff (v/vec3 0 0 (* (/ height 2.0) (u/sin angle)))
         [v0 v1 v2 v3] (map v/vec3 (g/vertices (rect/rect 0 0 width height)))]
     [(m/- v0 zoff)
      (m/- v1 zoff)
