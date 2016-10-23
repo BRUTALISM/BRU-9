@@ -34,11 +34,11 @@
          }]
     (zipmap (keys pals) (map convert (vals pals)))))
 
-(defn- avoid-green
-  "Takes a hue in the [0, 1] range and maps it to two split ranges, [0, 0.2] and
-  [0.4, 1.0]."
+(defn avoid-green
+  "Takes a hue in the [0, 1] range and maps it to two split ranges, [0, 0.15] and
+  [0.45, 1.0]."
   [hue]
-  (let [h (+ 0.4 (* hue 0.8))]
+  (let [h (+ 0.45 (* hue 0.7))]
     (if (>= h 1.0) (dec h) h)))
 
 (defn- random-hue []
