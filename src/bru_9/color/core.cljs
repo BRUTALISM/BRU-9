@@ -34,21 +34,9 @@
          }]
     (zipmap (keys pals) (map convert (vals pals)))))
 
-(defn avoid-green
-  "Takes a hue in the [0, 1] range and maps it to two split ranges, [0, 0.15] and
-  [0.45, 1.0]."
-  [hue]
-  (let [h (+ 0.45 (* hue 0.7))]
-    (if (>= h 1.0) (dec h) h)))
-
-(defn- random-hue []
-  "Avoids greens."
-  (avoid-green (rand)))
-
 (defn random-palette
   "Creates a new base palette where each color will have the corresponding
   brightness from the brightnesses seq."
   [brightnesses hue-range]
-  (let [hues (iterate #(avoid-green (+ (* hue-range (m/randnorm)) %))
-                      (random-hue))]
+  (let [hues (iterate #(+ (* hue-range (m/randnorm)) %) (rand))]
     (map (fn [b h] (tc/hsva h (u/rand-range 0.5 1.0) b)) brightnesses hues)))

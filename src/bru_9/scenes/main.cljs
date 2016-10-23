@@ -45,7 +45,7 @@
              :field-count 2
              :field-general-direction v/V3X
              :field-random-following 1.6
-             :field-noise 1.4
+             :field-noise 1.6
              :mulfn-base 0.7
              :mulfn-jump-chance 0.05
              :mulfn-jump-intensity 0.8
@@ -54,7 +54,7 @@
              :mesh-geometry-size 65535
              :palette-colors 2
              :base-brightnesses [1.0 0.35]
-             :hue-range 0.1
+             :hue-range 0.2
              :infinite-params {:hue 0.03
                                :saturation 0.2
                                :brightness 0.2}

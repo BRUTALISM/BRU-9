@@ -48,15 +48,15 @@
 (defmethod envelope :content [_]
   (u/saw 0.1 1.0))
 (defmethod envelope :scaffolding [_]
-  ;(let [; keep inner-power below 0.25
-  ;      inner-power 0.18
-  ;      ; exaggeration controls the difference between peaks and the valley of
-  ;      ; the envelope – higher values make lines thinner in the middle
-  ;      exaggeration 3.0]
-  ;  (fn [t]
-  ;    (u/pow (+ (u/sin (* m/PI (u/pow t inner-power)))
-  ;              (u/sin (* m/PI (u/pow (- 1 t) inner-power))))
-  ;           exaggeration)))
+  (let [; keep inner-power below 0.25
+        inner-power 0.18
+        ; exaggeration controls the difference between peaks and the valley of
+        ; the envelope – higher values make lines thinner in the middle
+        exaggeration 3.0]
+    (fn [t]
+      (u/pow (+ (u/sin (* m/PI (u/pow t inner-power)))
+                (u/sin (* m/PI (u/pow (- 1 t) inner-power))))
+             exaggeration)))
 
   ;(fn [t]
   ;  (if (< t 0.79)
@@ -67,7 +67,7 @@
 
   ;(fn [t] (+ 0.2 (u/pow (* 0.9 t) 2.0)))
 
-  (fn [t] (+ 0.2 (* 0.8 t)))
+  ;(fn [t] (+ 0.2 (* 0.8 t)))
   )
 (defmethod envelope :outward [_]
   (fn [t] (- 1.0 t)))
