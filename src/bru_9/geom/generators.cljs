@@ -21,29 +21,24 @@
         (m/* (+ 1.0 noise)))))
 
 (defn make-directions [initial count]
-  (loop [dirs [initial], i count]
-    (if (> i 0)
-      (recur (conj dirs (m/- (last dirs))) (dec i))
-      (rest dirs))))
+  (take count (iterate #(m/- %) initial)))
 
 (defn- noise-offset [] (rand 100))
 
 (defn make-fields [count dimensions direction random-intensity noise]
   (let [dirs (make-directions direction count)
-        noise-offset (noise-offset)
         fgen (fn [coords dir]
                (field-generator coords {:random-intensity random-intensity
                                         :direction dir
-                                        :noise-offset noise-offset
+                                        :noise-offset (noise-offset)
                                         :noise-multiplier noise}))
         constructor (fn [dir] (fl/linear-field dimensions #(fgen % dir)))]
     (map constructor dirs)))
 
 (defn make-start-positions-field [dimensions direction random-intensity]
-  (let [noise-offset (noise-offset)
-        gen #(field-generator % {:random-intensity random-intensity
+  (let [gen #(field-generator % {:random-intensity random-intensity
                                  :direction direction
-                                 :noise-offset noise-offset
+                                 :noise-offset (noise-offset)
                                  :noise-multiplier 0.0})]
     (fl/linear-field dimensions gen)))
 
