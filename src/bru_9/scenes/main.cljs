@@ -54,7 +54,7 @@
              :mesh-geometry-size 65535
              :palette-colors 2
              :base-brightnesses [1.0 0.35]
-             :hue-range 0.2
+             :hue-range 0.25
              :infinite-params {:hue 0.03
                                :saturation 0.2
                                :brightness 0.2}
