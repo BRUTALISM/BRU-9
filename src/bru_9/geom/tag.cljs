@@ -52,7 +52,7 @@
         inner-power 0.18
         ; exaggeration controls the difference between peaks and the valley of
         ; the envelope – higher values make lines thinner in the middle
-        exaggeration 3.0]
+        exaggeration 2.4]
     (fn [t]
       (u/pow (+ (u/sin (* m/PI (u/pow t inner-power)))
                 (u/sin (* m/PI (u/pow (- 1 t) inner-power))))
@@ -132,7 +132,7 @@
                                           :size tsize
                                           :ratio ratio})))
         gradc (ci/next-color [color]
-                             {:hue 0.02 :saturation 0.2 :brightness 0.2})
+                             {:hue 0.02 :saturation 0.2 :brightness 0.3})
         colors (cptf/ptf-gradient-attribs color gradc 4 idiv)
         sweep-params {:mesh acc
                       :attribs {:col colors}}]
