@@ -12,10 +12,9 @@
 (defn field-generator [coords params]
   (let [{:keys [random-intensity direction noise-offset
                 noise-multiplier]} params
-        noise-scale 10.0
+        noise-scale 5.0
         noise-coords (map #(+ noise-offset (/ % noise-scale)) coords)
         noise (-> (apply n/noise3 noise-coords)
-                  u/abs
                   (* noise-multiplier))]
     (-> direction
         (m/+ (v/randvec3 random-intensity))

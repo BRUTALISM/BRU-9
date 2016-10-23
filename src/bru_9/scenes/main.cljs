@@ -45,10 +45,10 @@
              :field-count 2
              :field-general-direction v/V3X
              :field-random-following 1.6
-             :field-noise 1.9
+             :field-noise 1.3
              :mulfn-base 0.64
              :mulfn-jump-chance 0.05
-             :mulfn-jump-intensity 1.0
+             :mulfn-jump-intensity 0.8
              :wander-probability 0.06
              :default-spline-resolution 10
              :mesh-geometry-size 65535
@@ -59,8 +59,8 @@
                                :saturation 0.2
                                :brightness 0.2}
              :rotation-speed 0.00018
-             ;:vignette-inside-lightness 0.1
-             ;:vignette-outside-lightness 0.05
+             ;:vignette-inside-lightness 0.05
+             ;:vignette-outside-lightness 0.0
              :vignette-inside-lightness 0.9
              :vignette-outside-lightness 0.7
              :vignette-saturation 1.0
@@ -258,8 +258,8 @@
     (println "-- URL count: " (count urls))
     (println "-- Seers: " seers)
     (vig/setup-vignette (:camera @*state*)
-                        (vig/adjust-color (first main-palette) vsat vlin)
-                        (vig/adjust-color (first main-palette) vsat vlout))
+                        (vig/adjust-color (first base-palette) vsat vlin)
+                        (vig/adjust-color (first base-palette) vsat vlout))
     (enqueue-batches :background (part background) (part bg-splines) bg-palette)
     (enqueue-batches :main (part main) (part main-splines) main-palette)
     (enqueue-batches :external (part external) (part ext-splines) ext-palette)

@@ -16,7 +16,7 @@
 (def class-configs
   {:header {:envelope-size 0.04}
    :external {:envelope-size 0.025}
-   :scaffolding {:envelope-size 0.055}
+   :scaffolding {:envelope-size 0.053}
    :content {:envelope-size 0.3}
    :outward {:envelope-size 0.028}
    :default {:envelope-size 0.02}})
@@ -56,7 +56,8 @@
     (fn [t]
       (u/pow (+ (u/sin (* m/PI (u/pow t inner-power)))
                 (u/sin (* m/PI (u/pow (- 1 t) inner-power))))
-             exaggeration))))
+             exaggeration)))
+  )
 (defmethod envelope :outward [_]
   (fn [t] (- 1.0 t)))
 (defmethod envelope :default [_]
@@ -73,7 +74,7 @@
 (defn rotated-rect [{:keys [angle size ratio]}]
   (let [height size
         width (/ height ratio)
-        zoff (v/vec3 0 0 (* (/ height 2) (u/sin angle)))
+        zoff (v/vec3 0 0 (* height (u/sin angle)))
         [v0 v1 v2 v3] (map v/vec3 (g/vertices (rect/rect 0 0 width height)))]
     [(m/- v0 zoff)
      (m/- v1 zoff)
@@ -114,13 +115,13 @@
         ratio (:scaffolding-ratio config)
         profilefn (fn [i]
                     (let [t (/ i idiv)
-                          angle (+ (- max-angle) (* 2 t max-angle))
+                          angle (* t max-angle (m/randnorm))
                           tsize (* size (envelope-fn t))]
                       (ptf-frame tag-key {:angle angle
                                           :size tsize
                                           :ratio ratio})))
         gradc (ci/next-color [color]
-                             {:hue 0.03 :saturation 0.2 :brightness 0.2})
+                             {:hue 0.02 :saturation 0.2 :brightness 0.2})
         colors (cptf/ptf-gradient-attribs color gradc 4 idiv)
         sweep-params {:mesh acc
                       :attribs {:col colors}}]
