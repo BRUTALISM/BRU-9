@@ -32,11 +32,11 @@
              :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
              :node-limit 5000
              :nodes-per-batch 100
-             :camera-distance 17
+             :camera-distance 16
              :background-color 0x111111
              :start-positions-axis-following 1.6
              :start-positions-walk-multiplier 0.01
-             :start-positions-random-offset 0.22
+             :start-positions-random-offset 0.24
              :curve-tightness-min 0.04
              :curve-tightness-max 0.1
              :spline-hops-min 3
@@ -46,7 +46,7 @@
              :field-general-direction v/V3X
              :field-random-following 1.6
              :field-noise 1.4
-             :mulfn-base 0.64
+             :mulfn-base 0.7
              :mulfn-jump-chance 0.05
              :mulfn-jump-intensity 0.8
              :wander-probability 0.06
