@@ -10,13 +10,7 @@
                                                            "vignette-fragment"))
            :side js/THREE.DoubleSide
            :depthTest false
-           :uniforms #js {:aspectCorrection #js {:type "i" :value false}
-                          :aspect #js {:type "f" :value 1}
-                          :offset #js {:type "v2"
-                                       :value (THREE.Vector2. 0 0)}
-                          :scale #js {:type "v2"
-                                      :value (THREE.Vector2. 1 1)}
-                          :smoothness #js {:type "v2"
+           :uniforms #js {:smoothness #js {:type "v2"
                                            :value (THREE.Vector2. 0 1)}
                           :color1 #js {:type "c"
                                        :value (THREE.Color. col1)}

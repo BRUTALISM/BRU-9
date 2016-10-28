@@ -27,22 +27,12 @@
 
         uniform vec3 color1;
         uniform vec3 color2;
-        uniform float aspect;
-        uniform vec2 offset;
-        uniform vec2 scale;
-        uniform bool aspectCorrection;
         uniform vec2 smoothness;
 
         varying vec2 vUv;
 
         void main() {
             vec2 q = vec2(vUv - 0.5);
-
-            if (aspectCorrection) {
-                q.x *= aspect;
-            }
-            q /= scale;
-            q -= offset;
 
             float dst = length(q);
             dst = smoothstep(smoothness.x, smoothness.y, dst);
