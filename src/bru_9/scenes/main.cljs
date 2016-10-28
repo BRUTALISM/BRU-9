@@ -24,6 +24,7 @@
              ;:url "http://brutalism.rs/category/process/"
              ;:url "http://apple.com"
              ;:url "http://field.io"
+             ;:url "http://trello.com"
              ;:url "http://www.businessinsider.com"
              :url "http://pitchfork.com"
              ;:url "http://nytimes.com"
@@ -45,19 +46,20 @@
              :field-count 2
              :field-general-direction v/V3X
              :field-random-following 1.6
-             :field-noise 1.6
+             :field-noise 1.5
              :mulfn-base 0.7
              :mulfn-jump-chance 0.05
              :mulfn-jump-intensity 0.8
-             :wander-probability 0.06
+             :wander-probability 0.1
              :default-spline-resolution 10
              :mesh-geometry-size 65535
              :palette-colors 2
-             :base-brightnesses [1.0 0.35]
-             :hue-range 0.25
+             :base-brightnesses [1.0 0.25]
+             :base-saturations [1.0 0.9]
+             :hue-range 0.18
              :infinite-params {:hue 0.03
-                               :saturation 0.2
-                               :brightness 0.2}
+                               :saturation 0.1
+                               :brightness 0.25}
              :rotation-speed 0.00018
              ;:vignette-inside-lightness 0.05
              ;:vignette-outside-lightness 0.0
@@ -74,7 +76,7 @@
              :external-angle-max m/HALF_PI
              :external-tightness-min 0.1
              :external-tightness-max 0.3
-             :external-x-wobble 1.2
+             :external-x-wobble 1.8
              :external-node-count 5
              :external-spline-resolution 16
              :url-spline-tightness 0.2
@@ -239,15 +241,15 @@
         ext-splines (make-external-splines start-positions (count external))
         bg-splines (make-background-splines start-positions (count background))
         url-splines (make-url-splines start-positions fields (count urls))
-        base-palette (c/random-palette (:base-brightnesses config)
+        base-palette (c/random-palette (:base-saturations config)
+                                       (:base-brightnesses config)
                                        (:hue-range config))
         main-palette (ci/infinite-palette base-palette
                                           (:infinite-params config))
         ext-palette main-palette
-        mid-hue (/ (+ (tc/hue (first main-palette))
-                      (tc/hue (second main-palette))) 2)
-        bg-palette (ci/infinite-palette [(-> (tc/hsla mid-hue 1.0 0.7)
-                                             (tc/rotate-hue m/PI))]
+        main-hue (tc/hue (first main-palette))
+        bg-palette (ci/infinite-palette [(-> (tc/hsla main-hue 1.0 0.7)
+                                             (tc/rotate-hue (* 0.66 m/PI)))]
                                         (:infinite-params config))
         url-palette main-palette
         vlin (:vignette-inside-lightness config)

@@ -37,6 +37,11 @@
 (defn random-palette
   "Creates a new base palette where each color will have the corresponding
   brightness from the brightnesses seq."
-  [brightnesses hue-range]
-  (let [hues (iterate #(+ (* hue-range (m/randnorm)) %) (rand))]
-    (map (fn [b h] (tc/hsva h (u/rand-range 0.5 1.0) b)) brightnesses hues)))
+  [saturations brightnesses hue-range]
+  (let [start-hue (u/rand-range 0.45 1.15)
+        hues (iterate #(+ (* hue-range (m/randnorm)) %)
+                      (if (>= start-hue 1.0)
+                        (dec start-hue)
+                        start-hue))]
+    (map (fn [h s b] (tc/hsva h s b))
+         hues saturations brightnesses)))

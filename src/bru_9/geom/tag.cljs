@@ -16,7 +16,7 @@
 (def class-configs
   {:header {:envelope-size 0.02}
    :external {:envelope-size 0.025}
-   :scaffolding {:envelope-size 0.045}
+   :scaffolding {:envelope-size 0.042}
    :content {:envelope-size 0.3}
    :outward {:envelope-size 0.028}
    :default {:envelope-size 0.02}})
