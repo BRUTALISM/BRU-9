@@ -20,18 +20,11 @@
             [bru-9.color.core :as c]))
 
 (def config {:url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
-             ;:url "http://polumenta.zardina.org"
-             ;:url "http://brutalism.rs/category/process/"
-             ;:url "http://apple.com"
-             ;:url "http://field.io"
-             ;:url "http://trello.com"
-             ;:url "http://www.businessinsider.com"
-             ;:url "http://pitchfork.com"
-             :url "http://itsnicethat.com"
-             ;:url "http://nytimes.com"
-             ;:url "http://yahoo.com"
-             ;:url "http://slashdot.org"
-             :all-seeing ["facebook" "google" "instagram" "twitter" "amazon"]
+             :default-urls #js ["http://creativeapplications.com"
+                                "http://pitchfork.com"
+                                "http://itsnicethat.com"
+                                "http://nytimes.com"
+                                "http://slashdot.org"]
              :node-limit 5000
              :nodes-per-batch 100
              :camera-distance 16
@@ -86,6 +79,8 @@
              :url-spline-resolution 20})
 
 (defonce *state* (atom {}))
+
+(defonce json-config (.require js/self "electron-json-config"))
 
 ; Geometry generation
 
@@ -228,7 +223,6 @@
   [response]
   (let [{:keys [node-limit nodes-per-batch]} config
         body (:body response)
-        seers (parse/map-occurences body (:all-seeing config))
         urls (map (fn [u] [:url u])
                   (set (parse/occurences body (:url-regex config))))
         all-nodes (parse/level-dom body)
@@ -256,10 +250,7 @@
         vlin (:vignette-inside-lightness config)
         vlout (:vignette-outside-lightness config)
         vsat (:vignette-saturation config)]
-    (println "-- URL: " (:url config))
-    (println "-- Parsed nodes: " (count all-nodes))
-    (println "-- URL count: " (count urls))
-    (println "-- Seers: " seers)
+    (swap! *state* assoc :urls (map second urls))
     (vig/setup-vignette (:camera @*state*)
                         (vig/adjust-color (first base-palette) vsat vlin)
                         (vig/adjust-color (first base-palette) vsat vlout))
@@ -314,9 +305,26 @@
     (.add camera-pivot camera)
     (.add scene camera-pivot)))
 
+(defn- next-url []
+  (if-let [urls (:urls @*state*)]
+    ; TODO: Browsing history as a tree (zipper?), mapping visited -> found URLs
+    ; TODO: Handle (empty? urls) - pop back to previous location
+    ; TODO: Remove visited URLs from the structure
+    ; TODO: Forbid "deadend" URLs like facebook.com, instagram.com etc
+    ; TODO: Don't load URLs which have less than X nodes
+    (rand-nth urls)
+    (if-let [json-urls (.get json-config "urls")]
+      (rand-nth json-urls)
+      (do
+        ; First time loading of json config, write default URLs there
+        (.set json-config "urls" (:default-urls config))
+        (rand-nth (:default-urls config))))))
+
 (defn- on-reload [context]
-  (req/get-url (:url config) process-response)
-  context)
+  (let [url (next-url)]
+    (println "Fetching" url)
+    (req/get-url url process-response)
+    context))
 
 (defn setup [initial-context]
   (let [seed-chan (async/chan 10)
