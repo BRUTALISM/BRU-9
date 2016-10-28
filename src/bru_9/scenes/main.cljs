@@ -26,7 +26,8 @@
              ;:url "http://field.io"
              ;:url "http://trello.com"
              ;:url "http://www.businessinsider.com"
-             :url "http://pitchfork.com"
+             ;:url "http://pitchfork.com"
+             :url "http://itsnicethat.com"
              ;:url "http://nytimes.com"
              ;:url "http://yahoo.com"
              ;:url "http://slashdot.org"
@@ -37,7 +38,7 @@
              :background-color 0x111111
              :start-positions-axis-following 1.6
              :start-positions-walk-multiplier 0.01
-             :start-positions-random-offset 0.24
+             :start-positions-random-offset 0.26
              :curve-tightness-min 0.04
              :curve-tightness-max 0.1
              :spline-hops-min 3
