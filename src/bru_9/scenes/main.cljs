@@ -7,6 +7,7 @@
             [bru-9.geom.tag :as gtag]
             [bru-9.interop :as i]
             [bru-9.util :as u]
+            [bru-9.url :as url]
             [bru-9.color.infinite :as ci]
             [bru-9.geom.generators :as gen]
             [bru-9.geom.bezier :as b]
@@ -20,11 +21,6 @@
             [bru-9.color.core :as c]))
 
 (def config {:url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
-             :default-urls #js ["http://creativeapplications.com"
-                                "http://pitchfork.com"
-                                "http://itsnicethat.com"
-                                "http://nytimes.com"
-                                "http://slashdot.org"]
              :node-limit 5000
              :nodes-per-batch 100
              :camera-distance 16
@@ -79,8 +75,6 @@
              :url-spline-resolution 20})
 
 (defonce *state* (atom {}))
-
-(defonce json-config (.require js/self "electron-json-config"))
 
 ; Geometry generation
 
@@ -218,9 +212,10 @@
                           :palette palette}})))
 
 (defn process-response
-  "Parses the given response, converts its DOM tree into a mesh, and adds the
-  mesh to the current Three.js scene"
+  "Parses the given response, calculates fields and splines, and enqueues them
+  in batches to be processed further in the pipeline."
   [response]
+  ; TODO: Refactor this monstrosity.
   (let [{:keys [node-limit nodes-per-batch]} config
         body (:body response)
         urls (map (fn [u] [:url u])
@@ -249,8 +244,11 @@
         url-palette main-palette
         vlin (:vignette-inside-lightness config)
         vlout (:vignette-outside-lightness config)
-        vsat (:vignette-saturation config)]
-    (swap! *state* assoc :urls (map second urls))
+        vsat (:vignette-saturation config)
+        updated-urls (-> (:urls @*state*)
+                         (url/append-urls (map second urls)))]
+    (println "Current URLs:" (clojure.zip/node updated-urls))
+    (swap! *state* assoc :urls updated-urls)
     (vig/setup-vignette (:camera @*state*)
                         (vig/adjust-color (first base-palette) vsat vlin)
                         (vig/adjust-color (first base-palette) vsat vlout))
@@ -266,8 +264,8 @@
   function to use, and runs it with the parameters (:params) read from the seed.
   Reads from seed-chan are followed by a read from anim-chan, which must
   succeed before the rest of the logic runs. This way we're letting at least one
-  animation frame to run before processing the next seed. The processing
-  function puts its results into the mesh channel (accessible from *state*)."
+  animation frame run before processing the next seed. The processing function
+  puts its results onto the mesh channel (accessible from *state*)."
   [seed-chan anim-chan]
   (go-loop
     []
@@ -305,23 +303,8 @@
     (.add camera-pivot camera)
     (.add scene camera-pivot)))
 
-(defn- next-url []
-  (if-let [urls (:urls @*state*)]
-    ; TODO: Browsing history as a tree (zipper?), mapping visited -> found URLs
-    ; TODO: Handle (empty? urls) - pop back to previous location
-    ; TODO: Remove visited URLs from the structure
-    ; TODO: Forbid "deadend" URLs like facebook.com, instagram.com etc
-    ; TODO: Don't load URLs which have less than X nodes
-    (rand-nth urls)
-    (if-let [json-urls (.get json-config "urls")]
-      (rand-nth json-urls)
-      (do
-        ; First time loading of json config, write default URLs there
-        (.set json-config "urls" (:default-urls config))
-        (rand-nth (:default-urls config))))))
-
 (defn- on-reload [context]
-  (let [url (next-url)]
+  (let [url (url/current-url (:urls @*state*))]
     (println "Fetching" url)
     (req/get-url url process-response)
     context))
@@ -336,6 +319,7 @@
     (swap! *state* assoc :seed-chan seed-chan)
     (swap! *state* assoc :anim-chan anim-chan)
     (swap! *state* assoc :mesh-chan mesh-chan)
+    (swap! *state* assoc :urls (url/init-urls))
     (seed-loop seed-chan anim-chan)
     (mesh-loop mesh-chan)
     (on-reload initial-context)))

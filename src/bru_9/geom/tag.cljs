@@ -25,9 +25,9 @@
   {:header #{:html :head :meta :title :body}
    :external #{:script :link}
    :scaffolding #{:div :span :header :footer :noscript :style :nav :main :aside
-                  :a :input :form :textarea}
+                  :a :input :form :textarea :article}
    :content #{:h1 :h2 :h3 :h4 :h5 :h6 :p :b :code :pre :tt :ul :li
-              :img :path :polygon :svg}
+              :img :path :polygon :svg :i :br}
    ; Custom :url tag for URLs found w/ text search
    :outward #{:url}})
 
