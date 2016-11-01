@@ -21,6 +21,18 @@
             [bru-9.color.core :as c]))
 
 (def config {:url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
+             :url-options {:minimum-urls 5
+                           :filter-out ["facebook" "instagram" "wordpress"
+                                        "twitter" "pinterest" "google" "apple"
+                                        "github" "sourceforge" ".w3.org"
+                                        ".wp.me" "gmpg.org" ".w.org" "snapchat"
+                                        "vine.co" "ogp.me" "youtube"
+                                        "schema.org" "paypal" ".co.uk"
+                                        "linkedin"]}
+             :default-urls ["http://pitchfork.com"
+                            "http://news.ycombinator.com/"
+                            "http://itsnicethat.com"
+                            "http://slashdot.org"]
              :node-limit 5000
              :nodes-per-batch 100
              :camera-distance 16
@@ -246,7 +258,8 @@
         vlout (:vignette-outside-lightness config)
         vsat (:vignette-saturation config)
         updated-urls (-> (:urls @*state*)
-                         (url/append-urls (map second urls)))]
+                         (url/append-urls (map second urls)
+                                          (:url-options config)))]
     (println "Current URLs:" (clojure.zip/node updated-urls))
     (swap! *state* assoc :urls updated-urls)
     (vig/setup-vignette (:camera @*state*)
@@ -319,7 +332,7 @@
     (swap! *state* assoc :seed-chan seed-chan)
     (swap! *state* assoc :anim-chan anim-chan)
     (swap! *state* assoc :mesh-chan mesh-chan)
-    (swap! *state* assoc :urls (url/init-urls))
+    (swap! *state* assoc :urls (url/init-urls (:default-urls config)))
     (seed-loop seed-chan anim-chan)
     (mesh-loop mesh-chan)
     (on-reload initial-context)))
