@@ -54,11 +54,10 @@
                 curve-tightness-min
                 curve-tightness-max
                 wander-probability]} config
+        rand-offset (fn [] (* (u/rand-normal) start-positions-random-offset))
         offsetfn
         (fn [pos]
-          (m/+ pos (apply v/vec3
-                          (repeatedly 3 #(* (u/rand-normal)
-                                            start-positions-random-offset)))))
+          (m/+ pos (v/vec3 0 (rand-offset) (rand-offset))))
         offset-starts (map offsetfn start-positions)]
     (map #(b/spline-wander fields
                            %
