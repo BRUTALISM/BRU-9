@@ -57,7 +57,7 @@
         rand-offset (fn [] (* (u/rand-normal) start-positions-random-offset))
         offsetfn
         (fn [pos]
-          (m/+ pos (v/vec3 0 (rand-offset) (rand-offset))))
+          (m/+ pos (apply v/vec3 (repeatedly 3 rand-offset))))
         offset-starts (map offsetfn start-positions)]
     (map #(b/spline-wander fields
                            %
