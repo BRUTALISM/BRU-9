@@ -26,9 +26,8 @@
                                         "twitter" "pinterest" "google" "apple"
                                         "github" "sourceforge" ".w3.org"
                                         ".wp.me" "gmpg.org" ".w.org" "snapchat"
-                                        "vine.co" "ogp.me" "youtube"
-                                        "schema.org" "paypal" ".co.uk"
-                                        "linkedin"]}
+                                        "vine.co" "ogp.me" "schema.org" "paypal"
+                                        ".co.uk" "linkedin"]}
              :default-urls ["http://pitchfork.com"
                             "http://news.ycombinator.com/"
                             "http://itsnicethat.com"
