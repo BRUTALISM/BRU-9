@@ -30,6 +30,7 @@
 (defn sin [x] (.sin js/Math x))
 (defn cos [x] (.cos js/Math x))
 (defn atan [x] (.atan js/Math x))
+(defn tanh [x] (.tanh js/Math x))
 (defn sqrt [x] (.sqrt js/Math x))
 (defn log [x] (.log js/Math x))
 (defn clamp01 [x] (m/clamp x 0.0 1.0))

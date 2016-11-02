@@ -33,12 +33,13 @@
                             "http://news.ycombinator.com/"
                             "http://itsnicethat.com"
                             "http://slashdot.org"]
-             :node-limit 5000
+             :node-limit 3000
              :nodes-per-batch 100
-             :camera-distance 16
+             :camera-distance 17
              :background-color 0x111111
              :start-positions-axis-following 1.6
              :start-positions-walk-multiplier 0.01
+             :start-positions-count-mul 0.01
              :start-positions-random-offset 0.26
              :curve-tightness-min 0.04
              :curve-tightness-max 0.1
@@ -103,12 +104,16 @@
                      field-noise)))
 
 (defn make-start-positions [count]
-  (let [{:keys [start-positions-walk-multiplier
-                start-positions-axis-following
+  (let [{:keys [start-positions-axis-following
+                start-positions-walk-multiplier
+                start-positions-count-mul
                 field-general-direction
                 field-random-following
                 field-dimensions]} config
-        mulfn (fn [_] start-positions-walk-multiplier)
+        falloff (fn [x] (+ 0.6 (* 0.4 (u/tanh (- 2 (* x 0.1))))))
+        mul (* start-positions-walk-multiplier
+               (falloff (* start-positions-count-mul count)))
+        mulfn (fn [_] mul)
         direction (m/* field-general-direction start-positions-axis-following)
         start-positions-field
         (gen/make-start-positions-field field-dimensions
