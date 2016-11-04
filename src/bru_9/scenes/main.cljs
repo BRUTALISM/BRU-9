@@ -21,13 +21,13 @@
             [bru-9.color.core :as c]))
 
 (def config {:url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
-             :url-options {:minimum-urls 5
-                           :filter-out ["facebook" "instagram" "wordpress"
-                                        "twitter" "pinterest" "google" "apple"
-                                        "github" "sourceforge" ".w3.org"
-                                        ".wp.me" "gmpg.org" ".w.org" "snapchat"
-                                        "vine.co" "ogp.me" "schema.org" "paypal"
-                                        ".co.uk" "linkedin"]}
+             :url-options
+             {:minimum-urls 5
+              :filter-out
+              ["facebook" "instagram" "wordpress" "twitter" "pinterest" "google"
+               "apple" "github" "sourceforge" ".w3.org" ".wp.me" "gmpg.org"
+               ".w.org" "snapchat" "vine.co" "ogp.me" "schema.org" "paypal"
+               ".co.uk" "linkedin"]}
              :default-urls ["http://pitchfork.com"
                             "http://news.ycombinator.com/"
                             "http://itsnicethat.com"
@@ -227,27 +227,24 @@
                           :splines ss
                           :palette palette}})))
 
-(defn process-response
-  "Parses the given response, calculates fields and splines, and enqueues them
-  in batches to be processed further in the pipeline."
-  [response]
-  ; TODO: Refactor this monstrosity.
-  (let [{:keys [node-limit nodes-per-batch]} config
-        body (:body response)
-        urls (map (fn [u] [:url u])
-                  (set (parse/occurences body (:url-regex config))))
-        all-nodes (parse/level-dom body)
-        limited-nodes (take node-limit all-nodes)
-        {:keys [background external main]} (split-nodes limited-nodes)
-        part (fn [ns]
-               (partition nodes-per-batch nodes-per-batch [] ns))
-        fields (make-fields)
-        start-positions (make-start-positions (count main))
-        main-splines (make-main-splines fields start-positions mulfn config)
-        ext-splines (make-external-splines start-positions (count external))
-        bg-splines (make-background-splines start-positions (count background))
-        url-splines (make-url-splines start-positions fields (count urls))
-        base-palette (c/random-palette (:base-saturations config)
+(defn- setup-vignette [palette]
+  (let [vlin (:vignette-inside-lightness config)
+        vlout (:vignette-outside-lightness config)
+        vsat (:vignette-saturation config)]
+    (vig/setup-vignette (:camera @*state*)
+                        (vig/adjust-color (first palette) vsat vlin)
+                        (vig/adjust-color (first palette) vsat vlout))))
+
+(defn- create-splines [main external background urls]
+  (let [fields (make-fields)
+        start-positions (make-start-positions (count main))]
+    [(make-main-splines fields start-positions mulfn config)
+     (make-external-splines start-positions (count external))
+     (make-background-splines start-positions (count background))
+     (make-url-splines start-positions fields (count urls))]))
+
+(defn- create-palettes []
+  (let [base-palette (c/random-palette (:base-saturations config)
                                        (:base-brightnesses config)
                                        (:hue-range config))
         main-palette (ci/infinite-palette base-palette
@@ -257,22 +254,53 @@
         bg-palette (ci/infinite-palette [(-> (tc/hsla main-hue 1.0 0.7)
                                              (tc/rotate-hue (* 0.66 m/PI)))]
                                         (:infinite-params config))
-        url-palette main-palette
-        vlin (:vignette-inside-lightness config)
-        vlout (:vignette-outside-lightness config)
-        vsat (:vignette-saturation config)
-        updated-urls (-> (:urls @*state*)
-                         (url/append-urls (map second urls)
-                                          (:url-options config)))]
-    (println "Current URLs:" (clojure.zip/node updated-urls))
-    (swap! *state* assoc :urls updated-urls)
-    (vig/setup-vignette (:camera @*state*)
-                        (vig/adjust-color (first base-palette) vsat vlin)
-                        (vig/adjust-color (first base-palette) vsat vlout))
-    (enqueue-batches :background (part background) (part bg-splines) bg-palette)
-    (enqueue-batches :main (part main) (part main-splines) main-palette)
-    (enqueue-batches :external (part external) (part ext-splines) ext-palette)
-    (enqueue-batches :urls (part urls) (part url-splines) url-palette)))
+        url-palette main-palette]
+    [base-palette main-palette ext-palette bg-palette url-palette]))
+
+(defn- update-urls [new-urls]
+  (let [current (:urls @*state*)
+        updated-urls (url/append-urls current new-urls (:url-options config))]
+    (swap! *state* assoc :urls updated-urls)))
+
+(defn- generate-geometry [response]
+  (let [{:keys [node-limit nodes-per-batch]} config
+        body (:body response)
+        all-nodes (parse/level-dom body)
+        limited-nodes (take node-limit all-nodes)
+        {:keys [background external main]} (split-nodes limited-nodes)
+        urls (map (fn [u] [:url u])
+                  (set (parse/occurences body (:url-regex config))))
+
+        [main-splines ext-splines bg-splines url-splines]
+        (create-splines main external background urls)
+
+        [base-palette main-palette ext-palette bg-palette url-palette]
+        (create-palettes)
+
+        part (fn [ns] (partition nodes-per-batch nodes-per-batch [] ns))]
+    (update-urls (map second urls))
+    (setup-vignette base-palette)
+    (doseq [[c ns ss p] [[:background (part background)(part bg-splines)
+                          bg-palette]
+                         [:main (part main) (part main-splines) main-palette]
+                         [:external (part external) (part ext-splines)
+                          ext-palette]
+                         [:urls (part urls) (part url-splines) url-palette]]]
+      (enqueue-batches c ns ss p))))
+
+(declare process-response)
+(defn- load-next-url []
+  (let [url (url/current-url (:urls @*state*))]
+    (println "Fetching" url)
+    (req/get-url url process-response)))
+
+(defn process-response
+  "Parses the given response, calculates fields and splines, and enqueues them
+  in batches to be processed further in the pipeline."
+  [response]
+  (if (= (:status response) 200)
+    (generate-geometry response)
+    (load-next-url)))
 
 ; Scene setup & loops
 
@@ -321,9 +349,8 @@
     (.add scene camera-pivot)))
 
 (defn- on-reload [context]
-  (let [url (url/current-url (:urls @*state*))]
-    (println "Fetching" url)
-    (req/get-url url process-response)
+  (let []
+    (load-next-url)
     context))
 
 (defn setup [initial-context]
