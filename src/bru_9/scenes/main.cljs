@@ -262,22 +262,17 @@
         updated-urls (url/append-urls current new-urls (:url-options config))]
     (swap! *state* assoc :urls updated-urls)))
 
-(defn- generate-geometry [response]
+(defn- generate-geometry [nodes urls]
   (let [{:keys [node-limit nodes-per-batch]} config
-        body (:body response)
-        all-nodes (parse/level-dom body)
-        limited-nodes (take node-limit all-nodes)
+        part (fn [ns] (partition nodes-per-batch nodes-per-batch [] ns))
+        limited-nodes (take node-limit nodes)
         {:keys [background external main]} (split-nodes limited-nodes)
-        urls (map (fn [u] [:url u])
-                  (set (parse/occurences body (:url-regex config))))
 
         [main-splines ext-splines bg-splines url-splines]
         (create-splines main external background urls)
 
         [base-palette main-palette ext-palette bg-palette url-palette]
-        (create-palettes)
-
-        part (fn [ns] (partition nodes-per-batch nodes-per-batch [] ns))]
+        (create-palettes)]
     (update-urls (map second urls))
     (setup-vignette base-palette)
     (doseq [[c ns ss p] [[:background (part background)(part bg-splines)
@@ -294,12 +289,15 @@
     (println "Fetching" url)
     (req/get-url url process-response)))
 
-(defn process-response
-  "Parses the given response, calculates fields and splines, and enqueues them
-  in batches to be processed further in the pipeline."
-  [response]
+(defn process-response [response]
   (if (= (:status response) 200)
-    (generate-geometry response)
+    (let [body (:body response)
+          nodes (parse/level-dom body)
+          urls (map (fn [u] [:url u])
+                    (set (parse/occurences body (:url-regex config))))]
+      (if (> (count nodes) 0)
+        (generate-geometry nodes urls)
+        (load-next-url)))
     (load-next-url)))
 
 ; Scene setup & loops
