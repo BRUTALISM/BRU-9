@@ -1,5 +1,6 @@
 (ns bru-9.parse
-  (:require [hickory.core :as hcore]))
+  (:require [hickory.core :as hcore]
+            goog.string.format))
 
 (defn level-dom
   "Iterates level-order through each DOM element in the given HTML string,
