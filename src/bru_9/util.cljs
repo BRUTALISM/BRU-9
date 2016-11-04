@@ -1,5 +1,6 @@
 (ns bru-9.util
-  (:require [thi.ng.math.core :as m]))
+  (:require [thi.ng.math.core :as m]
+            [thi.ng.geom.vector :as v]))
 
 (defn map2obj [cljmap]
   (let [out (js-obj)]
@@ -34,15 +35,6 @@
 (defn sqrt [x] (.sqrt js/Math x))
 (defn log [x] (.log js/Math x))
 (defn clamp01 [x] (m/clamp x 0.0 1.0))
-
-(defn rand-range [min max]
-  (+ min (rand (- max min))))
-
-(defn rand-normal []
-  (let [u (- 1 (rand))
-        v (- 1 (rand))]
-    (* (sqrt (* -2.0 (log u)))
-       (cos (* 2.0 m/PI v)))))
 
 (defn frac
   "Returns the result of subtracting (floor x) from x – the part after the
@@ -142,8 +134,9 @@
         (fn [[min max] point]
           [(if (< (:x point) (:x min)) point min)
            (if (> (:x point) (:x max)) point max)])
-        all-points (mapcat :points splines)]
-    (reduce extfn [(first all-points) (first all-points)] all-points)))
+        all-points (mapcat :points splines)
+        f (or (first all-points) (v/vec3))]
+    (reduce extfn [f f] all-points)))
 
 (defn rand-range [min max]
   (+ min (rand (- max min))))
@@ -163,6 +156,12 @@
         mini (Math/max (long minimum) (- (long val) rounded-fraction))
         maxi (Math/min (long maximum) (+ (long val) rounded-fraction))]
     (rand-int-range mini maxi)))
+
+(defn rand-normal []
+  (let [u (- 1 (rand))
+        v (- 1 (rand))]
+    (* (sqrt (* -2.0 (log u)))
+       (cos (* 2.0 m/PI v)))))
 
 (defn saw
   "Returns a symmetrical saw function. The function starts from ybase, rises
