@@ -33,7 +33,7 @@
                             "http://itsnicethat.com"
                             "http://slashdot.org"]
              :node-limit 3000
-             :nodes-per-batch 100
+             :nodes-per-batch 50
              :camera-distance 17
              :background-color 0x111111
              :start-positions-axis-following 1.6
@@ -53,7 +53,7 @@
              :mulfn-jump-chance 0.05
              :mulfn-jump-intensity 0.8
              :wander-probability 0.1
-             :default-spline-resolution 10
+             :default-spline-resolution 8
              :mesh-geometry-size 65535
              :palette-colors 2
              :base-brightnesses [1.0 0.25]
@@ -63,8 +63,6 @@
                                :saturation 0.1
                                :brightness 0.25}
              :rotation-speed 0.00018
-             ;:vignette-inside-lightness 0.05
-             ;:vignette-outside-lightness 0.0
              :vignette-inside-lightness 0.9
              :vignette-outside-lightness 0.7
              :vignette-saturation 1.0
@@ -80,11 +78,11 @@
              :external-tightness-max 0.3
              :external-x-wobble 1.8
              :external-node-count 5
-             :external-spline-resolution 16
+             :external-spline-resolution 12
              :url-spline-tightness 0.2
              :url-spline-hops 4
              :url-spline-multiplier 4.0
-             :url-spline-resolution 20})
+             :url-spline-resolution 14})
 
 (defonce *state* (atom {}))
 
@@ -264,7 +262,10 @@
 
 (defn- generate-geometry [nodes urls]
   (let [{:keys [node-limit nodes-per-batch]} config
-        part (fn [ns] (partition nodes-per-batch nodes-per-batch [] ns))
+        part (fn [ns]
+               (let [spl (split-at (/ (count ns) 2) ns)
+                     rearr (interleave (reverse (first spl)) (second spl))]
+                 (partition nodes-per-batch nodes-per-batch [] rearr)))
         limited-nodes (take node-limit nodes)
         {:keys [background external main]} (split-nodes limited-nodes)
 
