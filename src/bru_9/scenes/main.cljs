@@ -48,7 +48,7 @@
              :field-count 2
              :field-general-direction v/V3X
              :field-random-following 1.6
-             :field-noise 1.5
+             :field-noise 1.4
              :mulfn-base 0.7
              :mulfn-jump-chance 0.08
              :mulfn-jump-intensity 0.8
@@ -78,7 +78,7 @@
              :external-tightness-max 0.3
              :external-x-wobble 1.8
              :external-node-count 5
-             :external-spline-resolution 12
+             :external-spline-resolution 14
              :url-spline-tightness 0.2
              :url-spline-hops 4
              :url-spline-multiplier 4.0
