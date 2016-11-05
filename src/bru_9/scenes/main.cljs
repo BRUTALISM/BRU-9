@@ -50,7 +50,7 @@
              :field-random-following 1.6
              :field-noise 1.5
              :mulfn-base 0.7
-             :mulfn-jump-chance 0.05
+             :mulfn-jump-chance 0.08
              :mulfn-jump-intensity 0.8
              :wander-probability 0.1
              :default-spline-resolution 8
