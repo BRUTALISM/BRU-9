@@ -7,10 +7,6 @@
 
 (defonce json-config (.require js/self "electron-json-config"))
 
-; TODO: Remove visited URLs from the structure
-; TODO: Forbid "deadend" URLs like facebook.com, instagram.com etc
-; TODO: Don't load URLs which have less than X nodes
-
 (defn init-urls
   "Returns a zipper containing the initial collection of URLs read from
   config.json. If the URLs are not present in config.json, they are written
