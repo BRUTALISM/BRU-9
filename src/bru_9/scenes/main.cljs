@@ -34,12 +34,12 @@
                             "http://slashdot.org"]
              :node-limit 3000
              :nodes-per-batch 50
-             :camera-distance 17
+             :camera-distance 18
              :background-color 0x111111
              :start-positions-axis-following 1.6
              :start-positions-walk-multiplier 0.01
              :start-positions-count-mul 0.01
-             :start-positions-random-offset 0.26
+             :start-positions-random-offset 0.25
              :curve-tightness-min 0.04
              :curve-tightness-max 0.1
              :spline-hops-min 3
@@ -62,7 +62,7 @@
              :infinite-params {:hue 0.03
                                :saturation 0.1
                                :brightness 0.25}
-             :rotation-speed 0.00018
+             :rotation-speed 0.00015
              :vignette-inside-lightness 0.9
              :vignette-outside-lightness 0.7
              :vignette-saturation 1.0
