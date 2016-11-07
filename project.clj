@@ -21,17 +21,29 @@
             [lein-figwheel "0.5.6"]]
   :cljsbuild
   {:builds
-   {:app {:source-paths ["src"]
-          :compiler {:output-to "app/js/p/app.js"
-                     :output-dir "app/js/p/out"
-                     :asset-path "js/p/out"
+   {; :app is for figwheel-reloaded code
+    :app {:source-paths ["src"]
+          :compiler {:output-to "app/js/compiled/app.js"
+                     :output-dir "app/js/compiled"
+                     :asset-path "js/assets"
                      :optimizations :none
                      :pretty-print true
-                     :cache-analysis true}}}}
+                     :cache-analysis true}}
+    ; :worker is for non-figwheel-reloaded, cljsbuild-only webworker code
+    :worker {:source-paths ["src"]
+             :compiler {:optimizations :simple
+                        :pretty-print true
+                        :output-to "app/js/compiled/base.js"
+                        :modules {:app {:output-dir "app/js/compiled"
+                                        :output-to "app/js/compiled/app.js"
+                                        :entries ["bru-9.core"]}
+                                  :worker {:output-dir "app/js/worker"
+                                           :output-to "app/js/worker/worker.js"
+                                           :entries ["bru-9.worker"]}}}}}}
 
   :hooks [leiningen.cljsbuild]
   :source-paths ["src" "script"]
-  :clean-targets [:target-path "out" "app/js/p"]
+  :clean-targets [:target-path "out" "app/js/compiled"]
   :figwheel {:css-dirs ["app/css"]
              :nrepl-port 7888}
 
@@ -39,7 +51,7 @@
   {:dev
    {:dependencies [[com.cemerick/piggieback "0.2.1"]
                    [org.clojure/tools.nrepl "0.2.11"]
-                   [figwheel-sidecar "0.5.4-6"]]
+                   [figwheel-sidecar "0.5.6"]]
     :plugins [[lein-ancient "0.6.8"]
               [lein-kibit "0.1.2"]
               [lein-cljfmt "0.4.1"]
