@@ -78,7 +78,7 @@
              :external-tightness-max 0.3
              :external-x-wobble 1.8
              :external-node-count 5
-             :external-spline-resolution 14
+             :external-spline-resolution 16
              :url-spline-tightness 0.2
              :url-spline-hops 4
              :url-spline-multiplier 4.0

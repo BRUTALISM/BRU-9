@@ -56,19 +56,7 @@
     (fn [t]
       (u/pow (+ (u/sin (* m/PI (u/pow t inner-power)))
                 (u/sin (* m/PI (u/pow (- 1 t) inner-power))))
-             exaggeration)))
-
-  ;(fn [t]
-  ;  (if (< t 0.79)
-  ;    (+ 0.2 (u/pow (* 1.12 t) 2.0))
-  ;    (- 5.0 (* 5.0 t))))
-
-  ;(fn [t] (+ 0.3 (* 0.7 (u/sin (* 3.5 (u/pow t 2.0))))))
-
-  ;(fn [t] (+ 0.2 (u/pow (* 0.9 t) 2.0)))
-
-  ;(fn [t] (+ 0.2 (* 0.8 t)))
-  )
+             exaggeration))))
 (defmethod envelope :outward [_]
   (fn [t] (- 1.0 t)))
 (defmethod envelope :default [_]
