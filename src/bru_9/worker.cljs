@@ -1,3 +1,3 @@
 (ns bru-9.worker)
 
-(println "OHAI web workers!")
+(.postMessage js/self "OHAI WebWorkers!")

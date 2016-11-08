@@ -18,7 +18,7 @@ main.js
 .cljs_rhino_repl/
 resources/public/js/compiled
 /.idea
-/app/js/compiled
+/app/js/main
 /app/js/worker
 /node_modules
 /electron

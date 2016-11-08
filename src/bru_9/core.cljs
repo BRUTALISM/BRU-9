@@ -17,6 +17,11 @@
   (mount-root)
   (scene/reload))
 
+(defn report-worker [msg]
+  (println (.-data msg)))
+
 (defn init! []
-  (mount-root)
-  (scene/run))
+  (let [worker (js/Worker. "js/worker/worker.js")]
+    (set! (.-onmessage worker) report-worker)
+    (mount-root)
+    (scene/run)))
