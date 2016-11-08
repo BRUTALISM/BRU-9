@@ -12,7 +12,9 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/app/components" />
+      <excludeFolder url="file://$MODULE_DIR$/app/js/main" />
       <excludeFolder url="file://$MODULE_DIR$/app/js/p" />
+      <excludeFolder url="file://$MODULE_DIR$/app/js/worker" />
       <excludeFolder url="file://$MODULE_DIR$/builds" />
       <excludeFolder url="file://$MODULE_DIR$/node_modules" />
       <excludeFolder url="file://$MODULE_DIR$/resources/public/js/compiled" />
@@ -48,14 +50,16 @@
     <orderEntry type="library" name="Leiningen: crypto-equality:1.0.0" level="project" />
     <orderEntry type="library" name="Leiningen: crypto-random:1.2.0" level="project" />
     <orderEntry type="library" name="Leiningen: environ:1.0.0" level="project" />
-    <orderEntry type="library" name="Leiningen: figwheel-sidecar:0.5.4-6" level="project" />
-    <orderEntry type="library" name="Leiningen: figwheel:0.5.4-6" level="project" />
-    <orderEntry type="library" name="Leiningen: fipp:0.6.5" level="project" />
+    <orderEntry type="library" name="Leiningen: figwheel-sidecar:0.5.8" level="project" />
+    <orderEntry type="library" name="Leiningen: figwheel:0.5.8" level="project" />
     <orderEntry type="library" name="Leiningen: hawk:0.2.10" level="project" />
     <orderEntry type="library" name="Leiningen: hiccup:1.0.5" level="project" />
     <orderEntry type="library" name="Leiningen: hickory:0.6.0" level="project" />
-    <orderEntry type="library" name="Leiningen: http-kit:2.1.19" level="project" />
+    <orderEntry type="library" name="Leiningen: http-kit:2.2.0" level="project" />
     <orderEntry type="library" name="Leiningen: joda-time:2.8.2" level="project" />
+    <orderEntry type="library" name="Leiningen: net.cgrand/parsley:0.9.3" level="project" />
+    <orderEntry type="library" name="Leiningen: net.cgrand/regex:1.1.0" level="project" />
+    <orderEntry type="library" name="Leiningen: net.cgrand/sjacket:0.1.1" level="project" />
     <orderEntry type="library" name="Leiningen: net.incongru.watchservice/barbary-watchservice:1.0" level="project" />
     <orderEntry type="library" name="Leiningen: net.java.dev.jna/jna:3.2.2" level="project" />
     <orderEntry type="library" name="Leiningen: noencore:0.2.0" level="project" />
@@ -64,7 +68,6 @@
     <orderEntry type="library" name="Leiningen: org.clojure/core.async:0.2.374" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/core.cache:0.6.4" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/core.memoize:0.5.8" level="project" />
-    <orderEntry type="library" name="Leiningen: org.clojure/core.rrb-vector:0.0.11" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/data.json:0.2.6" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/data.priority-map:0.0.4" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/google-closure-library-third-party:0.0-20160609-f42b4a24" level="project" />
@@ -81,7 +84,8 @@
     <orderEntry type="library" name="Leiningen: ring-cors:0.1.8" level="project" />
     <orderEntry type="library" name="Leiningen: ring/ring-codec:1.0.1" level="project" />
     <orderEntry type="library" name="Leiningen: ring/ring-core:1.5.0" level="project" />
-    <orderEntry type="library" name="Leiningen: simple-lein-profile-merge:0.1.3" level="project" />
+    <orderEntry type="library" name="Leiningen: simple-lein-profile-merge:0.1.4" level="project" />
+    <orderEntry type="library" name="Leiningen: strictly-specking-standalone:0.1.1" level="project" />
     <orderEntry type="library" name="Leiningen: thi.ng/color:1.1.1" level="project" />
     <orderEntry type="library" name="Leiningen: thi.ng/dstruct:0.1.5" level="project" />
     <orderEntry type="library" name="Leiningen: thi.ng/geom:0.0.1046" level="project" />

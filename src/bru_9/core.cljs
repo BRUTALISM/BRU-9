@@ -1,5 +1,9 @@
 (ns bru-9.core
+  (:require-macros
+    [cljs.core.async.macros :refer [go]])
   (:require [bru-9.scenes.core :as scene]
+            [bru-9.werk :as w]
+            [cljs.core.async :as async :refer [<! >!]]
             [reagent.core :as reagent]))
 
 (enable-console-print!)
@@ -17,11 +21,9 @@
   (mount-root)
   (scene/reload))
 
-(defn report-worker [msg]
-  (println (.-data msg)))
-
 (defn init! []
-  (let [worker (js/Worker. "js/worker/worker.js")]
-    (set! (.-onmessage worker) report-worker)
+  (let [[to-chan from-chan] (w/worker "js/worker/worker.js")]
+    (go (>! to-chan "Pirke"))
+    (go (println (<! from-chan)))
     (mount-root)
     (scene/run)))

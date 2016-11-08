@@ -1,3 +1,6 @@
 (ns bru-9.worker)
 
-(.postMessage js/self "OHAI WebWorkers!")
+(defn process-msg [msg]
+  (.postMessage js/self (str (.-data msg) " je morao biti ubiven")))
+
+(set! (.-onmessage js/self) process-msg)
