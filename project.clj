@@ -27,11 +27,12 @@
                       :output-to "app/js/main/app.js"
                       :asset-path "js/main"
                       :optimizations :none
-                      :pretty-print true
-                      :cache-analysis true}}
+                      :pretty-print true}}
     ; :worker is for non-figwheel-reloaded, cljsbuild-only webworker code
     :worker {:source-paths ["src"]
-             :compiler {:optimizations :simple
+             :compiler {; :none fails due to document.write() in generated JS
+                        :optimizations :simple
+
                         :pretty-print true
                         :output-dir "app/js/worker"
                         :output-to "app/js/worker/worker.js"

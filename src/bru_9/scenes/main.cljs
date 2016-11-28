@@ -18,9 +18,11 @@
             [thi.ng.color.core :as tc]
             [thi.ng.geom.core :as g]
             [bru-9.field.core :as f]
-            [bru-9.color.core :as c]))
+            [bru-9.color.core :as c]
+            [bru-9.werk :as w]))
 
-(def config {:url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
+(def config {:worker-count 2
+             :url-regex "http(s)?://(\\w|-)+\\.((\\w|-)+\\.?)+"
              :url-options
              {:minimum-urls 5
               :filter-out
@@ -122,21 +124,6 @@
   (let [{:keys [mulfn-base mulfn-jump-chance mulfn-jump-intensity]} config]
     (+ mulfn-base (if (< (rand) mulfn-jump-chance) mulfn-jump-intensity 0))))
 
-(defn spline-resolution [tag]
-  (case (gtag/classify (first tag))
-    :content (:content-spline-resolution config)
-    :outward (:url-spline-resolution config)
-    :external (:external-spline-resolution config)
-    (:default-spline-resolution config)))
-
-(defn spline-nodes->mesh [{:keys [nodes splines palette]}]
-  (let [gl-mesh (glm/gl-mesh (:mesh-geometry-size config) #{:col})
-        nodes-splines-colors (map vector nodes splines palette)
-        tagfn (fn [acc [tag spline color]]
-                (gtag/tag->mesh acc tag spline color (spline-resolution tag)))]
-    (async/put! (:mesh-chan @*state*)
-                (reduce tagfn gl-mesh nodes-splines-colors))))
-
 ; Spline creation
 
 (defn make-background-splines [start-positions num]
@@ -212,18 +199,21 @@
   wrapping around the main sculpture."
   [nodes]
   (let [render-context #(case (gtag/classify (first %))
-                         :header :background
-                         :external :external
-                         :main)]
+                          :header :background
+                          :external :external
+                          :main)]
     (group-by render-context nodes)))
 
 (defn- enqueue-batches [context nodes splines palette]
-  (doseq [[ns ss] (map vector nodes splines)]
-    (async/put! (:seed-chan @*state*)
-                {:context context
-                 :params {:nodes ns
-                          :splines ss
-                          :palette palette}})))
+  (let [to-chans (:to-chans @*state*)]
+    (go
+      (doseq [[ns ss] (map vector nodes splines)]
+        (async/alts! (map vector
+                          to-chans
+                          (repeat {:context context
+                                   :params {:nodes ns
+                                            :splines ss
+                                            :palette palette}})))))))
 
 (defn- setup-vignette [palette]
   (let [vlin (:vignette-inside-lightness config)
@@ -276,7 +266,7 @@
         (create-palettes)]
     (update-urls (map second urls))
     (setup-vignette base-palette)
-    (doseq [[c ns ss p] [[:background (part background)(part bg-splines)
+    (doseq [[c ns ss p] [[:background (part background) (part bg-splines)
                           bg-palette]
                          [:main (part main) (part main-splines) main-palette]
                          [:external (part external) (part ext-splines)
@@ -303,28 +293,27 @@
 
 ; Scene setup & loops
 
-(defn seed-loop
-  "Starts a go-loop which reads seeds from seed-chan, decides which processing
-  function to use, and runs it with the parameters (:params) read from the seed.
-  Reads from seed-chan are followed by a read from anim-chan, which must
-  succeed before the rest of the logic runs. This way we're letting at least one
-  animation frame run before processing the next seed. The processing function
-  puts its results onto the mesh channel (accessible from *state*)."
-  [seed-chan anim-chan]
-  (go-loop
-    []
-    (let [seed (<! seed-chan)
-          _ (<! anim-chan)]
-      (spline-nodes->mesh (:params seed))
-      (recur))))
+;(defn seed-loop
+;  "Starts a go-loop which reads seeds from seed-chan and forwards it to one of
+;  the workers."
+;  [seed-chan to-chans]
+;  (go
+;    (loop []
+;      (let [_ (<! (:anim-chan @*state*))
+;            seed (<! seed-chan)
+;            param (assoc (:params seed) :config config)]
+;        (println "param:" param)
+;        ;(<! (async/timeout 2000))
+;        (async/alts! (map vector to-chans (repeat param)))
+;        (recur)))))
 
 (defn mesh-loop
-  "Starts a go-loop which reads meshes from mesh-chan, converts them to Three.js
-  meshes, and adds them to the scene."
-  [mesh-chan]
+  "Starts a go-loop which reads meshes from from-chans as they become
+  available, converts them to Three.js meshes, and adds them to the scene."
+  [from-chans]
   (go-loop
     []
-    (let [mesh (<! mesh-chan)
+    (let [[mesh _] (async/alts! from-chans)
           three-mesh (i/three-mesh mesh)]
       (.add (:scene @*state*) three-mesh)
       (recur))))
@@ -353,18 +342,24 @@
     context))
 
 (defn setup [initial-context]
-  (let [seed-chan (async/chan 10)
-        anim-chan (async/chan (async/dropping-buffer 1))
-        mesh-chan (async/chan 10)]
-    (swap! *state* assoc :scene (:scene initial-context))
-    (swap! *state* assoc :camera (:camera initial-context))
-    (swap! *state* assoc :renderer (:renderer initial-context))
-    (swap! *state* assoc :seed-chan seed-chan)
-    (swap! *state* assoc :anim-chan anim-chan)
-    (swap! *state* assoc :mesh-chan mesh-chan)
-    (swap! *state* assoc :urls (url/init-urls (:default-urls config)))
-    (seed-loop seed-chan anim-chan)
-    (mesh-loop mesh-chan)
+  (let [;seed-chan (async/chan 1)
+        workers (repeatedly (:worker-count config)
+                            #(w/worker "js/worker/worker.js"))
+        to-chans (map first workers)
+        from-chans (map second workers)
+        anim-chan (async/chan (async/dropping-buffer 1))]
+    (swap! *state* merge
+           {:scene (:scene initial-context)
+            :camera (:camera initial-context)
+            :renderer (:renderer initial-context)
+            ;:seed-chan seed-chan
+            :anim-chan anim-chan
+            :to-chans to-chans
+            :urls (url/init-urls (:default-urls config))
+            :workers workers
+            })
+    (mesh-loop from-chans)
+    ;(seed-loop seed-chan to-chans)
     (on-reload initial-context)))
 
 (defn reload [context]
