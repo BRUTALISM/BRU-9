@@ -1,4 +1,4 @@
-(defproject bru-9 "0.1.0-SNAPSHOT"
+(defproject bru-9 "1.0"
   :description "An alternative renderer for the web."
   :url "http://brutalism.rs"
   :license {:name "Attribution-NonCommercial-ShareAlike 4.0 International"
@@ -57,7 +57,7 @@
    {:cljsbuild
     {:builds
      {:app {:source-paths ["env/prod/cljs"]
-            :compiler {:optimizations :advanced
+            :compiler {:optimizations :simple
                        :main "bru-9.prod"
                        :parallel-build true
                        :cache-analysis false

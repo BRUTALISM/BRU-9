@@ -27,11 +27,8 @@
               ["facebook" "instagram" "wordpress" "twitter" "pinterest" "google"
                "apple" "github" "sourceforge" ".w3.org" ".wp.me" "gmpg.org"
                ".w.org" "snapchat" "vine.co" "ogp.me" "schema.org" "paypal"
-               ".co.uk" "linkedin"]}
-             :default-urls ["http://pitchfork.com"
-                            "http://news.ycombinator.com/"
-                            "http://itsnicethat.com"
-                            "http://slashdot.org"]
+               ".co.uk" "linkedin" "youtube"]}
+             :default-urls ["http://slashdot.org" "http://reddit.com"]
              :node-limit 3000
              :nodes-per-batch 50
              :camera-distance 18

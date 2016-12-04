@@ -126,12 +126,12 @@ function getBuildMeta() {
   grunt.log.writeln("Getting project metadata...");
   var tokens = cat("project.clj").split(" ");
   var build = {
-    name:    tokens[1],
+    name:    "AE2",
     version: tokens[2].replace(/"/g, "").trim(),
     date:    moment().format("YYYY-MM-DD")
   };
   var commit = exec("git rev-list HEAD --count", {silent:true}).trim();
-  if (commit != '') {
+  if (commit == '') {
     build.commit = "pre";
   } else {
     build.commit = commit;
@@ -223,6 +223,7 @@ grunt.registerTask('release', ['cljsbuild-prod', 'prepare-release', 'release-lin
 grunt.registerTask('cljsbuild-prod', function() {
   grunt.log.writeln("\nCleaning and building ClojureScript production files...");
   exec("lein do clean, with-profile production cljsbuild once");
+//  exec("lein do clean, cljsbuild once");
 });
 
 grunt.registerTask('prepare-release', function() {
@@ -246,6 +247,7 @@ grunt.registerTask('prepare-release', function() {
   }
 
   //copy app folder
+  grunt.log.writeln("Copying from " + paths.devApp + " -> " + paths.builds)
   cp('-r', paths.devApp, paths.builds);
 
   grunt.log.writeln("\nCopying node dependencies to release...");
@@ -255,7 +257,9 @@ grunt.registerTask('prepare-release', function() {
   popd();
   cp('-f', paths.devPkg, paths.releaseApp);
 
-  deleteExtraResources(paths);
+  // No.
+  //deleteExtraResources(paths);
+
   stampRelease(build, paths);
   setReleaseConfig(build, paths);
 });
@@ -322,8 +326,8 @@ grunt.registerTask('release-mac', function() {
       var dmgName = path.join(dirName, path.basename(dirName) + ".dmg");
       grunt.config.set("appdmg", {
         options: {
-          "title": "BRU-9",
-          "background": "script/dmg/TestBkg.png",
+          "title": "Aesthetic Engine 2",
+          "background": "script/dmg/dmg_bg.png",
           "icon-size": 80,
           "contents": [
             { "x": 448, "y": 344, "type": "link", "path": "/Applications" },

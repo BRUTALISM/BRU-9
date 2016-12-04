@@ -78,7 +78,10 @@
 (declare reload)
 (defn keyboard-loop []
   (let [keydown-chan (event-chan js/window "keydown")
-        handlers {82 #(reload)}]
+        reload-fn #(reload)
+        handlers {82 reload-fn ; "R"
+                  32 reload-fn ; space
+                  13 reload-fn}] ; enter
     (go
       (loop []
         (let [event (<! keydown-chan)

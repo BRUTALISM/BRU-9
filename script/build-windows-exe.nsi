@@ -2,10 +2,10 @@
 ;; NSIS - http://nsis.sourceforge.net/Main_Page
 
 ;; HM NIS Edit Wizard helper defines
-!define PRODUCT_NAME "bru-9"
+!define PRODUCT_NAME "AE2"
 ;; !define PRODUCT_VERSION "0.0"  ;; This is auto-defined by the caller in the release script
-!define PRODUCT_WEB_SITE "https://github.com/"
-!define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\bru-9.exe"
+!define PRODUCT_WEB_SITE "https://brutalism.rs/"
+!define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\AE2.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 !define PRODUCT_STARTMENU_REGVAL "NSIS:StartMenuDir"
@@ -37,7 +37,7 @@ var ICONS_GROUP
 !insertmacro MUI_PAGE_INSTFILES
 
 ;; Finish page
-!define MUI_FINISHPAGE_RUN "$INSTDIR\bru-9.exe"
+!define MUI_FINISHPAGE_RUN "$INSTDIR\AE2.exe"
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
@@ -68,8 +68,8 @@ Section "MainSection" SEC01
 ;; Shortcuts
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
   CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
-  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\bru-9.lnk" "$INSTDIR\bru-9.exe"
-  CreateShortCut "$DESKTOP\bru-9.lnk" "$INSTDIR\bru-9.exe"
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\AE2.lnk" "$INSTDIR\AE2.exe"
+  CreateShortCut "$DESKTOP\AE2.lnk" "$INSTDIR\AE2.exe"
   !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
@@ -84,10 +84,10 @@ SectionEnd
 
 Section -Post
   WriteUninstaller "$INSTDIR\uninst.exe"
-  WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\bru-9.exe"
+  WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\AE2.exe"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninst.exe"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayIcon" "$INSTDIR\bru-9.exe"
+  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayIcon" "$INSTDIR\AE2.exe"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
 SectionEnd
@@ -108,8 +108,8 @@ Section Uninstall
 
   Delete "$SMPROGRAMS\$ICONS_GROUP\Uninstall.lnk"
   Delete "$SMPROGRAMS\$ICONS_GROUP\Website.lnk"
-  Delete "$DESKTOP\bru-9.lnk"
-  Delete "$SMPROGRAMS\$ICONS_GROUP\bru-9.lnk"
+  Delete "$DESKTOP\AE2.lnk"
+  Delete "$SMPROGRAMS\$ICONS_GROUP\AE2.lnk"
 
   RMDir "$SMPROGRAMS\$ICONS_GROUP"
 

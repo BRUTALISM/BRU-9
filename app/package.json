@@ -1,9 +1,16 @@
 {
-  "name" : "bru-9",
-  "version" : "0.1.0-SNAPSHOT",
+  "name" : "Aesthetic Engine 2",
+  "version" : "1.0",
+  "license": "CC BY-NC-SA 4.0",
+  "description": "An alternative renderer for the web.",
   "main" : "app.js",
   "author": {
     "name": "Vladimir Mitrovic",
     "email": "v@brutalism.rs"
+  },
+  "dependencies": {
+    "shelljs": "0.7.4",
+    "fs-extra": "0.30.0",
+    "electron-json-config": "1.4.0"
   }
 }

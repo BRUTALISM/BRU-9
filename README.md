@@ -1,14 +1,14 @@
-# BRU-9
+![Aesthetic Engine 2 Screenshot](resources/screenshot.png)
 
-A visualization, a distraction.
+# Aesthetic Engine 2
 
-## Overview
+AE2 is simultaneously a web browser, a generative data sculpture, and a shape-shifting painting. Created as an attempt of exposing the complexity of scaffolding supporting the user-facing elements of the World Wide Web, it serves no purpose.
 
-This project is currently in very early stages of development – its shape is
-still being determined. Follow [@brtlsm](https://twitter.com/brtlsm) and/or the
-development updates on [BRUTALISM's website](http://brutalism.rs).
+## Usage
 
-## Setup
+Download a release build or build your own, see instructions below. Run it, then use Space or Enter to move to the next web page. Click and drag to look around, WASD to move.
+
+## Building and playing around
 
 On Mac/Linux:
 
@@ -29,7 +29,7 @@ In another terminal window, launch the electron app:
     grunt launch
 
 You can edit any of the ClojureScript source files and the changes should show
-up in the electron app without the need to re-launch.
+up in the electron app without the need to re-launch. If you feel like experimenting, `src/bru_9/scenes/main.cljs` should be your point of entry.
 
 ## Dependencies
 
