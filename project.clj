@@ -1,4 +1,4 @@
-(defproject bru-9 "1.0"
+(defproject bru-9 "1.1"
   :description "An alternative renderer for the web."
   :url "http://brutalism.rs"
   :license {:name "Attribution-NonCommercial-ShareAlike 4.0 International"
