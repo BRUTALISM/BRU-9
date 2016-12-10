@@ -36,9 +36,9 @@
              :start-positions-axis-following 1.6
              :start-positions-walk-multiplier 0.01
              :start-positions-count-mul 0.01
-             :start-positions-random-offset 0.25
+             :start-positions-random-offset 0.32
              :curve-tightness-min 0.04
-             :curve-tightness-max 0.1
+             :curve-tightness-max 0.08
              :spline-hops-min 3
              :spline-hops-max 4
              :field-dimensions [10 5 5]
@@ -49,7 +49,7 @@
              :mulfn-base 0.7
              :mulfn-jump-chance 0.08
              :mulfn-jump-intensity 0.8
-             :wander-probability 0.1
+             :wander-probability 0.24
              :default-spline-resolution 8
              :mesh-geometry-size 65535
              :palette-colors 2

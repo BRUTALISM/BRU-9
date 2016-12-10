@@ -28,10 +28,11 @@
   freq parameter, which represents the probability that a field will be switched
   before reading the next value on the walk. startpos is the initial starting
   position, hops is the number of samples the function will make, mulfn is
-  explained in field.core/walk, and tightness in auto-spline3."
+  explained in field.core/walk, and tightness in auto-spline3. The first field
+  in the fields seq remains first, others are shuffled."
   [fields startpos hops mulfn tightness freq]
   (let [split-hops (u/random-split hops freq)
-        shuffled-fields (cycle (shuffle fields))
+        shuffled-fields (cycle (into [(first fields)] (shuffle (rest fields))))
         fields-hops (map vector shuffled-fields split-hops)
         rfn (fn [points [field hops]]
               (let [start (last points)]
