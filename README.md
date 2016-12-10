@@ -6,7 +6,11 @@ AE2 is simultaneously a web browser, a generative data sculpture, and a shape-sh
 
 ## Usage
 
-Download a release build or build your own, see instructions below. Run it, then use Space or Enter to move to the next web page. Click and drag to look around, WASD to move.
+[Download a released build](https://github.com/BRUTALISM/BRU-9/releases) or build your own – see instructions below.
+
+Inside the app, use Space or Enter to move to the next web page. Click and drag to look around, WASD to move.
+
+**Hint** – On Mac OS, you can generate desktop wallpapers by making the app fullscreen and then using the standard screenshot shortcut `Cmd + Shift + 3` to save a snapshot of the entire screen to your desktop as an image.
 
 ## Building and playing around
 
