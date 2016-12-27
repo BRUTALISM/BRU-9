@@ -4,6 +4,10 @@
 
 AE2 is simultaneously a web browser, a generative data sculpture, and a shape-shifting painting. Created as an attempt of exposing the complexity of scaffolding supporting the user-facing elements of the World Wide Web, it serves no purpose.
 
+Each web page is rendered using predefined rules for different groups of HTML tags. The content which is visible to users in conventional web browsers (paragraphs, images, etc) is rendered using the thickest shapes. Scaffolding around visible content – all of the “invisible” internal stuff – is rendered using thinner strands escaping from the middle of the structure. Javascript code, CSS files, and all other externally loaded resources are rendered as twisting lines wrapping themselves around the structure. Lastly, the webpage’s code is scraped for all outgoing links (URLs) and each of them is rendered as a long line escaping from the structure outward, therefore visualizing the “connectedness” of the page.
+
+Browsing is guided – at startup, one of two predefined websites is loaded. When a user decides to go to the next page (by pressing Space or Enter), she is taken to a webpage whose URL was chosen at random from all of the URLs scraped from the current webpage. That way, she is slowly “crawling the web”. There is no going back.
+
 ## Usage
 
 [Download a released build](https://github.com/BRUTALISM/BRU-9/releases) or build your own – see instructions below.
